@@ -1,27 +1,39 @@
+var Utils = require('./utils.js');
+
 var Colour = function () {
     var str;
     if (arguments.length === 1) {
         str = arguments[0];
-        this.left = rect.left;
-        this.top = rect.top;
-        this.right = rect.right;
-        this.bottom = rect.bottom;
+        this.parseString(str);
     }
 };
 
 
-Rect.prototype.parseString = function (str) {
+Colour.prototype.parseString = function (str) {
     var regEx;
     regEx = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})|^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/i;
-    return this.right - this.left;
+    let groups = regEx.exec(str);
+    if (groups) {
+        this.r = parseInt(groups[1] || groups[4], 16);
+        this.g = parseInt(groups[2] || groups[5], 16);
+        this.b = parseInt(groups[3] || groups[6], 16);
+        this.a = null;
+    } else {
+        this.r = null;
+        this.g = null;
+        this.b = null;
+        this.a = null;
+    }
 };
 
-Rect.prototype.height = function () {
-    return this.bottom - this.top;
+Colour.prototype.toString = function() {
+    var ret;
+    if (this.a) {
+        ret = Utils.formatString('rgba({r},{g},{b},{a})', this);
+    } else {
+        ret = Utils.formatString('rgb({r},{g},{b})', this);
+    }
+    return ret;
 };
 
-Rect.prototype.containsPoint = function (x, y) {
-    return x >= this.left && x < this.right && y >= this.top && y < this.bottom;
-};
-
-exports.Rect = Rect;
+exports.Colour = Colour;

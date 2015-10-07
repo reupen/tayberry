@@ -56,4 +56,11 @@
         }
     };
 
+    exports.formatString = function (formatString, formatValues) {
+        return format.replace(/{(\w+)}/g, function (match, placeholder) {
+            const value = formatValues[placeholder];
+            return typeof value !== 'undefined' ? value : match;
+        });
+    };
+
 })();
