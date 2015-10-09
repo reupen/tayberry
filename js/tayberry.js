@@ -12,7 +12,15 @@ var Tayberry = function () {
         '#636363' //dark grey
     ];
     this.selectedItem = {};
-    // this.plotArea = new Rect({left: 20, bottom: 20, top: 0, right: 0});
+    this.containerElement = null;
+    this.canvas = null;
+    this.ctx = null;
+    this.renderedSeries = null;
+    this.options = null;
+    this.scaleFactor = null;
+    this.titleFont = null;
+    this.plotArea = null;
+    this.yTickStep = null;
 };
 
 Tayberry.Utils = require('./utils.js');
@@ -46,7 +54,11 @@ Tayberry.prototype.create = function (containerElement) {
             face: 'sans-serif'
         },
         xAxis: {
-            title: 'X title'
+            title: 'X title',
+            type: 'category',
+            min: 0,
+            max: 100,
+            step: 1
         },
         yAxis: {
             title: 'Y title',
@@ -54,12 +66,12 @@ Tayberry.prototype.create = function (containerElement) {
                 colour: '#ccc'
             }
         },
-        stacked: false,
+        stacked: true,
         barPadding: 2,
         elementPadding: 5,
         categorySpacing: 0.3,
         legend: {
-           indicatorSize: 15
+            indicatorSize: 15
         },
         labels: {
             enabled: true,
@@ -70,6 +82,7 @@ Tayberry.prototype.create = function (containerElement) {
     this.initialise();
     this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+    this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
     window.addEventListener('resize', this.onWindowResize.bind(this));
 };
 
@@ -78,8 +91,8 @@ Tayberry.prototype.initialise = function () {
     this.canvas.width = this.containerElement.clientWidth * this.scaleFactor;
     this.canvas.height = this.containerElement.clientHeight * this.scaleFactor;
     this.selectedItem = {};
-    this.ctx.font = this.options.font.size * this.scaleFactor + 'px ' + this.options.font.face;
-    this.titleFont = this.options.title.font.size * this.scaleFactor + 'px ' + this.options.font.face;
+    this.ctx.font = this.mapLogicalUnit(this.options.font.size) + 'px ' + this.options.font.face;
+    this.titleFont = this.mapLogicalUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
     this.plotArea = null;
     this.yTickStep = 30 * this.scaleFactor;
 };
@@ -150,8 +163,16 @@ Tayberry.prototype.setData = function (series) {
     //this.initialise();
 };
 
+
 Tayberry.prototype.setCategories = function (categories) {
     this.categories = (categories);
+    if (this.options.xAxis.type === 'numeric' || this.options.xAxis.type === 'numerical') {
+        this.categories = [];
+        for (let i = this.options.xAxis.min; i <= this.options.xAxis.max; i += this.options.xAxis.step) {
+            i = Math.round(i / this.options.xAxis.step) * this.options.xAxis.step;
+            this.categories.push(i);
+        }
+    }
 };
 
 Tayberry.prototype.calculateYAxisExtent = function () {
@@ -172,7 +193,7 @@ Tayberry.prototype.calculateYAxisExtent = function () {
             seriesMaxima.push(Tayberry.Utils.reduce(series.data, Math.max));
         }
         yMin = this.options.stacked ? 0 : Tayberry.Utils.reduce(seriesMinima, Math.min);
-        yMax = Tayberry.Utils.reduce(seriesMaxima, Math.max);
+        yMax = Tayberry.Utils.reduce(this.options.stacked ? this.seriesTotals : seriesMaxima, Math.max);
     }
 
     const yRange = yMax - yMin;
@@ -376,6 +397,7 @@ Tayberry.prototype.createTooltip = function () {
     // this.styleSheet.insertRule('.charty-tooltip::before, .charty-tooltip:before { border-top-color: ' + this.colour + ' !important}', 0);
     document.body.appendChild(this.tooltipElement);
     this.tooltipElement.addEventListener('mousemove', this.onMouseMove.bind(this))
+    this.tooltipElement.addEventListener('mouseleave', this.onMouseLeave.bind(this))
 };
 
 Tayberry.prototype.drawLegend = function () {
@@ -386,7 +408,7 @@ Tayberry.prototype.drawLegend = function () {
             totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalUnit(4) + this.mapLogicalUnit(this.options.elementPadding);
         }
     }
-    let x = this.plotArea.left + this.plotArea.width()/2 - totalWidth/2,
+    let x = this.plotArea.left + this.plotArea.width() / 2 - totalWidth / 2,
         y = this.canvas.height - indicatorSize;
 
     for (let series of this.renderedSeries) {
@@ -396,7 +418,7 @@ Tayberry.prototype.drawLegend = function () {
             this.ctx.textBaseline = 'middle';
             this.ctx.fillStyle = this.options.font.colour;
             x += indicatorSize + this.mapLogicalUnit(4);
-            this.ctx.fillText(series.name, x, y+indicatorSize/2);
+            this.ctx.fillText(series.name, x, y + indicatorSize / 2);
             x += this.getTextWidth(series.name) + this.mapLogicalUnit(this.options.elementPadding);
         }
     }
@@ -463,44 +485,55 @@ Tayberry.prototype.onAnimate = function (timestamp) {
 };
 
 Tayberry.prototype.onMouseLeave = function (event) {
-    this.selectedItem = {};
-    this.tooltipElement.style.display = 'none';
-    this.redraw();
+    if ((event.currentTarget == this.canvas && event.relatedTarget !== this.tooltipElement) || (event.currentTarget == this.tooltipElement && event.relatedTarget !== this.canvas)) {
+        this.selectedItem = {};
+        this.tooltipElement.style.display = 'none';
+        this.redraw();
+    }
 };
 
-Tayberry.prototype.onMouseMove = function (event) {
-    var x, y, hitTestResult, boundingRect, tooltipRect;
-    // var rect;
-    //setTimeout(function() {
+Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
+    let boundingRect = new Rect(this.canvas.getBoundingClientRect());
+    let ret = false;
+    if (boundingRect.containsPoint(clientX, clientY)) {
+        let x = clientX - boundingRect.left;
+        let y = clientY - boundingRect.top;
 
-    boundingRect = this.canvas.getBoundingClientRect();
-    if (event.target === this.canvas) {
-        x = event.offsetX;
-        y = event.offsetY;
-    }
-    if (typeof x !== 'undefined') {
-        hitTestResult = this.hitTest(this.mapLogicalUnit(x), this.mapLogicalUnit(y));
+        let hitTestResult = this.hitTest(this.mapLogicalUnit(x), this.mapLogicalUnit(y));
         if (hitTestResult.found) {
-            this.tooltipElement.innerHTML = this.series[hitTestResult.seriesIndex].data[hitTestResult.categoryIndex];
-            tooltipRect = this.tooltipElement.getBoundingClientRect();
             this.tooltipElement.style.display = 'block';
+            this.tooltipElement.innerHTML = this.series[hitTestResult.seriesIndex].data[hitTestResult.categoryIndex];
+            let tooltipRect = this.tooltipElement.getBoundingClientRect();
             this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].highlightColour;
-            this.tooltipElement.style.left = boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width()) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
-            this.tooltipElement.style.top = boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height - this.options.elementPadding + 'px';
+            this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width()) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
+            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height - this.options.elementPadding + 'px';
             this.selectedItem = hitTestResult;
-            //this.styleSheet.insertRule('.charty-tooltip::before, .charty-tooltip:before { margin-left: ' + ( - Math.round(tooltipRect.width/2 )) + 'px !important}', 0);
-            //this.styleSheet.insertRule('.charty-tooltip::after, .charty-tooltip:after { margin-left: ' + ( - Math.round(tooltipRect.width/2 )) + 'px !important}', 0);
-            //this.styleSheet.insertRule('.charty-tooltip::before, .charty-tooltip:before { border-left-width: ' + ( Math.floor(tooltipWidth/2) - 10) + 'px !important}', 0);
-            //this.styleSheet.insertRule('.charty-tooltip::after, .charty-tooltip:after { border-left-width: ' + ( Math.floor(tooltipWidth/2) - 10) + 'px !important}', 0);
-            //this.styleSheet.insertRule('.charty-tooltip::before, .charty-tooltip:before { border-right-width: ' + ( Math.floor(tooltipWidth/2) - 10) + 'px !important}', 0);
-            //this.styleSheet.insertRule('.charty-tooltip::after, .charty-tooltip:after { border-right-width: ' + ( Math.floor(tooltipWidth/2) - 10) + 'px !important}', 0);
+            ret = true;
         }
-    } else {
+    }
+    return ret;
+};
+
+Tayberry.prototype.onTouchStart = function (event) {
+    for (let touch of event.targetTouches) {
+        if (this.handleMouseMove(touch.clientX, touch.clientY)) {
+            event.preventDefault();
+            this.redraw();
+            break;
+        }
+    }
+};
+
+
+Tayberry.prototype.onMouseMove = function (event) {
+    let oldSelectedItem = this.selectedItem;
+    if (!this.handleMouseMove(event.clientX, event.clientY)) {
         this.selectedItem = {};
     }
-    // TODO: if changed
-    this.redraw();
-    //}.bind(this), 0);
+
+    if (oldSelectedItem.categoryIndex !== this.selectedItem.categoryIndex && oldSelectedItem.seriesIndex !== this.selectedItem.seriesIndex) {
+        this.redraw();
+    }
 };
 
 Tayberry.prototype.onWindowResize = function (event) {

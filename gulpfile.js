@@ -9,14 +9,15 @@ var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
 var gutil = require('gulp-util');
 var rename = require('gulp-rename');
-var babel = require("gulp-babel");
+var babelify = require("babelify");
 
 var assign = require('lodash.assign');
 
 var customOpts = {
     entries: './js/tayberry.js',
     standalone: 'Tayberry',
-    debug: true
+    debug: true,
+    transform: [babelify]
 };
 var opts = assign({}, watchify.args, customOpts);
 var b = watchify(browserify(opts));
@@ -31,7 +32,6 @@ function bundle() {
         .pipe(source('tayberry.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(babel())
         //.pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist/js/'))
         //.pipe(rename({suffix: '.min'}))
