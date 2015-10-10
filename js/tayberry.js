@@ -8,4 +8,11 @@ require('./tayberry.options.js');
 require('./tayberry.sizing.js');
 
 
-module.exports = Tayberry;
+module.exports = {
+    create: function (element, options) {
+        var chart = new Tayberry();
+        chart.create(element);
+        chart.setOptions(options);
+        chart.render();
+    }
+};

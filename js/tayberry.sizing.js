@@ -14,8 +14,12 @@ Tayberry.mapVerticalPosition = function (sign, position) {
     }
 };
 
-Tayberry.prototype.mapLogicalUnit = function (x) {
-    return this.scaleFactor * x;
+Tayberry.prototype.mapLogicalXUnit = function (x) {
+    return this.scaleFactorX * x;
+};
+
+Tayberry.prototype.mapLogicalYUnit = function (x) {
+    return this.scaleFactorY * x;
 };
 
 Tayberry.prototype.mapScreenUnit = function (x) {
@@ -29,21 +33,21 @@ Tayberry.prototype.getTextWidth = function (text) {
 Tayberry.prototype.calculatePlotArea = function () {
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
-        this.plotArea.top += this.mapLogicalUnit(this.options.elementPadding + this.options.title.font.size);
+        this.plotArea.top += this.mapLogicalYUnit(this.options.elementPadding + this.options.title.font.size);
     }
     if (this.options.yAxis.title) {
-        this.plotArea.left += this.mapLogicalUnit(this.options.elementPadding + this.options.font.size);
+        this.plotArea.left += this.mapLogicalXUnit(this.options.elementPadding + this.options.font.size);
     }
     if (this.options.xAxis.title) {
-        this.plotArea.bottom -= this.mapLogicalUnit(this.options.elementPadding + this.options.font.size);
+        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementPadding + this.options.font.size);
     }
-    this.plotArea.bottom -= this.mapLogicalUnit(this.options.font.size + this.options.font.size);
+    this.plotArea.bottom -= this.mapLogicalYUnit(this.options.font.size + this.options.font.size);
     if (this.options.legend.enabled)
-        this.plotArea.bottom -= this.mapLogicalUnit(this.options.elementPadding + this.options.legend.indicatorSize);
+        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementPadding + this.options.legend.indicatorSize);
 };
 
 Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += this.getTextWidth(this.yMax) + this.mapLogicalUnit(this.options.elementPadding);
+    this.plotArea.left += this.getTextWidth(this.yMax) + this.mapLogicalXUnit(this.options.elementPadding);
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);

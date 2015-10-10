@@ -93,24 +93,26 @@ Tayberry.prototype.redraw = function () {
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
         let totalWidth = 0;
-        const indicatorSize = this.mapLogicalUnit(this.options.legend.indicatorSize);
-        for (let series of this.series) {
+        const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
+        for (let index = 0; index < this.series.length; index++) {
+            const series = this.series[index];
             if (series.name) {
-                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalUnit(4) + this.mapLogicalUnit(this.options.elementPadding);
+                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalXUnit(4) + this.mapLogicalXUnit(this.options.elementPadding);
             }
         }
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
             y = this.canvas.height - indicatorSize;
 
-        for (let series of this.renderedSeries) {
+        for (let index = 0; index < this.renderedSeries.length; index++) {
+            const series = this.renderedSeries[index];
             if (series.name) {
                 this.ctx.fillStyle = series.colour;
                 this.ctx.fillRect(x, y, indicatorSize, indicatorSize);
                 this.ctx.textBaseline = 'middle';
                 this.ctx.fillStyle = this.options.font.colour;
-                x += indicatorSize + this.mapLogicalUnit(4);
+                x += indicatorSize + this.mapLogicalXUnit(4);
                 this.ctx.fillText(series.name, x, y + indicatorSize / 2);
-                x += this.getTextWidth(series.name) + this.mapLogicalUnit(this.options.elementPadding);
+                x += this.getTextWidth(series.name) + this.mapLogicalXUnit(this.options.elementPadding);
             }
         }
     }

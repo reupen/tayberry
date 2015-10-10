@@ -26,16 +26,24 @@ Tayberry.prototype.create = function (containerElement) {
 
 Tayberry.prototype.initialise = function () {
     this.scaleFactor = window.devicePixelRatio || 1.0;
-    this.canvas.width = this.containerElement.clientWidth * this.scaleFactor;
-    this.canvas.height = this.containerElement.clientHeight * this.scaleFactor;
+    this.canvas.width = Math.round(this.containerElement.clientWidth * this.scaleFactor);
+    this.canvas.height = Math.round(this.containerElement.clientHeight * this.scaleFactor);
+    this.scaleFactorX = this.canvas.width / this.containerElement.clientWidth;
+    this.scaleFactorY = this.canvas.height / this.containerElement.clientHeight;
     this.selectedItem = {};
     this.plotArea = null;
+};
+
+Tayberry.prototype.updateFonts = function () {
+    this.ctx.font = this.mapLogicalYUnit(this.options.font.size) + 'px ' + this.options.font.face;
+    this.titleFont = this.mapLogicalYUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
 };
 
 Tayberry.prototype.setOptions = function (options) {
     this.options = Utils.deepAssign({}, this.defaultOptions(), options);
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
+    this.updateFonts();
 };
 
 /**
@@ -66,8 +74,6 @@ Tayberry.prototype.setSeries = function (series) {
         elem.name = actualSeries.name;
         this.renderedSeries[i] = elem;
     }
-    this.ctx.font = this.mapLogicalUnit(this.options.font.size) + 'px ' + this.options.font.face;
-    this.titleFont = this.mapLogicalUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
 };
 
 
@@ -94,7 +100,8 @@ Tayberry.prototype.calculateYDataMinMax = function () {
                 this.seriesTotals[categoryIndex] += this.series[seriesIndex].data[categoryIndex];
             }
         }
-        for (let series of this.series) {
+        for (let index = 0; index < this.series.length; index++) {
+            const series = this.series[index];
             seriesMinima.push(Utils.reduce(series.data, Math.min));
             seriesMaxima.push(Utils.reduce(series.data, Math.max));
         }
@@ -110,7 +117,6 @@ Tayberry.prototype.calculateYDataMinMax = function () {
 };
 
 
-
 Tayberry.prototype.createTooltip = function () {
 
     this.tooltipElement = document.createElement('div');
@@ -119,7 +125,8 @@ Tayberry.prototype.createTooltip = function () {
     this.tooltipElement.style.left = '0px';
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
-    this.tooltipElement.style.font = this.options.font.size + 'px ' + this.options.font.face;;
+    this.tooltipElement.style.font = this.options.font.size + 'px ' + this.options.font.face;
+    ;
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
     this.tooltipElement.style.border = '2px solid black';

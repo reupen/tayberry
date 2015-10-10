@@ -63,8 +63,9 @@ class Colour {
      * @returns {Colour}
      */
     clip () {
-        for (let component of ['r', 'g', 'b'])
-            this.clipComponent(component);
+        this.clipComponent('r');
+        this.clipComponent('g');
+        this.clipComponent('b');
         return this;
     }
 
@@ -74,8 +75,9 @@ class Colour {
      * @returns {Colour}
      */
     multiplyBy (number) {
-        for (let component of ['r', 'g', 'b'])
-            this[component] = this[component] * number;
+        this.r *= number;
+        this.g *= number;
+        this.b *= number;
         this.clip();
         return this;
     }

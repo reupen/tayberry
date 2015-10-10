@@ -40,7 +40,7 @@ Tayberry.prototype.defaultOptions = function () {
             tickStep: 30
         },
         series: [],
-        stacked: true,
+        stacked: false,
         barPadding: 2,
         elementPadding: 5,
         categorySpacing: 0.3,

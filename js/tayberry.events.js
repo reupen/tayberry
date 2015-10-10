@@ -35,7 +35,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
         let x = clientX - boundingRect.left;
         let y = clientY - boundingRect.top;
 
-        let hitTestResult = this.hitTest(this.mapLogicalUnit(x), this.mapLogicalUnit(y));
+        let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
             this.tooltipElement.style.display = 'block';
@@ -43,7 +43,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
             this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].highlightColour;
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
-            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height*(aboveZero?1:0) - this.options.elementPadding*(aboveZero?1:-1) + 'px';
+            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementPadding * (aboveZero ? 1 : -1) + 'px';
             this.selectedItem = hitTestResult;
             ret = true;
         }
@@ -52,7 +52,8 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
 };
 
 Tayberry.prototype.onTouchStart = function (event) {
-    for (let touch of event.targetTouches) {
+    for (let index = 0; index < event.targetTouches.length; index++) {
+        let touch = event.targetTouches[index];
         if (this.handleMouseMove(touch.clientX, touch.clientY)) {
             event.preventDefault();
             this.redraw();
@@ -63,7 +64,7 @@ Tayberry.prototype.onTouchStart = function (event) {
 
 
 Tayberry.prototype.onMouseMove = function (event) {
-    let oldSelectedItem = Utils.assign({},this.selectedItem);
+    let oldSelectedItem = Utils.assign({}, this.selectedItem);
     if (!this.handleMouseMove(event.clientX, event.clientY)) {
         this.selectedItem = {};
     }
@@ -76,6 +77,7 @@ Tayberry.prototype.onMouseMove = function (event) {
 Tayberry.prototype.onWindowResize = function (event) {
     //TODO: THROTTLE
     this.initialise();
+    this.updateFonts();
     this.calculatePlotArea();
     this.calculateYAxisExtent();
     this.finalisePlotArea();
