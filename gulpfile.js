@@ -16,29 +16,41 @@ var assign = require('lodash.assign');
 var customOpts = {
     entries: './js/tayberry.js',
     standalone: 'Tayberry',
-    debug: true,
+    debug: false,
     transform: [babelify]
 };
+
 var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts));
+var bDev = watchify(browserify(opts));
+var bProd = browserify(opts);
 
-gulp.task('js', bundle); // so you can run `gulp js` to build the file
-b.on('update', bundle); // on any dep update, runs the bundler
-b.on('log', gutil.log); // output build logs to terminal
+gulp.task('dev', bundleDev); // so you can run `gulp js` to build the file
+bDev.on('update', bundleDev); // on any dep update, runs the bundler
+bDev.on('log', gutil.log); // output build logs to terminal
 
-function bundle() {
+function bundleDev() {
     // set up the browserify instance on a task basis
-    return b.bundle()
+    return bDev.bundle()
         .on('error', gutil.log.bind(gutil, 'Browserify Error'))
         .pipe(source('tayberry.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
-        //.pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist/js/'))
-        //.pipe(rename({suffix: '.min'}))
-        // Add transformation tasks to the pipeline here.
-        //.pipe(uglify())
-        //.on('error', gutil.log)
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('./dist/js/'));
+}
+
+gulp.task('prod', bundleProd); // so you can run `gulp js` to build the file
+bProd.on('log', gutil.log); // output build logs to terminal
+
+function bundleProd() {
+    // set up the browserify instance on a task basis
+    return bProd.bundle()
+        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+        .pipe(source('tayberry.js'))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(rename({suffix: '.min'}))
+        .pipe(uglify())
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist/js/'));
 }

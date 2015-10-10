@@ -27,33 +27,45 @@
             return new Date().getTime();
         };
 
-    exports.assign = function (target) {
-        if (Object.assign) {
+    var innerAssign = function (deepAssign, targetObject) {
+        if (!deepAssign && Object.assign) {
             return Object.assign.apply(Object, arguments);
         } else {
-            if (target === undefined || target === null) {
+            if (targetObject === undefined || targetObject === null) {
                 throw new TypeError('Cannot convert first argument to object');
             }
 
-            var to = Object(target);
-            for (var i = 1; i < arguments.length; i++) {
-                var nextSource = arguments[i];
-                if (nextSource === undefined || nextSource === null) {
+            var to = Object(targetObject);
+            for (let i = 2; i < arguments.length; i++) {
+                let currentSourceObject = arguments[i];
+                if (currentSourceObject === undefined || currentSourceObject === null) {
                     continue;
                 }
-                nextSource = Object(nextSource);
+                currentSourceObject = Object(currentSourceObject);
 
-                var keysArray = Object.keys(nextSource);
-                for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-                    var nextKey = keysArray[nextIndex];
-                    var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+                const keysArray = Object.keys(currentSourceObject);
+                for (let nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+                    const nextKey = keysArray[nextIndex];
+                    const nextValue = currentSourceObject[nextKey];
+                    const desc = Object.getOwnPropertyDescriptor(currentSourceObject, nextKey);
                     if (desc !== undefined && desc.enumerable) {
-                        to[nextKey] = nextSource[nextKey];
+                        if (deepAssign && typeof to[nextKey] === "object" && !Array.isArray(nextValue) && typeof nextValue === 'object')
+                            innerAssign(true, to[nextKey], nextValue);
+                        else
+                            to[nextKey] = nextValue;
                     }
                 }
             }
             return to;
         }
+    };
+
+    exports.assign = function (targetObject) {
+        return innerAssign.apply(null, [false, targetObject].concat(Array.prototype.slice.call(arguments, 1)));
+    };
+
+    exports.deepAssign = function (targetObject) {
+        return innerAssign.apply(null, [true, targetObject].concat(Array.prototype.slice.call(arguments, 1)));
     };
 
     exports.formatString = function (formatString, formatValues) {
