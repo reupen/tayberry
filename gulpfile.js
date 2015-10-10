@@ -29,6 +29,7 @@ b.on('log', gutil.log); // output build logs to terminal
 function bundle() {
     // set up the browserify instance on a task basis
     return b.bundle()
+        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
         .pipe(source('tayberry.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
@@ -37,7 +38,7 @@ function bundle() {
         //.pipe(rename({suffix: '.min'}))
         // Add transformation tasks to the pipeline here.
         //.pipe(uglify())
-        .on('error', gutil.log)
+        //.on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('./dist/js/'));
 }

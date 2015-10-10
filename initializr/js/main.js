@@ -4,7 +4,7 @@ chart.create('mychart');
 
 chart.setData(
     [{
-        data: [50, 20, 70, 1, 15, 16, 17],
+        data: [50, -20, 70, 1, 15, -25, 17],
         name: 'moo'
     },{
         data: [30, 10, 70, 25, 15, 10, 17],

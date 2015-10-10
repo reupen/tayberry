@@ -15,16 +15,32 @@ class Rect {
         }
     }
 
-    width() {
+    get width() {
         return this.right - this.left;
     }
 
-    height() {
+    get height() {
         return this.bottom - this.top;
     }
 
+    get maxY() {
+        return Math.max(this.bottom, this.top);
+    }
+
+    get minY() {
+        return Math.min(this.bottom, this.top);
+    }
+
+    get minX() {
+        return Math.min(this.left, this.right);
+    }
+
+    get maxX() {
+        return Math.max(this.left, this.right);
+    }
+
     containsPoint(x, y) {
-        return x >= this.left && x < this.right && y >= this.top && y < this.bottom;
+        return x >= this.minX && x < this.maxX && y >= this.minY && y < this.maxY;
     }
 
     clip(clipRect) {
