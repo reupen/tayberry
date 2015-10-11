@@ -39,11 +39,28 @@ Tayberry.prototype.updateFonts = function () {
     this.titleFont = this.mapLogicalYUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
 };
 
+Tayberry.prototype.updateYFormatter = function () {
+    if (!this.options.yAxis.labelFormatter) {
+        if (this.options.yAxis.labelFormat === 'percentage') {
+            this.options.yAxis.labelFormatter = Utils.createPercentageFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
+        }
+        else if (this.options.yAxis.labelFormat === 'currency') {
+            this.options.yAxis.labelFormatter = Utils.createFixedNumberFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix || this.options.yAxis.currencySymbol, this.options.yAxis.labelSuffix);
+        }
+        else {
+            this.options.yAxis.labelFormatter = Utils.createAutoNumberFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
+        }
+    }
+};
+
 Tayberry.prototype.setOptions = function (options) {
     this.options = Utils.deepAssign({}, this.defaultOptions(), options);
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
     this.updateFonts();
+};
+
+Tayberry.calculateHighlightColour = function (series) {
 };
 
 /**

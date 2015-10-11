@@ -83,6 +83,23 @@ class Colour {
     }
 
     /**
+     * Adds a number to each colour component
+     * @param number
+     * @returns {Colour}
+     */
+    increaseBy (number) {
+        this.r += number;
+        this.g += number;
+        this.b += number;
+        this.clip();
+        return this;
+    }
+
+    get sum() {
+        return this.r + this.g + this.b;
+    }
+
+    /**
      * Formats this colour as a string
      * @returns {String}
      */
@@ -100,7 +117,7 @@ class Colour {
      * Multiplies each colour component of a colour code by a number
      * @param colour
      * @param number
-     * @returns {Colour}
+     * @returns {String}
      */
     static multiplyBy(colour, number) {
         return (new Colour(colour)).multiplyBy(number).toString();

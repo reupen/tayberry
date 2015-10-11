@@ -11,7 +11,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     scaleFactor = Math.min(Easing.inQuad(elapsed, this.animationLength), 1);
     for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
         for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-            this.renderedSeries[seriesIndex].data[categoryIndex] = scaleFactor * this.series[seriesIndex].data[categoryIndex];
+            this.renderedSeries[seriesIndex].data[categoryIndex] = this.yMin + scaleFactor * (this.series[seriesIndex].data[categoryIndex] - this.yMin);
         }
     }
     this.redraw();

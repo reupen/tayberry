@@ -47,7 +47,7 @@ Tayberry.prototype.calculatePlotArea = function () {
 };
 
 Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += this.getTextWidth(this.yMax) + this.mapLogicalXUnit(this.options.elementPadding);
+    this.plotArea.left += this.getTextWidth(this.options.yAxis.labelFormatter(this.yMax)) + this.mapLogicalXUnit(this.options.elementPadding);
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);

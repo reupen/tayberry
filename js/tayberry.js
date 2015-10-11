@@ -4,7 +4,7 @@ require('./tayberry.axes.js');
 require('./tayberry.core.js');
 require('./tayberry.drawing.js');
 require('./tayberry.events.js');
-require('./tayberry.options.js');
+require('./tayberry.defaults.js');
 require('./tayberry.sizing.js');
 
 

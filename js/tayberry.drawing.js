@@ -4,6 +4,7 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
     this.calculateYAxisExtent();
+    this.updateYFormatter();
     this.finalisePlotArea();
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     this.animatationStart = performance.now();
@@ -62,7 +63,7 @@ Tayberry.prototype.draw = function () {
     if (this.options.labels.enabled) {
         this.ctx.save();
         this.enumerateBars(function (bar) {
-            this.drawLabel(bar.value, bar.value.toString(), bar.rect);
+            this.drawLabel(bar.value, this.options.yAxis.labelFormatter(bar.value), bar.rect);
         }.bind(this));
         this.ctx.restore();
     }

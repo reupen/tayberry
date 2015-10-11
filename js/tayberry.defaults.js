@@ -37,7 +37,12 @@ Tayberry.prototype.defaultOptions = function () {
             },
             min: undefined,
             max: undefined,
-            tickStep: 30
+            tickStep: 30,
+            labelFormat: 'number', //[number|percentage|currency],
+            labelFormatter: undefined,
+            labelPrefix: undefined,
+            labelSuffix: undefined,
+            currencySymbol: '£'
         },
         series: [],
         stacked: false,

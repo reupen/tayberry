@@ -79,7 +79,7 @@ Tayberry.prototype.drawYAxis = function () {
         x = this.plotArea.left - this.mapLogicalXUnit(this.options.elementPadding);
         const valueHeight = this.getYHeight(yValue);
         y = yOrigin - valueHeight;
-        this.ctx.fillText(yValue.toString(), x, y);
+        this.ctx.fillText(this.options.yAxis.labelFormatter(yValue), x, y);
         this.drawLine(this.plotArea.left, y, this.plotArea.right, y, this.options.yAxis.gridLines.colour);
     }
 

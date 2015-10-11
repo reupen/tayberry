@@ -44,20 +44,22 @@ class Rect {
     }
 
     clip(clipRect) {
-        if (this.left < this.right) {
-            if (this.left < clipRect.left) this.left = clipRect.left;
-            if (this.right > clipRect.right) this.right = clipRect.right;
-        } else {
-            if (this.right < clipRect.left) this.right = clipRect.left;
-            if (this.left > clipRect.right) this.left = clipRect.right;
-        }
-        if (this.top < this.bottom) {
-            if (this.top < clipRect.top) this.top = clipRect.top;
-            if (this.bottom > clipRect.bottom) this.bottom = clipRect.bottom;
-        } else {
-            if (this.bottom < clipRect.top) this.bottom = clipRect.top;
-            if (this.top > clipRect.bottom) this.top = clipRect.bottom;
-        }
+        if (this.left < clipRect.minX) this.left = clipRect.minX;
+        else if (this.left > clipRect.maxX) this.left = clipRect.maxX;
+
+        if (this.right < clipRect.minX) this.right = clipRect.minX;
+        else if (this.right > clipRect.maxX) this.right = clipRect.maxX;
+
+        if (this.top < clipRect.minY)
+            this.top = clipRect.minY;
+        else if (this.top > clipRect.maxY)
+            this.top = clipRect.maxY;
+
+        if (this.bottom > clipRect.maxY)
+            this.bottom = clipRect.maxY;
+        else if (this.bottom < clipRect.minY)
+            this.bottom = clipRect.minY;
+
         return this;
     }
 }

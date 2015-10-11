@@ -16,7 +16,7 @@ var assign = require('lodash.assign');
 var customOpts = {
     entries: './js/tayberry.js',
     standalone: 'Tayberry',
-    debug: false,
+    debug: true,
     transform: [babelify]
 };
 

@@ -79,10 +79,29 @@
         });
     };
 
-    exports.formatNumberThousands = function(number) {
-        var parts = number.toString().split(".");
+    exports.locateDecimalPoint = function(number) {
+        return Math.floor(Math.log(number)/Math.log(10));
+    };
+
+    exports.formatNumberThousands = function(number, decimalPlaces = 0) {
+        var parts = number.toFixed(decimalPlaces).split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
-    }
+    };
 
+    exports.createAutoNumberFormatter = function(scale, prefix='', suffix='', precision = 2) {
+        let decimalPlaces = exports.locateDecimalPoint(scale);
+        decimalPlaces = decimalPlaces < 0 ? -decimalPlaces + precision - 1 : 0;
+        return x => prefix+exports.formatNumberThousands(x, decimalPlaces)+suffix;
+    };
+
+    exports.createFixedNumberFormatter = function(scale, prefix='', suffix='', decimalPlaces = 2) {
+        return x => prefix+exports.formatNumberThousands(x, decimalPlaces)+suffix;
+    };
+
+    exports.createPercentageFormatter = function(scale, prefix='', suffix='%', precision = 2) {
+        let decimalPlaces = exports.locateDecimalPoint(scale*100);
+        decimalPlaces = decimalPlaces < 0 ? -decimalPlaces + precision - 1 : 0;
+        return x => prefix+exports.formatNumberThousands(x*100, decimalPlaces)+suffix;
+    };
 })();
