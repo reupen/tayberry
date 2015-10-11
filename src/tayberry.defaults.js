@@ -52,7 +52,7 @@ Tayberry.prototype.defaultOptions = function () {
         tooltip: {
             shared: false,
             headerTemplate: '<strong>{category}</strong><table>',
-            valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td>{value}</td></tr>',
+            valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td style="text-align: right">{value}</td></tr>',
             footerTemplate: '</table>'
         },
         legend: {

@@ -108,14 +108,21 @@ Tayberry.prototype.setCategories = function (categories) {
 
 Tayberry.prototype.calculateYDataMinMax = function () {
     var categoryIndex, seriesIndex, yMin, yMax;
-    this.seriesTotals = [];
+    this.seriesPositiveTotals = [];
+    this.seriesNegativeTotals = [];
     const seriesMinima = [];
     const seriesMaxima = [];
     if (this.series[0].data.length) {
         for (categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
-            this.seriesTotals[categoryIndex] = 0;
+            this.seriesPositiveTotals[categoryIndex] = 0;
+            this.seriesNegativeTotals[categoryIndex] = 0;
             for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-                this.seriesTotals[categoryIndex] += this.series[seriesIndex].data[categoryIndex];
+                const value = this.series[seriesIndex].data[categoryIndex];
+                if (value < 0) {
+                    this.seriesNegativeTotals[categoryIndex] += value;
+                } else {
+                    this.seriesPositiveTotals[categoryIndex] += value;
+                }
             }
         }
         for (let index = 0; index < this.series.length; index++) {
@@ -124,8 +131,8 @@ Tayberry.prototype.calculateYDataMinMax = function () {
             seriesMaxima.push(Utils.reduce(series.data, Math.max));
         }
         if (this.options.barMode === 'stacked') {
-            yMin = Math.min(0, Utils.reduce(this.seriesTotals, Math.min));
-            yMax = Math.max(Utils.reduce(this.seriesTotals, Math.max), 1);
+            yMin = Math.min(0, Utils.reduce(this.seriesNegativeTotals, Math.min));
+            yMax = Math.max(Utils.reduce(this.seriesPositiveTotals, Math.max), 0);
         } else {
             yMin = Utils.reduce(seriesMinima, Math.min);
             yMax = Utils.reduce(seriesMaxima, Math.max);

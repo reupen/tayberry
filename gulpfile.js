@@ -52,7 +52,7 @@ function bundleProd() {
     // set up the browserify instance on a task basis
     return bProd.bundle()
         .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-        .pipe(source('colour.spec.js'))
+        .pipe(source('tayberry.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(sourcemaps.write('./'))
