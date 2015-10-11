@@ -7,10 +7,16 @@ class Colour {
      * @param colourCode    an HTML colour code in hex or integer (rgb) form
      */
     constructor() {
-        var str;
         if (arguments.length === 1) {
-            str = arguments[0];
-            this.parseString(str);
+            let arg1 = arguments[0];
+            if (typeof arg1 === 'string')
+                this.parseString(arg1);
+            else {
+                this.r = arg1.r;
+                this.g = arg1.g;
+                this.b = arg1.b;
+                this.a = arg1.a;
+            }
         }
     }
 
@@ -21,7 +27,7 @@ class Colour {
      */
     parseString (str) {
         let regExHex = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})|^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/i;
-        let regExInt = /^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3})(,(\d{1,3}))+\)$/i;
+        let regExInt = /^rgba?\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(\s*,\s*([0-9]*\.?[0-9]+))+\)$/i;
         const groupsHex = regExHex.exec(str);
         const groupsInt = regExInt.exec(str);
         if (groupsHex) {
@@ -31,10 +37,10 @@ class Colour {
             this.a = null;
         }
         else if (groupsInt) {
-            this.r = parseInt(groupsInt[0]);
-            this.g = parseInt(groupsInt[1]);
-            this.b = parseInt(groupsInt[2]);
-            this.a = groupsInt[4] ? parseInt(groupsInt[4]) : null;
+            this.r = parseInt(groupsInt[1]);
+            this.g = parseInt(groupsInt[2]);
+            this.b = parseInt(groupsInt[3]);
+            this.a = groupsInt[5] ? parseFloat(groupsInt[5]) : null;
         } else {
             this.r = null;
             this.g = null;

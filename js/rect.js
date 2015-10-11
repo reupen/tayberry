@@ -40,7 +40,15 @@ class Rect {
     }
 
     containsPoint(x, y) {
-        return x >= this.minX && x < this.maxX && y >= this.minY && y < this.maxY;
+        return this.containsX(x) && this.containsY(y);
+    }
+
+    containsY(y) {
+        return y >= this.minY && y < this.maxY;
+    }
+
+    containsX(x) {
+        return x >= this.minX && x < this.maxX;
     }
 
     clip(clipRect) {

@@ -72,10 +72,10 @@
         return innerAssign.apply(null, [true, targetObject].concat(Array.prototype.slice.call(arguments, 1)));
     };
 
-    exports.formatString = function (formatString, formatValues) {
+    exports.formatString = function (formatString, formatValues, escapeAsHtml) {
         return formatString.replace(/{(\w+)}/g, function (match, placeholder) {
             const value = formatValues[placeholder];
-            return typeof value !== 'undefined' ? value : match;
+            return typeof value !== 'undefined' ? (escapeAsHtml ? exports.stringToHtml(value) : value) : match;
         });
     };
 
@@ -104,4 +104,11 @@
         decimalPlaces = decimalPlaces < 0 ? -decimalPlaces + precision - 1 : 0;
         return x => prefix+exports.formatNumberThousands(x*100, decimalPlaces)+suffix;
     };
+
+    exports.stringToHtml = function(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
 })();

@@ -60,7 +60,9 @@ Tayberry.prototype.setOptions = function (options) {
     this.updateFonts();
 };
 
-Tayberry.calculateHighlightColour = function (series) {
+Tayberry.calculateHighlightColour = function (colour) {
+    let newColour = new Colour(colour);
+    return newColour.increaseBy(30 * (newColour.sum >= 180*3 ? -1 : 1)).toString();
 };
 
 /**
@@ -84,11 +86,10 @@ Tayberry.prototype.setSeries = function (series) {
     this.renderedSeries = series.slice(0);
     for (i = 0; i < this.renderedSeries.length; i++) {
         let actualSeries = this.series[i];
+        actualSeries.colour = actualSeries.colour || this.options.defaultPalette[i];
+        actualSeries.highlightColour = actualSeries.highlightColour || Tayberry.calculateHighlightColour(actualSeries.colour);
         let elem = Utils.assign({}, actualSeries);
         elem.data = this.renderedSeries[i].data.slice(0);
-        elem.colour = actualSeries.colour || this.options.defaultPalette[i];
-        elem.highlightColour = actualSeries.highlightColour || Colour.multiplyBy(elem.colour, 1.2);
-        elem.name = actualSeries.name;
         this.renderedSeries[i] = elem;
     }
 };
@@ -122,7 +123,7 @@ Tayberry.prototype.calculateYDataMinMax = function () {
             seriesMinima.push(Utils.reduce(series.data, Math.min));
             seriesMaxima.push(Utils.reduce(series.data, Math.max));
         }
-        if (this.options.stacked) {
+        if (this.options.barMode === 'stacked') {
             yMin = Math.min(0, Utils.reduce(this.seriesTotals, Math.min));
             yMax = Math.max(Utils.reduce(this.seriesTotals, Math.max), 1);
         } else {

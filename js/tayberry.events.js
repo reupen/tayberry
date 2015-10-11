@@ -11,7 +11,9 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     scaleFactor = Math.min(Easing.inQuad(elapsed, this.animationLength), 1);
     for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
         for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-            this.renderedSeries[seriesIndex].data[categoryIndex] = this.yMin + scaleFactor * (this.series[seriesIndex].data[categoryIndex] - this.yMin);
+            const value = this.series[seriesIndex].data[categoryIndex];
+            const yOrigin = this.yMin <= 0 && 0 <= this.yMax ? 0 : (this.yMin > 0 ? this.yMin : this.yMax);
+            this.renderedSeries[seriesIndex].data[categoryIndex] = yOrigin + scaleFactor * ((value - yOrigin));
         }
     }
     this.redraw();
@@ -38,10 +40,27 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
+            const category = this.categories[hitTestResult.categoryIndex];
             this.tooltipElement.style.display = 'block';
-            this.tooltipElement.innerHTML = this.series[hitTestResult.seriesIndex].data[hitTestResult.categoryIndex];
+            const tooltipHeaderHtmlTemplate = '<strong>{category}</strong><table>';
+            const tooltipValueHtmlTemplate = '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td>{value}</td></tr>';
+            const tooltipFooterHtmlTemplate = '</table>';
+            let tooltipHtml = Utils.formatString(tooltipHeaderHtmlTemplate, {category: category}, true);
+            if (this.options.tooltip.shared) {
+                for (let index = 0; index<this.series.length; index++) {
+                    const series = this.series[index];
+                    const value = series.data[hitTestResult.categoryIndex];
+                    tooltipHtml += Utils.formatString(tooltipValueHtmlTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                }
+            } else {
+                const series = this.series[hitTestResult.seriesIndex];
+                const value = series.data[hitTestResult.categoryIndex];
+                tooltipHtml += Utils.formatString(tooltipValueHtmlTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+            }
+            tooltipHtml += tooltipFooterHtmlTemplate;
+            this.tooltipElement.innerHTML = tooltipHtml;
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
-            this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].highlightColour;
+            this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
             this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementPadding * (aboveZero ? 1 : -1) + 'px';
             this.selectedItem = hitTestResult;

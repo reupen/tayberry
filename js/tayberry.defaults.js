@@ -45,16 +45,19 @@ Tayberry.prototype.defaultOptions = function () {
             currencySymbol: '£'
         },
         series: [],
-        stacked: false,
+        barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
         elementPadding: 5,
         categorySpacing: 0.3,
+        tooltip: {
+            shared: false
+        },
         legend: {
             enabled: true,
             indicatorSize: 15
         },
         labels: {
-            enabled: true,
+            enabled: false,
             verticalAlignment: 'top',
             verticalPosition: 'outside'
         }

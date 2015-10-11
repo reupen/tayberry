@@ -1,5 +1,6 @@
 'use strict';
 var Rect = require('./rect').Rect;
+var Utils = require('./utils');
 
 var Tayberry = require('./tayberry.base.js').Tayberry;
 
@@ -59,25 +60,42 @@ Tayberry.prototype.getYHeight = function (value) {
 };
 
 Tayberry.prototype.hitTest = function (x, y) {
-    var rect, ret;
     // TODO: Optimise
-    ret = {
+    let ret = {
         found: false,
         categoryIndex: undefined,
         seriesIndex: undefined,
         rect: undefined
     };
 
+    let matches = [];
+
+    const isOverlaid = this.options.barMode === 'overlaid';
+
     this.enumerateBars(function (bar) {
         if (bar.rect.containsPoint(x, y)) {
-            ret.found = true;
-            ret.categoryIndex = bar.categoryIndex;
-            ret.seriesIndex = bar.seriesIndex;
-            ret.rect = bar.rect;
-            return true;
+            matches.push({
+                categoryIndex : bar.categoryIndex,
+                seriesIndex : bar.seriesIndex,
+                rect : bar.rect
+            });
+            if (!isOverlaid)
+                return true;
         }
     }.bind(this));
 
+    if (matches.length) {
+        ret.found = true;
+        let minMatchIndex = 0, minHeight = matches[0].rect.height;
+        for (let index = 1; index < matches.length; index++) {
+            const match = matches[index];
+            if (match.rect.height < minHeight) {
+                minMatchIndex = index;
+                minHeight = match.rect.height;
+            }
+        }
+        ret = Utils.assign(ret, matches[minMatchIndex]);
+    }
     return ret;
 };
 
@@ -88,7 +106,10 @@ Tayberry.prototype.getYOrigin = function () {
 Tayberry.prototype.enumerateBars = function (callback) {
     const categoryCount = this.renderedSeries[0].data.length;
     if (categoryCount) {
-        const barCount = (this.options.stacked ? 1 : this.series.length);
+        const isStacked = this.options.barMode === 'stacked';
+        const isOverlaid = this.options.barMode === 'overlaid';
+        const isNormal = !isStacked && !isOverlaid;
+        const barCount = (isStacked || isOverlaid) ? 1 : this.series.length;
         const categoryWidth = Math.floor(this.plotArea.width / categoryCount);
         const barWidth = Math.floor(categoryWidth * (1 - this.options.categorySpacing) / barCount);
         const yOrigin = this.getYOrigin();
@@ -104,8 +125,8 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                 const yTop = yOrigin - this.getYHeight(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                 let rect = new Rect(x, yTop, x + cx, value > 0 ? yBottomPositive : yBottomNegative);
-                rect.left += this.options.barPadding * this.scaleFactor / 2;
-                rect.right -= this.options.barPadding * this.scaleFactor / 2;
+                rect.left += Math.ceil(this.options.barPadding * this.scaleFactor / 2);
+                rect.right -= Math.floor(this.options.barPadding * this.scaleFactor / 2);
                 if (rect.right < rect.left)
                     rect.right = rect.left;
                 rect.clip(this.plotArea);
@@ -122,7 +143,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 });
                 if (stopEnumerating)
                     break;
-                if (this.options.stacked) {
+                if (isStacked) {
                     if (value > 0) {
                         yRunningTotalPositive += value;
                         yBottomPositive = yTop;
@@ -131,7 +152,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                         yRunningTotalNegative += value;
                         yBottomNegative = yTop;
                     }
-                } else {
+                } else if (isNormal) {
                     x += barWidth;
                 }
             }
