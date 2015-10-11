@@ -27,7 +27,7 @@
             return n > 0 ? 1 : (n < 0 ? -1 : 0);
         };
 
-    exports.now = performance.now || function () {
+    exports.now = (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now : function () {
             return new Date().getTime();
         };
 

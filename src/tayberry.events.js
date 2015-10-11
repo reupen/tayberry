@@ -42,22 +42,19 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
             const category = this.categories[hitTestResult.categoryIndex];
             this.tooltipElement.style.display = 'block';
-            const tooltipHeaderHtmlTemplate = '<strong>{category}</strong><table>';
-            const tooltipValueHtmlTemplate = '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td>{value}</td></tr>';
-            const tooltipFooterHtmlTemplate = '</table>';
-            let tooltipHtml = Utils.formatString(tooltipHeaderHtmlTemplate, {category: category}, true);
+            let tooltipHtml = Utils.formatString(this.options.tooltip.headerTemplate, {category: category}, true);
             if (this.options.tooltip.shared) {
                 for (let index = 0; index<this.series.length; index++) {
                     const series = this.series[index];
                     const value = series.data[hitTestResult.categoryIndex];
-                    tooltipHtml += Utils.formatString(tooltipValueHtmlTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                    tooltipHtml += Utils.formatString(this.options.tooltip.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
                 }
             } else {
                 const series = this.series[hitTestResult.seriesIndex];
                 const value = series.data[hitTestResult.categoryIndex];
-                tooltipHtml += Utils.formatString(tooltipValueHtmlTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                tooltipHtml += Utils.formatString(this.options.tooltip.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
             }
-            tooltipHtml += tooltipFooterHtmlTemplate;
+            tooltipHtml += this.options.tooltip.footerTemplate;
             this.tooltipElement.innerHTML = tooltipHtml;
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
             this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;

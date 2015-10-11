@@ -31,9 +31,14 @@ class Colour {
         const groupsHex = regExHex.exec(str);
         const groupsInt = regExInt.exec(str);
         if (groupsHex) {
-            this.r = parseInt(groupsHex[1] || groupsHex[4], 16);
-            this.g = parseInt(groupsHex[2] || groupsHex[5], 16);
-            this.b = parseInt(groupsHex[3] || groupsHex[6], 16);
+            let parseHex = function(value) {
+                let ret = parseInt(value, 16);
+                ret = ret*0x10 + ret;
+                return ret;
+            };
+            this.r = groupsHex[1] ? parseInt(groupsHex[1], 16) : parseHex(groupsHex[4]);
+            this.g = groupsHex[2] ? parseInt(groupsHex[2], 16) : parseHex(groupsHex[5]);
+            this.b = groupsHex[3] ? parseInt(groupsHex[3], 16) : parseHex(groupsHex[6]);
             this.a = null;
         }
         else if (groupsInt) {

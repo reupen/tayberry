@@ -12,7 +12,7 @@ Tayberry.prototype.defaultOptions = function () {
             '#636363' //dark grey
         ],
         title: {
-            text: 'Title',
+            text: '',
             font: {
                 size: 24
             }
@@ -23,7 +23,7 @@ Tayberry.prototype.defaultOptions = function () {
             face: 'sans-serif'
         },
         xAxis: {
-            title: 'X title',
+            title: '',
             type: 'category',
             min: 0,
             max: 100,
@@ -31,7 +31,7 @@ Tayberry.prototype.defaultOptions = function () {
             categories: []
         },
         yAxis: {
-            title: 'Y title',
+            title: '',
             gridLines: {
                 colour: '#ccc'
             },
@@ -50,7 +50,10 @@ Tayberry.prototype.defaultOptions = function () {
         elementPadding: 5,
         categorySpacing: 0.3,
         tooltip: {
-            shared: false
+            shared: false,
+            headerTemplate: '<strong>{category}</strong><table>',
+            valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td>{value}</td></tr>',
+            footerTemplate: '</table>'
         },
         legend: {
             enabled: true,
