@@ -34,21 +34,21 @@ Tayberry.prototype.getTextWidth = function (text) {
 Tayberry.prototype.calculatePlotArea = function () {
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
-        this.plotArea.top += this.mapLogicalYUnit(this.options.elementPadding + this.options.title.font.size);
+        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.title.font.size);
     }
     if (this.options.yAxis.title) {
-        this.plotArea.left += this.mapLogicalXUnit(this.options.elementPadding + this.options.font.size);
+        this.plotArea.left += this.mapLogicalXUnit(this.options.elementLargePadding + this.options.font.size);
     }
     if (this.options.xAxis.title) {
-        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementPadding + this.options.font.size);
+        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementLargePadding + this.options.font.size);
     }
-    this.plotArea.bottom -= this.mapLogicalYUnit(this.options.font.size + this.options.font.size);
+    this.plotArea.bottom -= this.mapLogicalYUnit(this.options.font.size);
     if (this.options.legend.enabled)
-        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementPadding + this.options.legend.indicatorSize);
+        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
 };
 
 Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += this.getTextWidth(this.options.yAxis.labelFormatter(this.yMax)) + this.mapLogicalXUnit(this.options.elementPadding);
+    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickStart)),this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);
@@ -123,6 +123,8 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 yRunningTotalNegative = 0;
             for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
                 const value = this.renderedSeries[seriesIndex].data[categoryIndex];
+                if (Utils.isMissingValue(value))
+                    continue;
                 const yTop = yOrigin - this.getYHeight(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                 let rect = new Rect(x, yTop, x + cx, value > 0 ? yBottomPositive : yBottomNegative);
                 rect.left += Math.ceil(this.options.barPadding * this.scaleFactor / 2);

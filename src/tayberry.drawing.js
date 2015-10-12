@@ -98,7 +98,7 @@ Tayberry.prototype.drawLegend = function () {
         for (let index = 0; index < this.series.length; index++) {
             const series = this.series[index];
             if (series.name) {
-                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalXUnit(4) + this.mapLogicalXUnit(this.options.elementPadding);
+                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
             }
         }
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
@@ -111,9 +111,9 @@ Tayberry.prototype.drawLegend = function () {
                 this.ctx.fillRect(x, y, indicatorSize, indicatorSize);
                 this.ctx.textBaseline = 'middle';
                 this.ctx.fillStyle = this.options.font.colour;
-                x += indicatorSize + this.mapLogicalXUnit(4);
+                x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);
                 this.ctx.fillText(series.name, x, y + indicatorSize / 2);
-                x += this.getTextWidth(series.name) + this.mapLogicalXUnit(this.options.elementPadding);
+                x += this.getTextWidth(series.name) + this.mapLogicalXUnit(this.options.elementLargePadding);
             }
         }
     }

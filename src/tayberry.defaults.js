@@ -3,7 +3,7 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.defaultOptions = function () {
     return {
-        defaultPalette : [
+        defaultPalette: [
             '#6FE87B', //green
             '#FFAB51', //orange
             '#51A8FF', //blue
@@ -14,7 +14,7 @@ Tayberry.prototype.defaultOptions = function () {
         title: {
             text: '',
             font: {
-                size: 24
+                size: 20
             }
         },
         font: {
@@ -28,7 +28,8 @@ Tayberry.prototype.defaultOptions = function () {
             min: 0,
             max: 100,
             step: 1,
-            categories: []
+            categories: [],
+            labelPosition: 'middle' //left|middle|right
         },
         yAxis: {
             title: '',
@@ -47,9 +48,11 @@ Tayberry.prototype.defaultOptions = function () {
         series: [],
         barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
-        elementPadding: 5,
+        elementSmallPadding: 5,
+        elementLargePadding: 10,
         categorySpacing: 0.3,
-        tooltip: {
+        presets: [],
+        tooltips: {
             shared: false,
             headerTemplate: '<strong>{category}</strong><table>',
             valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td style="text-align: right">{value}</td></tr>',
@@ -64,5 +67,16 @@ Tayberry.prototype.defaultOptions = function () {
             verticalAlignment: 'top',
             verticalPosition: 'outside'
         }
+    }
+};
+
+Tayberry.presets = {
+    histogram: {
+        xAxis: {
+            labelPosition: 'left'
+        },
+        barMode: 'overlaid',
+        categorySpacing: 0,
+        barPadding: 1
     }
 };

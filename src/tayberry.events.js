@@ -42,24 +42,24 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
             const category = this.categories[hitTestResult.categoryIndex];
             this.tooltipElement.style.display = 'block';
-            let tooltipHtml = Utils.formatString(this.options.tooltip.headerTemplate, {category: category}, true);
-            if (this.options.tooltip.shared) {
+            let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
+            if (this.options.tooltips.shared) {
                 for (let index = 0; index<this.series.length; index++) {
                     const series = this.series[index];
                     const value = series.data[hitTestResult.categoryIndex];
-                    tooltipHtml += Utils.formatString(this.options.tooltip.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                    tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
                 }
             } else {
                 const series = this.series[hitTestResult.seriesIndex];
                 const value = series.data[hitTestResult.categoryIndex];
-                tooltipHtml += Utils.formatString(this.options.tooltip.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
             }
-            tooltipHtml += this.options.tooltip.footerTemplate;
+            tooltipHtml += this.options.tooltips.footerTemplate;
             this.tooltipElement.innerHTML = tooltipHtml;
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
             this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
-            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementPadding * (aboveZero ? 1 : -1) + 'px';
+            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
             this.selectedItem = hitTestResult;
             ret = true;
         }
@@ -91,7 +91,7 @@ Tayberry.prototype.onMouseMove = function (event) {
 };
 
 Tayberry.prototype.onWindowResize = function (event) {
-    //TODO: THROTTLE
+    this.tooltipElement.style.display = 'none';
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();

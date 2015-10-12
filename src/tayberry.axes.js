@@ -39,35 +39,47 @@ Tayberry.prototype.calculateYAxisExtent = function () {
     if (!overriddenEnd)
         this.yMax = Math.ceil(this.yMax / scale) * scale;
     //if (this.yMin <= 0 && 0 <= this.yMax) {
-        this.yTickStart = Math.ceil(Math.abs(this.yMin) / this.yTickStep) * Utils.sign(this.yMin) * this.yTickStep;
-        this.yTickEnd = Math.floor(Math.abs(this.yMax) / this.yTickStep) * Utils.sign(this.yMax) * this.yTickStep;
+    //    this.yTickStart = Math.floor(Math.abs(this.yMin) / this.yTickStep) * Utils.sign(this.yMin) * this.yTickStep;
+    //    this.yTickEnd = Math.ceil(Math.abs(this.yMax) / this.yTickStep) * Utils.sign(this.yMax) * this.yTickStep;
     //} else {
-    //    this.yTickStart = Math.ceil(this.yMin / this.yTickStep) * this.yTickStep;
-    //    this.yTickEnd = Math.floor(this.yMax / this.yTickStep) * this.yTickStep;
+        this.yTickStart = Math.floor(this.yMin / this.yTickStep) * this.yTickStep;
+        this.yTickEnd = Math.ceil(this.yMax / this.yTickStep) * this.yTickStep;
     //}
 };
 
 Tayberry.prototype.drawXAxis = function () {
-    var i, barCount, barWidth, x, y, lastXEnd;
-    barCount = this.renderedSeries[0].data.length;
+    var i, barWidth, x, y, lastXEnd;
+    const categoryCount = this.categories.length;
     barWidth = Math.floor(this.plotArea.width / this.series[0].data.length);
     this.ctx.save();
     this.ctx.fillStyle = this.options.font.colour;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'bottom';
-    for (i = 0; i < barCount; i++) {
-        x = this.plotArea.left + Math.floor(i * barWidth + barWidth / 2);
-        y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size + this.options.elementPadding);
+    let factor;
+    switch (this.options.xAxis.labelPosition) {
+        case 'left':
+            factor = 0;
+            break;
+        case 'right':
+            factor = 0;
+            break;
+        default:
+            factor = 0.5;
+            break;
+    }
+    for (i = 0; i < categoryCount; i++) {
+        x = this.plotArea.left + Math.floor(i * barWidth + barWidth * factor);
+        y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size + this.options.elementSmallPadding);
         const textWidth = this.getTextWidth(this.categories[i]);
         const xStart = x - textWidth/2;
         const xEnd = x + textWidth/2;
-        if (typeof lastXEnd === 'undefined' || xStart > lastXEnd) {
+        if (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
             this.ctx.fillText(this.categories[i], x, y);
             lastXEnd = xEnd;
         }
     }
     x = this.plotArea.left + this.plotArea.width / 2;
-    y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size + this.options.elementPadding) * 2;
+    y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size*2 + this.options.elementSmallPadding+ this.options.elementLargePadding);
     this.ctx.fillText(this.options.xAxis.title, x, y);
     this.ctx.restore();
 };
@@ -83,7 +95,7 @@ Tayberry.prototype.drawYAxis = function () {
 
     for (yValue = this.yTickStart; yValue <= this.yTickEnd && this.yTickStep;) {
         yValue = this.yTickStart + Math.round((yValue + this.yTickStep - this.yTickStart)/this.yTickStep)*this.yTickStep;
-        x = this.plotArea.left - this.mapLogicalXUnit(this.options.elementPadding);
+        x = this.plotArea.left - this.mapLogicalXUnit(this.options.elementSmallPadding);
         const valueHeight = this.getYHeight(yValue);
         y = yOrigin - valueHeight;
         if (this.plotArea.containsY(y)) {

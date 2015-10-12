@@ -18,10 +18,6 @@ Tayberry.prototype.create = function (containerElement) {
     this.renderedSeries = null;
     this.options = {};
     this.initialise();
-    this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-    this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
-    window.addEventListener('resize', this.onWindowResize.bind(this));
 };
 
 Tayberry.prototype.initialise = function () {
@@ -54,10 +50,21 @@ Tayberry.prototype.updateYFormatter = function () {
 };
 
 Tayberry.prototype.setOptions = function (options) {
-    this.options = Utils.deepAssign({}, this.defaultOptions(), options);
+    let optionOverrides = [this.defaultOptions()];
+    if (options.presets) {
+        for (let index = 0; index < options.presets.length; index++) {
+            optionOverrides.push(Tayberry.presets[options.presets[index]]);
+        }
+    }
+    optionOverrides.push(options);
+    this.options = Utils.deepAssign({}, optionOverrides);
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
     this.updateFonts();
+    this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
+    this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
+    window.addEventListener('resize', Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
 Tayberry.calculateHighlightColour = function (colour) {
@@ -108,34 +115,36 @@ Tayberry.prototype.setCategories = function (categories) {
 
 Tayberry.prototype.calculateYDataMinMax = function () {
     var categoryIndex, seriesIndex, yMin, yMax;
-    this.seriesPositiveTotals = [];
-    this.seriesNegativeTotals = [];
+    let seriesPositiveTotals = [];
+    let seriesNegativeTotals = [];
     const seriesMinima = [];
     const seriesMaxima = [];
     if (this.series[0].data.length) {
         for (categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
-            this.seriesPositiveTotals[categoryIndex] = 0;
-            this.seriesNegativeTotals[categoryIndex] = 0;
+            seriesPositiveTotals[categoryIndex] = 0;
+            seriesNegativeTotals[categoryIndex] = 0;
             for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
                 const value = this.series[seriesIndex].data[categoryIndex];
-                if (value < 0) {
-                    this.seriesNegativeTotals[categoryIndex] += value;
-                } else {
-                    this.seriesPositiveTotals[categoryIndex] += value;
+                if (!Utils.isMissingValue(value)) {
+                    if (value < 0) {
+                        seriesNegativeTotals[categoryIndex] += value;
+                    } else {
+                        seriesPositiveTotals[categoryIndex] += value;
+                    }
                 }
             }
         }
         for (let index = 0; index < this.series.length; index++) {
             const series = this.series[index];
-            seriesMinima.push(Utils.reduce(series.data, Math.min));
-            seriesMaxima.push(Utils.reduce(series.data, Math.max));
+            seriesMinima.push(Utils.reduce(series.data, Math.min, undefined, true));
+            seriesMaxima.push(Utils.reduce(series.data, Math.max, undefined, true));
         }
         if (this.options.barMode === 'stacked') {
-            yMin = Math.min(0, Utils.reduce(this.seriesNegativeTotals, Math.min));
-            yMax = Math.max(Utils.reduce(this.seriesPositiveTotals, Math.max), 0);
+            yMin = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
+            yMax = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
         } else {
-            yMin = Utils.reduce(seriesMinima, Math.min);
-            yMax = Utils.reduce(seriesMaxima, Math.max);
+            yMin = Utils.reduce(seriesMinima, Math.min, undefined, true);
+            yMax = Utils.reduce(seriesMaxima, Math.max, undefined, true);
         }
     }
     return [yMin, yMax];
