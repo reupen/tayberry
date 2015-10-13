@@ -3,7 +3,7 @@
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
 ## Demos
-Click here for some demos.
+[Click here for some demos.](https://reupen.github.io/tayberry)
 
 ## What's good about it?
 
@@ -36,6 +36,11 @@ Tayberry.create('container-id', {
 Tayberry only supports modern browsers. Tested on Firefox, Chrome and Internet Explorer 11.
 
 ## Usage
+
+Create a container `div` in your page and load tayberry.min.js. Call `Tayberry.create`
+just like the example above. That's with the id of your div as the first argument, and an object specifying chart options as the second.
+
+Available attributes on the option object are (full details still to be completed):
 
 | Field           | Allowed values | Description |
 | ---------------------- | ------------- |------------- |
@@ -81,6 +86,8 @@ Tayberry only supports modern browsers. Tested on Firefox, Chrome and Internet E
 | yAxis.max                     |                 |
 | yAxis.tickStep                |                 |
 | yAxis.title                   |                 |
+
+See the demos for some examples.
 
 ## Licence
 
