@@ -37,7 +37,7 @@ Tayberry only supports modern browsers. Tested on Firefox 42, Chrome 45 and Inte
 
 ## Usage
 
-Create a container `div` in your page and load tayberry.min.js. Call `Tayberry.create`
+Create a container `div` in your page, with a set width and height, and load tayberry.min.js. Call `Tayberry.create`
 just like the example above. That's with the id of your div as the first argument, and an object specifying chart options as the second.
 
 Available attributes on the option object are (full details still to be completed):
