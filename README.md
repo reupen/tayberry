@@ -3,7 +3,7 @@
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
 ## Demos
-[Click here for some demos.](https://reupen.github.io/tayberry)
+[Click here for some demos and examples.](https://reupen.github.io/tayberry)
 
 ## What's good about it?
 
@@ -33,7 +33,7 @@ Tayberry.create('container-id', {
 
 ## Supported browsers
 
-Tayberry only supports modern browsers. Tested on Firefox, Chrome and Internet Explorer 11.
+Tayberry only supports modern browsers. Tested on Firefox 42, Chrome 45 and Internet Explorer 11.
 
 ## Usage
 
