@@ -54,13 +54,24 @@ Tayberry.create('chart2', {
 });
 
 Tayberry.create('chart3', {
-    xAxis: {
-        categories: ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    title: {
+        text: 'UK household sizes'
     },
-    barMode: 'overlaid',
+    yAxis: {
+        labelFormat: 'percentage'
+    },
+    xAxis: {
+        categories: ['1', '2', '3', '4', '5+']
+    },
+    labels: {
+        enabled: true
+    },
     series: [{
-        data: [-50, -60, -70, null, -15, -55, -17],
-        name: 'moo'
+        data: [.306, .341, .156, .129, .069],
+        name: '2011'
+    },{
+        data: [.132, .290, .224, .180, .173],
+        name: '1961'
     }]
 
 });

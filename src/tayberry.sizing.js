@@ -48,7 +48,7 @@ Tayberry.prototype.calculatePlotArea = function () {
 };
 
 Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickStart)),this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
+    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickStart)), this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);
@@ -75,9 +75,9 @@ Tayberry.prototype.hitTest = function (x, y) {
     this.enumerateBars(function (bar) {
         if (bar.rect.containsPoint(x, y)) {
             matches.push({
-                categoryIndex : bar.categoryIndex,
-                seriesIndex : bar.seriesIndex,
-                rect : bar.rect
+                categoryIndex: bar.categoryIndex,
+                seriesIndex: bar.seriesIndex,
+                rect: bar.rect
             });
             if (!isOverlaid)
                 return true;

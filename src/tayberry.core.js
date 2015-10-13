@@ -20,6 +20,17 @@ Tayberry.prototype.create = function (containerElement) {
     this.initialise();
 };
 
+Tayberry.prototype.destroy = function () {
+    this.canvas.remove();
+    this.tooltipElement.remove();
+    this.options = {};
+    this.series = {};
+    this.canvas.removeEventListener('mousemove', this.onMouseMoveReal);
+    this.canvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+    this.canvas.removeEventListener('touchstart', this.onTouchStartReal);
+    window.removeEventListener('resize', this.onWindowResizeReal);
+};
+
 Tayberry.prototype.initialise = function () {
     this.scaleFactor = window.devicePixelRatio || 1.0;
     this.canvas.width = Math.round(this.containerElement.clientWidth * this.scaleFactor);
@@ -61,15 +72,15 @@ Tayberry.prototype.setOptions = function (options) {
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
     this.updateFonts();
-    this.canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-    this.canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-    this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
-    window.addEventListener('resize', Utils.throttle(this.onWindowResize, 50).bind(this));
+    this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
+    this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
+    this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
+    window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
 Tayberry.calculateHighlightColour = function (colour) {
     let newColour = new Colour(colour);
-    return newColour.increaseBy(30 * (newColour.sum >= 180*3 ? -1 : 1)).toString();
+    return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
 };
 
 /**
@@ -160,7 +171,6 @@ Tayberry.prototype.createTooltip = function () {
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
     this.tooltipElement.style.font = this.options.font.size + 'px ' + this.options.font.face;
-    ;
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
     this.tooltipElement.style.border = '2px solid black';

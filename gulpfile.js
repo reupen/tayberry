@@ -26,69 +26,57 @@ var customOpts = {
     transform: [babelify]
 };
 
+function createBundler(b, minify) {
+    return function () {
+        // set up the browserify instance on a task basis
+        var ret = b.bundle()
+            .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+            .pipe(source('tayberry.js'))
+            .pipe(buffer())
+            .pipe(sourcemaps.init({loadMaps: true}))
+            .pipe(sourcemaps.write('./'))
+            .pipe(gulp.dest('./dist/'));
+        if (minify) {
+            ret = ret.pipe(filter(['*', '!**/*.js.map']))
+                .pipe(rename({suffix: '.min'}))
+                .pipe(sourcemaps.init({loadMaps: true}))
+                .pipe(uglify())
+                .pipe(sourcemaps.write('./'))
+                .pipe(gulp.dest('./dist/'));
+        }
+        return ret;
+    }
+}
+
 var opts = assign({}, watchify.args, customOpts);
 var bDev = watchify(browserify(opts));
 var bProd = browserify(opts);
+var bundleDev = createBundler(bDev, false);
+var bundleProd = createBundler(bProd, true);
 
-gulp.task('dev', bundleDev); // so you can run `gulp js` to build the file
-bDev.on('update', bundleDev); // on any dep update, runs the bundler
-bDev.on('log', gutil.log); // output build logs to terminal
+gulp.task('dev', bundleDev);
+bDev.on('update', bundleDev);
+bDev.on('log', gutil.log);
 
-function bundleDev() {
-    // set up the browserify instance on a task basis
-    return bDev.bundle()
-        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-        .pipe(source('tayberry.js'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist/'));
-}
+gulp.task('prod', bundleProd);
+bProd.on('log', gutil.log);
 
-gulp.task('prod', bundleProd); // so you can run `gulp js` to build the file
-bProd.on('log', gutil.log); // output build logs to terminal
-
-function bundleProd() {
-    // set up the browserify instance on a task basis
-    return bProd.bundle()
-        .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-        .pipe(source('tayberry.js'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist/'))
-        .pipe(filter(['*', '!**/*.js.map']))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(uglify())
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist/'));
-}
-
-function jscsNotify(file) {
-  if (!file.jscs) { return; }
-  return file.jscs.success ? false : 'JSCS failed';
-}
 
 function createLintTask(taskName, files) {
-  gulp.task(taskName, function() {
-    return gulp.src(files)
-      .pipe(plumber())
-      .pipe(eslint())
-      .pipe(eslint.format())
-      .pipe(eslint.failOnError())
-      //.pipe(jscs())
-      .pipe(notify(jscsNotify));
-  });
+    gulp.task(taskName, function () {
+        return gulp.src(files)
+            .pipe(eslint())
+            .pipe(eslint.format())
+            .pipe(eslint.failOnError())
+            ;
+    });
 }
 
-createLintTask('lint-src', ['src/**/*.js']);
-
-createLintTask('lint-test', ['test/**/*.js']);
+createLintTask('lint', ['src/**/*.js', 'test/**/*.js']);
 
 gulp.task('test', function (done) {
-  new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, done).start();
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, done).start();
 });

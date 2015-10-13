@@ -7,7 +7,7 @@
     require('./tayberry.events.js');
     require('./tayberry.defaults.js');
     require('./tayberry.sizing.js');
-    
+
     module.exports = {
         /**
          * Creates a Tayberry chart

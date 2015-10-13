@@ -38,13 +38,8 @@ Tayberry.prototype.calculateYAxisExtent = function () {
         this.yMin = Math.floor(this.yMin / scale) * scale;
     if (!overriddenEnd)
         this.yMax = Math.ceil(this.yMax / scale) * scale;
-    //if (this.yMin <= 0 && 0 <= this.yMax) {
-    //    this.yTickStart = Math.floor(Math.abs(this.yMin) / this.yTickStep) * Utils.sign(this.yMin) * this.yTickStep;
-    //    this.yTickEnd = Math.ceil(Math.abs(this.yMax) / this.yTickStep) * Utils.sign(this.yMax) * this.yTickStep;
-    //} else {
-        this.yTickStart = Math.floor(this.yMin / this.yTickStep) * this.yTickStep;
-        this.yTickEnd = Math.ceil(this.yMax / this.yTickStep) * this.yTickStep;
-    //}
+    this.yTickStart = Math.floor(this.yMin / this.yTickStep) * this.yTickStep;
+    this.yTickEnd = Math.ceil(this.yMax / this.yTickStep) * this.yTickStep;
 };
 
 Tayberry.prototype.drawXAxis = function () {
@@ -71,15 +66,15 @@ Tayberry.prototype.drawXAxis = function () {
         x = this.plotArea.left + Math.floor(i * barWidth + barWidth * factor);
         y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size + this.options.elementSmallPadding);
         const textWidth = this.getTextWidth(this.categories[i]);
-        const xStart = x - textWidth/2;
-        const xEnd = x + textWidth/2;
+        const xStart = x - textWidth / 2;
+        const xEnd = x + textWidth / 2;
         if (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
             this.ctx.fillText(this.categories[i], x, y);
             lastXEnd = xEnd;
         }
     }
     x = this.plotArea.left + this.plotArea.width / 2;
-    y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size*2 + this.options.elementSmallPadding+ this.options.elementLargePadding);
+    y = this.plotArea.bottom + this.mapLogicalYUnit(this.options.font.size * 2 + this.options.elementSmallPadding + this.options.elementLargePadding);
     this.ctx.fillText(this.options.xAxis.title, x, y);
     this.ctx.restore();
 };
@@ -94,7 +89,7 @@ Tayberry.prototype.drawYAxis = function () {
     this.ctx.textBaseline = 'middle';
 
     for (yValue = this.yTickStart; yValue <= this.yTickEnd && this.yTickStep;) {
-        yValue = this.yTickStart + Math.round((yValue + this.yTickStep - this.yTickStart)/this.yTickStep)*this.yTickStep;
+        yValue = this.yTickStart + Math.round((yValue + this.yTickStep - this.yTickStart) / this.yTickStep) * this.yTickStep;
         x = this.plotArea.left - this.mapLogicalXUnit(this.options.elementSmallPadding);
         const valueHeight = this.getYHeight(yValue);
         y = yOrigin - valueHeight;
