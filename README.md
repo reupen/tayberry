@@ -1,5 +1,7 @@
 # TayberryJS 0.1.0
 
+&copy; Reupen Shah 2015
+
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
 ## Demos
