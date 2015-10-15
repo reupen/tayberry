@@ -58,36 +58,32 @@ Available attributes on the option object are (full details still to be complete
 | font.colour                   | colour code   |
 | font.face                     | string |
 | font.size                     | logical pixels |
-| labels.enabled                |                 |
-| labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                |
-| labels.verticalPosition       | 'outside'\|'inside'\|'middle' |
-| legend.enabled                |                 |
-| legend.indicatorSize          |                 |
-| presets                       |                 |
-| series                        |                 |
-| title.font.size               |                 |
-| title.text                    |                 |
+| labels.enabled                | true|false      | Show data labels in the plot area
+| labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                | Where in each bar labels should appear
+| labels.verticalPosition       | 'outside'\|'inside'\|'middle' | 
+| legend.enabled                | true|false      |
+| legend.indicatorSize          |                 | 
+| presets                       | array           |
+| series                        | array of objects |
+| title.font.size               | logical pixels  | Font size of the chart title
+| title.text                    | string          | Title for the chart
 | tooltips.footerTemplate       |                 |
 | tooltips.headerTemplate       |                 |
-| tooltips.shared               |                 |
+| tooltips.shared               | true|false      |
 | tooltips.valueTemplate        |                 |
-| xAxis.categories              |                 |
+| xAxis.categories              | array           |
 | xAxis.labelPosition           | 'left'\|'middle'\|'right' |
-| xAxis.max                     |                 |
-| xAxis.min                     |                 |
-| xAxis.step                    |                 |
-| xAxis.title                   |                 |
-| xAxis.type                    |                 |
-| yAxis.currencySymbol          |                 |
+| xAxis.title                   | string          |
+| yAxis.currencySymbol          | string          |
 | yAxis.gridLines.colour        |                 |
 | yAxis.labelFormat             | 'number'\|'percentage'\|'currency'                |
 | yAxis.labelFormatter          | function          |
 | yAxis.labelPrefix             |                |
 | yAxis.labelSuffix             |                 |
-| yAxis.min                     |                 |
-| yAxis.max                     |                 |
-| yAxis.tickStep                |                 |
-| yAxis.title                   |                 |
+| yAxis.min                     | number          | Use this to override the automatic axis minimum value calculation
+| yAxis.max                     | number          | Use this to override the automatic axis maximum value calculation
+| yAxis.tickStep                | logical pixels  | 
+| yAxis.title                   | string          |
 
 See the demos for some examples.
 
