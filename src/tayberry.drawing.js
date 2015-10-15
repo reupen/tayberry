@@ -3,14 +3,14 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
-    this.calculateYAxisExtent();
+    this.yAxis.calculateExtent();
     this.updateYFormatter();
     this.finalisePlotArea();
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     this.animatationStart = performance.now();
     this.animationLength = 500;
-    this.drawXAxis();
-    this.drawYAxis();
+    this.xAxis.drawCategory();
+    this.yAxis.drawLinear();
     this.createTooltip();
 };
 
@@ -84,8 +84,8 @@ Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
 Tayberry.prototype.redraw = function () {
     this.clear();
     this.drawTitle();
-    this.drawXAxis();
-    this.drawYAxis();
+    this.xAxis.drawCategory();
+    this.yAxis.drawLinear();
     this.drawLegend();
     this.draw();
 };

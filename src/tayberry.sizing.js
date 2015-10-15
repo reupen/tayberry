@@ -48,7 +48,7 @@ Tayberry.prototype.calculatePlotArea = function () {
 };
 
 Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickStart)), this.getTextWidth(this.options.yAxis.labelFormatter(this.yTickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
+    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yAxis.tickStart)), this.getTextWidth(this.options.yAxis.labelFormatter(this.yAxis.tickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);
@@ -56,7 +56,7 @@ Tayberry.prototype.finalisePlotArea = function () {
 };
 
 Tayberry.prototype.getYHeight = function (value) {
-    return Math.round(value * this.plotArea.height / (this.yMax - this.yMin));
+    return Math.round(value * this.plotArea.height / (this.yAxis.max - this.yAxis.min));
 };
 
 Tayberry.prototype.hitTest = function (x, y) {
@@ -100,7 +100,7 @@ Tayberry.prototype.hitTest = function (x, y) {
 };
 
 Tayberry.prototype.getYOrigin = function () {
-    return this.plotArea.bottom - this.getYHeight(0 - this.yMin);
+    return this.plotArea.bottom - this.getYHeight(0 - this.yAxis.min);
 };
 
 Tayberry.prototype.enumerateBars = function (callback) {

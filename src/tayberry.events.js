@@ -12,7 +12,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
         for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
             const value = this.series[seriesIndex].data[categoryIndex];
-            const yOrigin = this.yMin <= 0 && 0 <= this.yMax ? 0 : (this.yMin > 0 ? this.yMin : this.yMax);
+            const yOrigin = this.yAxis.min <= 0 && 0 <= this.yAxis.max ? 0 : (this.yAxis.min > 0 ? this.yAxis.min : this.yAxis.max);
             this.renderedSeries[seriesIndex].data[categoryIndex] = yOrigin + scaleFactor * ((value - yOrigin));
         }
     }
@@ -95,7 +95,7 @@ Tayberry.prototype.onWindowResize = function (event) {
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();
-    this.calculateYAxisExtent();
+    this.yAxis.calculateExtent();
     this.finalisePlotArea();
     this.redraw();
 };

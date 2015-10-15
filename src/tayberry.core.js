@@ -1,8 +1,9 @@
 'use strict';
 var Colour = require('./colour').Colour;
-var Utils = require('./utils.js');
+var Utils = require('./utils');
 
-var Tayberry = require('./tayberry.base.js').Tayberry;
+var Tayberry = require('./tayberry.base').Tayberry;
+var Axis = require('./tayberry.axes').Axis;
 
 Tayberry.prototype.create = function (containerElement) {
     if (typeof containerElement == 'string') {
@@ -17,6 +18,8 @@ Tayberry.prototype.create = function (containerElement) {
     this.ctx = this.canvas.getContext('2d');
     this.renderedSeries = null;
     this.options = {};
+    this.yAxis = null;
+    this.xAxis = null;
     this.initialise();
 };
 
@@ -49,13 +52,13 @@ Tayberry.prototype.updateFonts = function () {
 Tayberry.prototype.updateYFormatter = function () {
     if (!this.options.yAxis.labelFormatter) {
         if (this.options.yAxis.labelFormat === 'percentage') {
-            this.options.yAxis.labelFormatter = Utils.createPercentageFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
+            this.options.yAxis.labelFormatter = Utils.createPercentageFormatter(this.yAxis.max - this.yAxis.min, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
         }
         else if (this.options.yAxis.labelFormat === 'currency') {
-            this.options.yAxis.labelFormatter = Utils.createFixedNumberFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix || this.options.yAxis.currencySymbol, this.options.yAxis.labelSuffix);
+            this.options.yAxis.labelFormatter = Utils.createFixedNumberFormatter(this.yAxis.max - this.yAxis.min, this.options.yAxis.labelPrefix || this.options.yAxis.currencySymbol, this.options.yAxis.labelSuffix);
         }
         else {
-            this.options.yAxis.labelFormatter = Utils.createAutoNumberFormatter(this.yMax - this.yMin, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
+            this.options.yAxis.labelFormatter = Utils.createAutoNumberFormatter(this.yAxis.max - this.yAxis.min, this.options.yAxis.labelPrefix, this.options.yAxis.labelSuffix);
         }
     }
 };
@@ -72,6 +75,8 @@ Tayberry.prototype.setOptions = function (options) {
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
     this.updateFonts();
+    this.yAxis = new Axis(this, this.options.yAxis);
+    this.xAxis = new Axis(this, this.options.xAxis);
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
@@ -125,7 +130,7 @@ Tayberry.prototype.setCategories = function (categories) {
 };
 
 Tayberry.prototype.calculateYDataMinMax = function () {
-    var categoryIndex, seriesIndex, yMin, yMax;
+    var categoryIndex, seriesIndex, min, max;
     let seriesPositiveTotals = [];
     let seriesNegativeTotals = [];
     const seriesMinima = [];
@@ -151,14 +156,14 @@ Tayberry.prototype.calculateYDataMinMax = function () {
             seriesMaxima.push(Utils.reduce(series.data, Math.max, undefined, true));
         }
         if (this.options.barMode === 'stacked') {
-            yMin = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
-            yMax = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
+            min = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
+            max = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
         } else {
-            yMin = Utils.reduce(seriesMinima, Math.min, undefined, true);
-            yMax = Utils.reduce(seriesMaxima, Math.max, undefined, true);
+            min = Utils.reduce(seriesMinima, Math.min, undefined, true);
+            max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
         }
     }
-    return [yMin, yMax];
+    return [min, max];
 };
 
 

@@ -9,11 +9,6 @@ class Tayberry {
         this.scaleFactor = null;
         this.titleFont = null;
         this.plotArea = null;
-        this.yTickStep = null;
-        this.yTickStart = null;
-        this.yTickEnd = null;
-        this.yMin = null;
-        this.yMax = null;
         this.series = [];
         this.categories = [];
     }
