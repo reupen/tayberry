@@ -29,7 +29,8 @@ Tayberry.prototype.defaultOptions = function () {
             max: 100,
             step: 1,
             categories: [],
-            labelPosition: 'middle' //left|middle|right
+            labelPosition: 'middle', //left|middle|right
+            placement: 'end'
         },
         yAxis: {
             title: '',
@@ -43,7 +44,9 @@ Tayberry.prototype.defaultOptions = function () {
             labelFormatter: undefined,
             labelPrefix: undefined,
             labelSuffix: undefined,
-            currencySymbol: '£'
+            currencySymbol: '£',
+            placement: 'start',
+            type: 'linear'
         },
         series: [],
         barMode: 'normal', //[normal|stacked|overlaid]

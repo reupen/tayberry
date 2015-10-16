@@ -32,23 +32,24 @@ Tayberry.prototype.getTextWidth = function (text) {
 };
 
 Tayberry.prototype.calculatePlotArea = function () {
+    const MAX_AXIS_CALC_SIZE_ATTEMPTS = 5;
+
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
         this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.title.font.size);
     }
-    if (this.options.yAxis.title) {
-        this.plotArea.left += this.mapLogicalXUnit(this.options.elementLargePadding + this.options.font.size);
-    }
-    if (this.options.xAxis.title) {
-        this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementLargePadding + this.options.font.size);
-    }
-    this.plotArea.bottom -= this.mapLogicalYUnit(this.options.font.size);
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
-};
 
-Tayberry.prototype.finalisePlotArea = function () {
-    this.plotArea.left += Math.max(this.getTextWidth(this.options.yAxis.labelFormatter(this.yAxis.tickStart)), this.getTextWidth(this.options.yAxis.labelFormatter(this.yAxis.tickEnd))) + this.mapLogicalXUnit(this.options.elementSmallPadding);
+    this.yAxis.adjustSize(this.plotArea, true, true);
+    this.xAxis.adjustSize(this.plotArea, true, true);
+
+    for (let i = 0; i < MAX_AXIS_CALC_SIZE_ATTEMPTS; i++) {
+        this.yAxis.calculateExtent();
+        this.updateYFormatter();
+        if (!this.yAxis.adjustSize(this.plotArea) && !this.xAxis.adjustSize(this.plotArea))
+            break;
+    }
     this.plotArea.left = Math.floor(this.plotArea.left);
     this.plotArea.top = Math.floor(this.plotArea.top);
     this.plotArea.right = Math.ceil(this.plotArea.right);

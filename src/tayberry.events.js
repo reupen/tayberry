@@ -95,7 +95,5 @@ Tayberry.prototype.onWindowResize = function (event) {
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();
-    this.yAxis.calculateExtent();
-    this.finalisePlotArea();
     this.redraw();
 };

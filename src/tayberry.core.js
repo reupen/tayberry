@@ -75,8 +75,8 @@ Tayberry.prototype.setOptions = function (options) {
     this.setSeries(options.series);
     this.setCategories(options.xAxis.categories);
     this.updateFonts();
-    this.yAxis = new Axis(this, this.options.yAxis);
-    this.xAxis = new Axis(this, this.options.xAxis);
+    this.yAxis = new Axis(this, this.options.yAxis, 'y');
+    this.xAxis = new Axis(this, this.options.xAxis, 'x');
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));

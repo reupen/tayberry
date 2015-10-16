@@ -3,9 +3,6 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
-    this.yAxis.calculateExtent();
-    this.updateYFormatter();
-    this.finalisePlotArea();
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     this.animatationStart = performance.now();
     this.animationLength = 500;

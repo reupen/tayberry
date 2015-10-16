@@ -2,14 +2,68 @@
 var Utils = require('./utils.js');
 
 class Axis {
-    constructor(tayberry, options) {
+    constructor(tayberry, options, axisType) {
         this.tayberry = tayberry;
         this.options = options;
+        this.axisType = axisType;
         this.tickStep = null;
         this.min = null;
         this.max = null;
         this.tickStart = null;
         this.tickEnd = null;
+        this.calculatedSize = 0;
+    }
+
+    get isPlacedAtStart() {
+        return this.options.placement === "left" || this.options.placement === "bottom" || this.options.placement === "start";
+    }
+
+    get yAxis() {
+        return this.axisType === 'y';
+    }
+
+    adjustSize(plotArea, fixedOnly = false, reset = false) {
+        let size = 0,
+            tb = this.tayberry,
+            ret;
+
+        if (reset)
+            this.calculatedSize = 0;
+
+        if (this.options.title) {
+            size += tb.mapLogicalXUnit(tb.options.elementLargePadding + tb.options.font.size);
+        }
+
+        if (!fixedOnly) {
+            if (this.yAxis) {
+                if (this.options.type === "linear") // TODO: Check all labels
+                    size += Math.max(tb.getTextWidth(this.options.labelFormatter(this.tickStart)), tb.getTextWidth(this.options.labelFormatter(this.tickEnd))) + tb.mapLogicalXUnit(tb.options.elementSmallPadding);
+                else {
+                    //TODO
+                }
+            } else {
+                size += tb.mapLogicalYUnit(tb.options.font.size);
+            }
+        }
+
+        if (this.yAxis) {
+            if (this.isPlacedAtStart) {
+                plotArea.left += size - this.calculatedSize;
+            } else {
+                plotArea.right -= size - this.calculatedSize;
+            }
+        } else {
+            if (this.isPlacedAtStart) {
+                plotArea.top += size - this.calculatedSize;
+            } else {
+                plotArea.bottom -= size - this.calculatedSize;
+            }
+        }
+
+        ret = this.calculatedSize !== size;
+        this.calculatedSize = size;
+
+        return ret;
     }
 
     calculateExtent() {
