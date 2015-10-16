@@ -6,8 +6,8 @@ Tayberry.prototype.render = function () {
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     this.animatationStart = performance.now();
     this.animationLength = 500;
-    this.xAxis.drawCategory();
-    this.yAxis.drawLinear();
+    this.xAxis.draw();
+    this.yAxis.draw();
     this.createTooltip();
 };
 
@@ -81,8 +81,8 @@ Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
 Tayberry.prototype.redraw = function () {
     this.clear();
     this.drawTitle();
-    this.xAxis.drawCategory();
-    this.yAxis.drawLinear();
+    this.xAxis.draw();
+    this.yAxis.draw();
     this.drawLegend();
     this.draw();
 };

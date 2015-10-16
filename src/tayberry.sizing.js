@@ -100,10 +100,6 @@ Tayberry.prototype.hitTest = function (x, y) {
     return ret;
 };
 
-Tayberry.prototype.getYOrigin = function () {
-    return this.plotArea.bottom - this.getYHeight(0 - this.yAxis.min);
-};
-
 Tayberry.prototype.enumerateBars = function (callback) {
     const categoryCount = this.renderedSeries[0].data.length;
     if (categoryCount) {
@@ -113,7 +109,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
         const barCount = (isStacked || isOverlaid) ? 1 : this.series.length;
         const categoryWidth = Math.floor(this.plotArea.width / categoryCount);
         const barWidth = Math.floor(categoryWidth * (1 - this.options.categorySpacing) / barCount);
-        const yOrigin = this.getYOrigin();
+        const yOrigin = this.yAxis.getOrigin();
 
         for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
             let x = this.plotArea.left + Math.floor(categoryIndex * categoryWidth + categoryWidth * this.options.categorySpacing / 2);
@@ -126,7 +122,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                 if (Utils.isMissingValue(value))
                     continue;
-                const yTop = yOrigin - this.getYHeight(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
+                const yTop = yOrigin - this.yAxis.getValueSize(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                 let rect = new Rect(x, yTop, x + cx, value > 0 ? yBottomPositive : yBottomNegative);
                 rect.left += Math.ceil(this.options.barPadding * this.scaleFactor / 2);
                 rect.right -= Math.floor(this.options.barPadding * this.scaleFactor / 2);
