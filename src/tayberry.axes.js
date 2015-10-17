@@ -2,6 +2,16 @@
 var Utils = require('./utils.js');
 
 class Axis {
+    static create(tayberry, options, axisType, xYSwapped) {
+        if (xYSwapped) {
+            axisType = axisType === 'y' ? 'x' : 'y';
+        }
+        if (options.type === 'linear')
+            return new LinearAxis(tayberry, options, axisType);
+        else
+            return new CategorialAxis(tayberry, options, axisType);
+    }
+
     constructor(tayberry, options, axisType) {
         this.tayberry = tayberry;
         this.options = options;
@@ -22,6 +32,8 @@ class Axis {
         return this.axisType === 'y';
     }
 
+    maxLabelSize() {}
+
     adjustSize(plotArea, fixedOnly = false, reset = false) {
         let size = 0,
             tb = this.tayberry,
@@ -37,28 +49,23 @@ class Axis {
 
         if (!fixedOnly) {
             if (this.isYAxis) {
-                if (this.options.type === "linear") // TODO: Check all labels
-                    size += Math.max(tb.getTextWidth(this.options.labelFormatter(this.tickStart)), tb.getTextWidth(this.options.labelFormatter(this.tickEnd)));
-                else {
-                    //TODO
-                }
+                size += this.maxLabelSize()
             } else {
                 size += tb.mapLogicalYUnit(tb.options.font.size);
             }
         }
 
-        if (this.isYAxis) {
-            if (this.isPlacedAtStart) {
+        if (this.isPlacedAtStart) {
+            if (this.isYAxis) {
                 plotArea.left += size - this.calculatedSize;
             } else {
-                size *= -1;
-                plotArea.right += size - this.calculatedSize;
+                plotArea.top += size - this.calculatedSize;
             }
         } else {
-            if (this.isPlacedAtStart) {
-                plotArea.top += size - this.calculatedSize;
+            size *= -1;
+            if (this.isYAxis) {
+                plotArea.right += size - this.calculatedSize;
             } else {
-                size *= -1;
                 plotArea.bottom += size - this.calculatedSize;
             }
         }
@@ -69,55 +76,14 @@ class Axis {
         return ret;
     }
 
-    calculateExtent() {
-        if (this.options.type === 'linear') {
-            let targetTicks, approxStep, scale;
-
-            let targetStart = this.options.min;
-            let targetEnd = this.options.max;
-            const overriddenStart = typeof targetStart !== 'undefined';
-            const overriddenEnd = typeof targetEnd !== 'undefined';
-
-            if (!overriddenStart || !overriddenEnd) {
-                const [dataMin, dataMax] = this.tayberry.calculateYDataMinMax();
-                const dataRange = dataMax - dataMin;
-                if (!overriddenStart) {
-                    targetStart = dataMin - dataRange * 0.1;
-                    if (dataMin >= 0 && targetStart < 0)
-                        targetStart = 0;
-                }
-                if (!overriddenEnd) {
-                    targetEnd = dataMax + dataRange * 0.1;
-                    if (dataMax <= 0 && targetStart > 0)
-                        targetEnd = 0;
-                }
-            }
-
-            const targetRange = targetEnd - targetStart;
-
-            targetTicks = this.tayberry.plotArea.height / this.tayberry.mapLogicalYUnit(this.options.tickStep);
-            approxStep = targetRange / targetTicks;
-            scale = Math.pow(10, Math.floor(Math.log(approxStep) / Math.log(10)));
-            this.tickStep = Math.ceil(approxStep / scale) * scale;
-            this.min = targetStart;
-            this.max = targetEnd;
-            if (!overriddenStart)
-                this.min = Math.floor(this.min / scale) * scale;
-            if (!overriddenEnd)
-                this.max = Math.ceil(this.max / scale) * scale;
-            this.tickStart = Math.floor(this.min / this.tickStep) * this.tickStep;
-            this.tickEnd = Math.ceil(this.max / this.tickStep) * this.tickStep;
-        }
-    };
+    calculateExtent() {}
 
     draw() {
-        if (this.options.type === 'linear') {
-            this.drawLinear();
-        } else {
-            this.drawCategory();
-        }
+        this.drawTicksAndLabels();
         this.drawTitle();
     }
+
+    drawTicksAndLabels() {}
 
     get startProperty() {
         if (this.isYAxis)
@@ -133,44 +99,17 @@ class Axis {
             return !this.isPlacedAtStart ? 'top' : 'bottom';
     }
 
-    getValueSize(value) {
-        return Math.round(value * this.tayberry.plotArea.height / (this.max - this.min));
+    get plotDisplacement() {
+        return this.isYAxis ? this.tayberry.plotArea.height : -this.tayberry.plotArea.width;
     }
 
-    drawLinear() {
-        var yValue, x, y;
-        let tb = this.tayberry;
+    get plotLength() {
+        return Math.abs(this.plotDisplacement);
+    }
 
-        const yOrigin = this.getOrigin();
-
-        const start = this.startProperty,
-            end = this.endProperty;
-
-        tb.ctx.save();
-        tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = 'right';
-        tb.ctx.textBaseline = 'middle';
-
-        for (yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
-            yValue = this.tickStart + Math.round((yValue + this.tickStep - this.tickStart) / this.tickStep) * this.tickStep;
-            x = tb.plotArea[start] - tb.mapLogicalXUnit(tb.options.elementSmallPadding);
-            const valueHeight = this.getValueSize(yValue);
-            y = yOrigin - valueHeight;
-            if (this.isYAxis) {
-                if (tb.plotArea.containsY(y)) {
-                    tb.ctx.fillText(this.options.labelFormatter(yValue), x, y);
-                    tb.drawLine(tb.plotArea[start], y, tb.plotArea[end], y, this.options.gridLines.colour);
-                }
-            } else {
-                if (tb.plotArea.containsX(y)) {
-                    tb.ctx.fillText(this.options.labelFormatter(yValue), y, x);
-                    tb.drawLine(y, tb.plotArea[start], y, tb.plotArea[end], this.options.gridLines.colour);
-                }
-            }
-        }
-
-        tb.ctx.restore();
-    };
+    getValueSize(value) {
+        return Math.round( value * this.plotDisplacement / (this.max - this.min));
+    }
 
     drawTitle() {
         let tb = this.tayberry;
@@ -194,46 +133,143 @@ class Axis {
         tb.ctx.restore();
     }
 
-    drawCategory() {
+    getOrigin() {}
+}
+
+class CategorialAxis extends Axis {
+    drawTicksAndLabels() {
         var i, barWidth, x, y, lastXEnd;
         let tb = this.tayberry;
-        const categoryCount = tb.categories.length;
-        barWidth = Math.floor(tb.plotArea.width / tb.series[0].data.length);
+        const categoryCount = this.options.categories.length;
+        let plotArea = tb.plotArea.clone();
+        if (this.isYAxis)
+            plotArea.swapXY();
+        barWidth = Math.floor(plotArea.width / tb.series[0].data.length);
         tb.ctx.save();
         tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = 'center';
-        tb.ctx.textBaseline = 'bottom';
+        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
+        tb.ctx.textBaseline = this.isYAxis ? 'top' : 'middle';
         let factor;
         switch (this.options.labelPosition) {
             case 'left':
                 factor = 0;
                 break;
             case 'right':
-                factor = 0;
+                factor = 1;
                 break;
             default:
                 factor = 0.5;
                 break;
         }
         for (i = 0; i < categoryCount; i++) {
-            x = tb.plotArea.left + Math.floor(i * barWidth + barWidth * factor);
-            y = tb.plotArea.bottom + tb.mapLogicalYUnit(tb.options.font.size + tb.options.elementSmallPadding);
-            const textWidth = tb.getTextWidth(tb.categories[i]);
+            x = plotArea.left + Math.floor(i * barWidth + barWidth * factor);
+            y = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom) + tb.mapLogicalYUnit(tb.options.elementLargePadding)*(this.isPlacedAtStart ? -1 : 1);
+            const textWidth = tb.getTextWidth(this.options.categories[i]);
             const xStart = x - textWidth / 2;
             const xEnd = x + textWidth / 2;
             if (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
-                tb.ctx.fillText(tb.categories[i], x, y);
+                if (this.isYAxis)
+                    [x, y] = [y, x];
+                tb.ctx.fillText(this.options.categories[i], x, y);
                 lastXEnd = xEnd;
             }
         }
         tb.ctx.restore();
-    };
+    }
 
+    maxLabelSize() {
+        let tb = this.tayberry;
+        return Utils.reduce(this.options.categories, Math.max, tb.getTextWidth.bind(tb));
+    }
+
+    //getOrigin() {
+    //    return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'];
+    //}
+}
+
+class LinearAxis extends Axis {
+    maxLabelSize() {
+        let tb = this.tayberry;
+        return Math.max(tb.getTextWidth(this.options.labelFormatter(this.tickStart)), tb.getTextWidth(this.options.labelFormatter(this.tickEnd)));
+    }
+
+    drawTicksAndLabels() {
+        var yValue, x, y;
+        let tb = this.tayberry;
+
+        const yOrigin = this.getOrigin();
+
+        const start = this.startProperty,
+            end = this.endProperty;
+
+        tb.ctx.save();
+        tb.ctx.fillStyle = tb.options.font.colour;
+        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
+        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
+
+        for (yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
+            yValue = this.tickStart + Math.round((yValue + this.tickStep - this.tickStart) / this.tickStep) * this.tickStep;
+            x = tb.plotArea[start] + tb.mapLogicalXUnit(tb.options.elementSmallPadding)*(this.isPlacedAtStart ? -1 : 1);
+            const valueHeight = this.getValueSize(yValue);
+            y = yOrigin - valueHeight;
+            if (this.isYAxis) {
+                if (tb.plotArea.containsY(y)) {
+                    tb.ctx.fillText(this.options.labelFormatter(yValue), x, y);
+                    tb.drawLine(tb.plotArea[start], y, tb.plotArea[end], y, this.options.gridLines.colour);
+                }
+            } else {
+                if (tb.plotArea.containsX(y)) {
+                    tb.ctx.fillText(this.options.labelFormatter(yValue), y, x);
+                    tb.drawLine(y, tb.plotArea[start], y, tb.plotArea[end], this.options.gridLines.colour);
+                }
+            }
+        }
+
+        tb.ctx.restore();
+    }
+
+    calculateExtent() {
+        if (this.options.type === 'linear') {
+            let targetTicks, approxStep, scale;
+
+            let targetStart = this.options.min;
+            let targetEnd = this.options.max;
+            const overriddenStart = typeof targetStart !== 'undefined';
+            const overriddenEnd = typeof targetEnd !== 'undefined';
+
+            if (!overriddenStart || !overriddenEnd) {
+                const [dataMin, dataMax] = this.tayberry.getDataMinMax();
+                const dataRange = dataMax - dataMin;
+                if (!overriddenStart) {
+                    targetStart = dataMin - dataRange * 0.1;
+                    if (dataMin >= 0 && targetStart < 0)
+                        targetStart = 0;
+                }
+                if (!overriddenEnd) {
+                    targetEnd = dataMax + dataRange * 0.1;
+                    if (dataMax <= 0 && targetStart > 0)
+                        targetEnd = 0;
+                }
+            }
+
+            const targetRange = targetEnd - targetStart;
+
+            targetTicks = this.plotLength / this.tayberry.mapLogicalYUnit(this.options.tickStep);
+            approxStep = targetRange / targetTicks;
+            scale = Math.pow(10, Math.floor(Math.log(approxStep) / Math.log(10)));
+            this.tickStep = Math.ceil(approxStep / scale) * scale;
+            this.min = targetStart;
+            this.max = targetEnd;
+            if (!overriddenStart)
+                this.min = Math.floor(this.min / scale) * scale;
+            if (!overriddenEnd)
+                this.max = Math.ceil(this.max / scale) * scale;
+            this.tickStart = Math.floor(this.min / this.tickStep) * this.tickStep;
+            this.tickEnd = Math.ceil(this.max / this.tickStep) * this.tickStep;
+        }
+    }
     getOrigin() {
-        if (this.options.type === 'linear')
-            return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'] - this.getValueSize(0 - this.min);
-        else
-            return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'];
+        return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'] - this.getValueSize(0 - this.min);
     }
 }
 

@@ -40,7 +40,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-            const category = this.categories[hitTestResult.categoryIndex];
+            const category = this.xAxis.options.categories[hitTestResult.categoryIndex];
             this.tooltipElement.style.display = 'block';
             let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
             if (this.options.tooltips.shared) {
@@ -90,7 +90,7 @@ Tayberry.prototype.onMouseMove = function (event) {
     }
 };
 
-Tayberry.prototype.onWindowResize = function (event) {
+Tayberry.prototype.onWindowResize = function () {
     this.tooltipElement.style.display = 'none';
     this.initialise();
     this.updateFonts();

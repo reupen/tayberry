@@ -24,7 +24,7 @@ Tayberry.prototype.defaultOptions = function () {
         },
         xAxis: {
             title: '',
-            type: 'category',
+            type: 'categorial',
             min: 0,
             max: 100,
             step: 1,
@@ -49,6 +49,9 @@ Tayberry.prototype.defaultOptions = function () {
             type: 'linear'
         },
         series: [],
+        barChart: {
+            orientation: "vertical"
+        },
         barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
         elementSmallPadding: 5,

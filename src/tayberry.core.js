@@ -73,10 +73,10 @@ Tayberry.prototype.setOptions = function (options) {
     optionOverrides.push(options);
     this.options = Utils.deepAssign({}, optionOverrides);
     this.setSeries(options.series);
-    this.setCategories(options.xAxis.categories);
+    //this.setCategories(options.xAxis.categories);
     this.updateFonts();
-    this.yAxis = new Axis(this, this.options.yAxis, 'y');
-    this.xAxis = new Axis(this, this.options.xAxis, 'x');
+    this.yAxis = Axis.create(this, this.options.yAxis, 'y', this.options.barChart.orientation === 'horizontal');
+    this.xAxis = Axis.create(this, this.options.xAxis, 'x', this.options.barChart.orientation === 'horizontal');
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
@@ -129,7 +129,7 @@ Tayberry.prototype.setCategories = function (categories) {
     //}
 };
 
-Tayberry.prototype.calculateYDataMinMax = function () {
+Tayberry.prototype.getDataMinMax = function () {
     var categoryIndex, seriesIndex, min, max;
     let seriesPositiveTotals = [];
     let seriesNegativeTotals = [];

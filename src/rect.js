@@ -70,6 +70,16 @@ class Rect {
 
         return this;
     }
+
+    clone() {
+        return new Rect(this);
+    }
+
+    swapXY() {
+        [this.left, this.top] = [this.top, this.left];
+        [this.bottom, this.right] = [this.right, this.bottom];
+        return this;
+    }
 }
 
 exports.Rect = Rect;

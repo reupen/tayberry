@@ -7,5 +7,7 @@
   },
 
   "rules": {
-  }
+  },
+  
+  "extends": "eslint:recommended"
 }

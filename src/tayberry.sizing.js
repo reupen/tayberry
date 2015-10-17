@@ -50,14 +50,10 @@ Tayberry.prototype.calculatePlotArea = function () {
         if (!this.yAxis.adjustSize(this.plotArea) && !this.xAxis.adjustSize(this.plotArea))
             break;
     }
-    this.plotArea.left = Math.floor(this.plotArea.left);
-    this.plotArea.top = Math.floor(this.plotArea.top);
-    this.plotArea.right = Math.ceil(this.plotArea.right);
-    this.plotArea.bottom = Math.ceil(this.plotArea.bottom);
-};
-
-Tayberry.prototype.getYHeight = function (value) {
-    return Math.round(value * this.plotArea.height / (this.yAxis.max - this.yAxis.min));
+    this.plotArea.left = Math.ceil(this.plotArea.left);
+    this.plotArea.top = Math.ceil(this.plotArea.top);
+    this.plotArea.right = Math.floor(this.plotArea.right);
+    this.plotArea.bottom = Math.floor(this.plotArea.bottom);
 };
 
 Tayberry.prototype.hitTest = function (x, y) {
@@ -105,14 +101,18 @@ Tayberry.prototype.enumerateBars = function (callback) {
     if (categoryCount) {
         const isStacked = this.options.barMode === 'stacked';
         const isOverlaid = this.options.barMode === 'overlaid';
+        const isHorizontal = this.options.barChart.orientation === 'horizontal';
+        let plotArea = this.plotArea.clone();
+        if (isHorizontal)
+            plotArea.swapXY();
         const isNormal = !isStacked && !isOverlaid;
         const barCount = (isStacked || isOverlaid) ? 1 : this.series.length;
-        const categoryWidth = Math.floor(this.plotArea.width / categoryCount);
+        const categoryWidth = Math.floor(plotArea.width / categoryCount);
         const barWidth = Math.floor(categoryWidth * (1 - this.options.categorySpacing) / barCount);
         const yOrigin = this.yAxis.getOrigin();
 
         for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-            let x = this.plotArea.left + Math.floor(categoryIndex * categoryWidth + categoryWidth * this.options.categorySpacing / 2);
+            let x = plotArea.left + Math.floor(categoryIndex * categoryWidth + categoryWidth * this.options.categorySpacing / 2);
             const cx = barWidth;
             let yBottomPositive = yOrigin,
                 yBottomNegative = yOrigin,
@@ -128,6 +128,8 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 rect.right -= Math.floor(this.options.barPadding * this.scaleFactor / 2);
                 if (rect.right < rect.left)
                     rect.right = rect.left;
+                if (isHorizontal)
+                    rect.swapXY();
                 rect.clip(this.plotArea);
 
                 const stopEnumerating = callback({
