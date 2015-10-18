@@ -75,8 +75,8 @@ Tayberry.prototype.setOptions = function (options) {
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
     this.updateFonts();
-    this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.barChart.orientation === 'horizontal');
-    this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.barChart.orientation === 'horizontal');
+    this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
+    this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));

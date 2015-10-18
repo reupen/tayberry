@@ -49,9 +49,7 @@ Tayberry.prototype.defaultOptions = function () {
             type: 'linear'
         },
         series: [],
-        barChart: {
-            orientation: "vertical"
-        },
+        swapAxes: false,
         barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
         elementSmallPadding: 5,

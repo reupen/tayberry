@@ -120,14 +120,6 @@ class Axis {
             return !this.isPlacedAtStart ? 'top' : 'bottom';
     }
 
-    get plotDisplacement() {
-        return this.isYAxis ? (this.tayberry.plotArea.height) : -(this.tayberry.plotArea.width);
-    }
-
-    get plotLength() {
-        return Math.abs(this.plotDisplacement);
-    }
-
     drawTitle() {
         let tb = this.tayberry;
         tb.ctx.save();
@@ -156,13 +148,13 @@ class Axis {
 
 class CategorialAxis extends Axis {
     drawTicksAndLabels() {
-        var i, barWidth, x, y, lastXEnd;
+        var i, x, y, lastXEnd;
         let tb = this.tayberry;
         const categoryCount = this.options.categories.length;
         let plotArea = tb.plotArea.clone();
         if (this.isYAxis)
             plotArea.swapXY();
-        barWidth = Math.floor(plotArea.width / tb.series[0].data.length);
+        const categoryWidth = (plotArea.width / tb.series[0].data.length);
         tb.ctx.save();
         tb.ctx.fillStyle = tb.options.font.colour;
         tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
@@ -180,8 +172,15 @@ class CategorialAxis extends Axis {
                 break;
         }
         for (i = 0; i < categoryCount; i++) {
-            x = plotArea.left + Math.floor(i * barWidth + barWidth * factor);
-            y = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom) + this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1);
+            let yMark = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
+            //let xMark = plotArea.left + Math.floor(i * categoryWidth);
+            x = plotArea.left + Math.floor(i * categoryWidth + categoryWidth * factor);
+            y = yMark + this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1);
+            //if (this.isYAxis)
+            //    tb.drawLine(yMark+1, xMark, yMark - this.mapLogicalYOrXUnit(tb.options.elementSmallPadding), xMark, tb.options.yAxis.gridLines.colour);
+            //else
+            //    tb.drawLine(xMark, yMark-1, xMark, yMark + this.mapLogicalYOrXUnit(tb.options.elementSmallPadding), tb.options.yAxis.gridLines.colour);
+
             const textWidth = tb.getTextWidth(this.options.categories[i]);
             const xStart = x - textWidth / 2;
             const xEnd = x + textWidth / 2;
@@ -303,8 +302,17 @@ class LinearAxis extends Axis {
         }
     }
 
+    get plotDisplacement() {
+        return this.isYAxis ? (this.tayberry.plotArea.height - 1) : -(this.tayberry.plotArea.width - 1);
+    }
+
+    get plotLength() {
+        return Math.abs(this.plotDisplacement);
+    }
+
     getOrigin() {
         let ret = this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'] - (0 - this.min) * this.plotDisplacement / (this.max - this.min);
+        if (this.isYAxis) ret--;
         ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
         return ret;
     }
