@@ -1,9 +1,11 @@
 # TayberryJS 0.1.0
 
+&copy; Reupen Shah 2015
+
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
 ## Demos
-[Click here for some demos.](https://reupen.github.io/tayberry)
+[Click here for some demos and examples.](https://reupen.github.io/tayberry)
 
 ## What's good about it?
 
@@ -33,11 +35,11 @@ Tayberry.create('container-id', {
 
 ## Supported browsers
 
-Tayberry only supports modern browsers. Tested on Firefox, Chrome and Internet Explorer 11.
+Tayberry only supports modern browsers. Tested on Firefox 42, Chrome 45 and Internet Explorer 11.
 
 ## Usage
 
-Create a container `div` in your page and load tayberry.min.js. Call `Tayberry.create`
+Create a container `div` in your page, with a set width and height, and load tayberry.min.js. Call `Tayberry.create`
 just like the example above. That's with the id of your div as the first argument, and an object specifying chart options as the second.
 
 Available attributes on the option object are (full details still to be completed):
@@ -56,36 +58,32 @@ Available attributes on the option object are (full details still to be complete
 | font.colour                   | colour code   |
 | font.face                     | string |
 | font.size                     | logical pixels |
-| labels.enabled                |                 |
-| labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                |
-| labels.verticalPosition       | 'outside'\|'inside'\|'middle' |
-| legend.enabled                |                 |
-| legend.indicatorSize          |                 |
-| presets                       |                 |
-| series                        |                 |
-| title.font.size               |                 |
-| title.text                    |                 |
+| labels.enabled                | true|false      | Show data labels in the plot area
+| labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                | Where in each bar labels should appear
+| labels.verticalPosition       | 'outside'\|'inside'\|'middle' | 
+| legend.enabled                | true|false      |
+| legend.indicatorSize          |                 | 
+| presets                       | array           |
+| series                        | array of objects |
+| title.font.size               | logical pixels  | Font size of the chart title
+| title.text                    | string          | Title for the chart
 | tooltips.footerTemplate       |                 |
 | tooltips.headerTemplate       |                 |
-| tooltips.shared               |                 |
+| tooltips.shared               | true|false      |
 | tooltips.valueTemplate        |                 |
-| xAxis.categories              |                 |
+| xAxis.categories              | array           |
 | xAxis.labelPosition           | 'left'\|'middle'\|'right' |
-| xAxis.max                     |                 |
-| xAxis.min                     |                 |
-| xAxis.step                    |                 |
-| xAxis.title                   |                 |
-| xAxis.type                    |                 |
-| yAxis.currencySymbol          |                 |
+| xAxis.title                   | string          |
+| yAxis.currencySymbol          | string          |
 | yAxis.gridLines.colour        |                 |
 | yAxis.labelFormat             | 'number'\|'percentage'\|'currency'                |
 | yAxis.labelFormatter          | function          |
 | yAxis.labelPrefix             |                |
 | yAxis.labelSuffix             |                 |
-| yAxis.min                     |                 |
-| yAxis.max                     |                 |
-| yAxis.tickStep                |                 |
-| yAxis.title                   |                 |
+| yAxis.min                     | number          | Use this to override the automatic axis minimum value calculation
+| yAxis.max                     | number          | Use this to override the automatic axis maximum value calculation
+| yAxis.tickStep                | logical pixels  | 
+| yAxis.title                   | string          |
 
 See the demos for some examples.
 
