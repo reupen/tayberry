@@ -158,7 +158,7 @@ class CategorialAxis extends Axis {
         tb.ctx.save();
         tb.ctx.fillStyle = tb.options.font.colour;
         tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
-        tb.ctx.textBaseline = this.isYAxis ? 'top' : 'top';
+        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
         let factor;
         switch (this.options.labelPosition) {
             case 'left':
@@ -184,7 +184,7 @@ class CategorialAxis extends Axis {
             const textWidth = tb.getTextWidth(this.options.categories[i]);
             const xStart = x - textWidth / 2;
             const xEnd = x + textWidth / 2;
-            if (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
+            if (this.isYAxis || typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
                 if (this.isYAxis)
                     [x, y] = [y, x];
                 tb.ctx.fillText(this.options.categories[i], x, y);
