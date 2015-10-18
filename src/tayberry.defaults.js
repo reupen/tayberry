@@ -30,7 +30,7 @@ Tayberry.prototype.defaultOptions = function () {
             step: 1,
             categories: [],
             labelPosition: 'middle', //left|middle|right
-            placement: 'end'
+            placement: 'auto'
         },
         yAxis: {
             title: '',
@@ -45,7 +45,7 @@ Tayberry.prototype.defaultOptions = function () {
             labelPrefix: undefined,
             labelSuffix: undefined,
             currencySymbol: '£',
-            placement: 'start',
+            placement: 'auto',
             type: 'linear'
         },
         series: [],

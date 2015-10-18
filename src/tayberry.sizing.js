@@ -122,7 +122,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                 const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                 if (Utils.isMissingValue(value))
                     continue;
-                const yTop = yOrigin - this.yAxis.getValueSize(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
+                const yTop = this.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                 let rect = new Rect(x, yTop, x + cx, value > 0 ? yBottomPositive : yBottomNegative);
                 rect.left += Math.ceil(this.options.barPadding * this.scaleFactor / 2);
                 rect.right -= Math.floor(this.options.barPadding * this.scaleFactor / 2);
