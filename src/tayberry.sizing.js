@@ -46,7 +46,8 @@ Tayberry.prototype.calculatePlotArea = function () {
 
     for (let i = 0; i < MAX_AXIS_CALC_SIZE_ATTEMPTS; i++) {
         this.yAxis.calculateExtent();
-        this.updateYFormatter();
+        this.yAxis.updateFormatter();
+        this.xAxis.updateFormatter();
         if (!this.yAxis.adjustSize(this.plotArea) && !this.xAxis.adjustSize(this.plotArea))
             break;
     }

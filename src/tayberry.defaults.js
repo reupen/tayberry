@@ -30,7 +30,9 @@ Tayberry.prototype.defaultOptions = function () {
             step: 1,
             categories: [],
             labelPosition: 'middle', //left|middle|right
-            placement: 'auto'
+            placement: 'auto',
+            gridLines: {
+            }
         },
         yAxis: {
             title: '',

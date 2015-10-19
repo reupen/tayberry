@@ -104,6 +104,34 @@ class Axis {
     }
 
     drawTicksAndLabels() {
+        let tb = this.tayberry;
+        const labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+
+        tb.ctx.save();
+        tb.ctx.fillStyle = tb.options.font.colour;
+        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
+        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
+
+        let lastXEnd;
+
+        this.enumerateTicks(function (tick) {
+            let textWidth, xStart, xEnd;
+            if (!this.isYAxis) {
+                textWidth = tb.getTextWidth(tick.value);
+                xStart = tick.x1 - textWidth / 2;
+                xEnd = tick.x1 + textWidth / 2;
+            }
+
+            if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.canvas.width) {
+                tb.ctx.fillText(this.options.labelFormatter(tick.value), tick.x + labelPaddingX, tick.y + labelPaddingY);
+                lastXEnd = xEnd;
+            }
+            if (this.options.gridLines.colour)
+                tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
+        }.bind(this));
+
+        tb.ctx.restore();
     }
 
     get startProperty() {
@@ -144,78 +172,98 @@ class Axis {
 
     getOrigin() {
     }
+
+    updateFormatter() {
+    }
 }
 
 class CategorialAxis extends Axis {
-    drawTicksAndLabels() {
-        var i, x, y, lastXEnd;
+    enumerateTicks(callback) {
         let tb = this.tayberry;
+
         const categoryCount = this.options.categories.length;
         let plotArea = tb.plotArea.clone();
         if (this.isYAxis)
             plotArea.swapXY();
         const categoryWidth = (plotArea.width / tb.series[0].data.length);
-        tb.ctx.save();
-        tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
-        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
-        let factor;
-        switch (this.options.labelPosition) {
-            case 'left':
-                factor = 0;
-                break;
-            case 'right':
-                factor = 1;
-                break;
-            default:
-                factor = 0.5;
-                break;
-        }
-        for (i = 0; i < categoryCount; i++) {
-            let yMark = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
-            //let xMark = plotArea.left + Math.floor(i * categoryWidth);
-            x = plotArea.left + Math.floor(i * categoryWidth + categoryWidth * factor);
-            y = yMark + this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1);
-            //if (this.isYAxis)
-            //    tb.drawLine(yMark+1, xMark, yMark - this.mapLogicalYOrXUnit(tb.options.elementSmallPadding), xMark, tb.options.yAxis.gridLines.colour);
-            //else
-            //    tb.drawLine(xMark, yMark-1, xMark, yMark + this.mapLogicalYOrXUnit(tb.options.elementSmallPadding), tb.options.yAxis.gridLines.colour);
+        let factor = 0.5;
 
-            const textWidth = tb.getTextWidth(this.options.categories[i]);
-            const xStart = x - textWidth / 2;
-            const xEnd = x + textWidth / 2;
-            if (this.isYAxis || typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) {
-                if (this.isYAxis)
-                    [x, y] = [y, x];
-                tb.ctx.fillText(this.options.categories[i], x, y);
-                lastXEnd = xEnd;
+        if (!this.isYAxis) {
+            switch (this.options.labelPosition) {
+                case 'left':
+                    factor = 0;
+                    break;
+                case 'right':
+                    factor = 1;
+                    break;
             }
         }
-        tb.ctx.restore();
+
+        for (let i = 0; i < categoryCount; i++) {
+            const value = this.options.categories[i];
+            let y1 = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
+            let y2 = (!this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
+            let x1 = plotArea.left + Math.floor(i * categoryWidth);
+            let x2 = x2;
+            let x = plotArea.left + Math.floor(i * categoryWidth + categoryWidth * factor);
+            let y = y1;
+            if (this.isYAxis)
+                [x1, y1, x2, y2, x, y] = [y1, x1, y2, x2, y, x];
+
+            callback({
+                value: value,
+                x1: x1,
+                y1: y1,
+                x2: x2,
+                y2: y2,
+                x: x,
+                y: y
+            });
+
+        }
     }
 
     maxLabelSize() {
         let tb = this.tayberry;
         return Utils.reduce(this.options.categories, Math.max, tb.getTextWidth.bind(tb));
     }
+
+    updateFormatter() {
+        if (!this.options.labelFormatter) {
+            this.options.labelFormatter = Utils.identity;
+        }
+    }
 }
 
 class LinearAxis extends Axis {
     maxLabelSize() {
         let tb = this.tayberry;
-        return Math.max(tb.getTextWidth(this.options.labelFormatter(this.tickStart)), tb.getTextWidth(this.options.labelFormatter(this.tickEnd)));
+        let ticks = this.getTicks();
+        return Utils.reduce(ticks, Math.max, x => tb.getTextWidth(x.value));
     }
 
+    updateFormatter() {
+        if (!this.options.labelFormatter) {
+            if (this.options.labelFormat === 'percentage') {
+                this.options.labelFormatter = Utils.createPercentageFormatter(this.max - this.min, this.options.labelPrefix, this.options.labelSuffix);
+            }
+            else if (this.options.labelFormat === 'currency') {
+                this.options.labelFormatter = Utils.createFixedNumberFormatter(this.max - this.min, this.options.labelPrefix || this.options.currencySymbol, this.options.labelSuffix);
+            }
+            else {
+                this.options.labelFormatter = Utils.createAutoNumberFormatter(this.max - this.min, this.options.labelPrefix, this.options.labelSuffix);
+            }
+        }
+    };
+
     enumerateTicks(callback) {
-        var yValue, x, y;
         let tb = this.tayberry;
 
         const start = this.startProperty,
             end = this.endProperty;
 
-        for (yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
-            x = tb.plotArea[start] + this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1);
-            y = this.getValueDisplacement(yValue);
+        for (let yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
+            let y = this.getValueDisplacement(yValue);
             if (this.isYAxis) {
                 if (tb.plotArea.containsY(y)) {
                     if (callback({
@@ -223,7 +271,10 @@ class LinearAxis extends Axis {
                             x1: tb.plotArea[start],
                             y1: y,
                             x2: tb.plotArea[end],
-                            y2: y
+                            y2: y,
+                            x: tb.plotArea[start],
+                            y: y
+
                         }))
                         break;
                 }
@@ -234,7 +285,9 @@ class LinearAxis extends Axis {
                             y1: tb.plotArea[start],
                             x1: y,
                             y2: tb.plotArea[end],
-                            x2: y
+                            x2: y,
+                            y: tb.plotArea[start],
+                            x: y
                         }))
                         break;
                 }
@@ -243,22 +296,10 @@ class LinearAxis extends Axis {
         }
     }
 
-    drawTicksAndLabels() {
-        let tb = this.tayberry;
-        const labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding)*(this.isPlacedAtStart ? -1 : 1) : 0;
-        const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding)*(this.isPlacedAtStart ? -1 : 1) : 0;
-
-        tb.ctx.save();
-        tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
-        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
-
-        this.enumerateTicks(function(tick) {
-            tb.ctx.fillText(this.options.labelFormatter(tick.value), tick.x1 + labelPaddingX, tick.y1 + labelPaddingY);
-            tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
-        }.bind(this));
-
-        tb.ctx.restore();
+    getTicks() {
+        let ret = [];
+        this.enumerateTicks(tick => ret.push(tick));
+        return ret;
     }
 
     calculateExtent() {
