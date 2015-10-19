@@ -298,7 +298,9 @@ class LinearAxis extends Axis {
 
     getTicks() {
         let ret = [];
-        this.enumerateTicks(tick => ret.push(tick));
+        this.enumerateTicks(function (tick) {
+            ret.push(tick)
+        });
         return ret;
     }
 
