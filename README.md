@@ -68,21 +68,21 @@ Available attributes on the option object are (full details still to be complete
 | tooltips.headerTemplate       | string          |      |
 | tooltips.shared               | boolean         |      |
 | tooltips.valueTemplate        | string          |      |
-| [xAxis|yAxis].categories              | array           | (categorial axes only)      |
-| [xAxis|yAxis].currencySymbol          | string          | (linear axes only)     |
-| [xAxis|yAxis].labelPosition           | 'left'\|'middle'\|'right' |
-| [xAxis|yAxis].gridLines.colour        | HTML colour code |      |
-| [xAxis|yAxis].labelFormat             | 'number'\|'percentage'\|'currency'                | (linear axes only)
-| [xAxis|yAxis].labelFormatter          | function          |      |
-| [xAxis|yAxis].labelPrefix             | string          | (linear axes only)      |
-| [xAxis|yAxis].labelSuffix             | string          | (linear axes only)      |
-| [xAxis|yAxis].min                     | number          | Use this to override the automatic axis minimum value calculation (linear axes only)
-| [xAxis|yAxis].max                     | number          | Use this to override the automatic axis maximum value calculation (linear axes only)
-| [xAxis|yAxis].placement               | 'start'\|'end'  |       |
-| [xAxis|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
-| [xAxis|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
-| [xAxis|yAxis].title                   | string          |      |
-| [xAxis|yAxis].type                    | 'linear'\|'categorial'          |      |
+| [xAxis\|yAxis].categories              | array           | (categorial axes only)      |
+| [xAxis\|yAxis].currencySymbol          | string          | (linear axes only)     |
+| [xAxis\|yAxis].labelPosition           | 'left'\|'middle'\|'right' |
+| [xAxis\|yAxis].gridLines.colour        | HTML colour code |      |
+| [xAxis\|yAxis].labelFormat             | 'number'\|'percentage'\|'currency'                | (linear axes only)
+| [xAxis\|yAxis].labelFormatter          | function          |      |
+| [xAxis\|yAxis].labelPrefix             | string          | (linear axes only)      |
+| [xAxis\|yAxis].labelSuffix             | string          | (linear axes only)      |
+| [xAxis\|yAxis].min                     | number          | Use this to override the automatic axis minimum value calculation (linear axes only)
+| [xAxis\|yAxis].max                     | number          | Use this to override the automatic axis maximum value calculation (linear axes only)
+| [xAxis\|yAxis].placement               | 'start'\|'end'  |       |
+| [xAxis\|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
+| [xAxis\|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
+| [xAxis\|yAxis].title                   | string          |      |
+| [xAxis\|yAxis].type                    | 'linear'\|'categorial'          |      |
 
 See the demos for some examples.
 
@@ -99,7 +99,6 @@ TayberryJS is at an early alpha stage. There will be some bugs, but please do op
 ## Roadmap
 
 Some upcoming features planned are:
-* horizontal bars
 * line charts
 * dynamic chart updates
 * mixed bar and line charts
