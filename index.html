@@ -9,29 +9,59 @@
     <title>TayberryJS - canvas-based JavaScript charting library</title>
     <meta name="description" content="An easy-to-use canvas-based JavaScript charting library for the modern web.">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>TayberryJS</h1>
-    </header>
-    <h2>Documentation</h2>
-    <p>Head over to <a href="https://github.com/reupen/tayberry">github.com/reupen/tayberry</a> for the docs.</p>
-    <h2>Examples</h2>
-    <div class="text-center">
 
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-block">
+<nav class="navbar navbar-dark navbar-fixed-top bg-inverse">
+    <div class="container">
+        <a class="navbar-brand" href="#">TayberryJS</a>
+        <ul class="nav navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="#docs">Docs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#examples">Examples</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <a name="docs"></a>
+
+    <h1>Documentation</h1>
+
+    <p>Head over to <a href="https://github.com/reupen/tayberry">github.com/reupen/tayberry</a> for the docs.</p>
+
+    <a name="examples"></a>
+
+    <h1>Examples</h1>
+
+    <div>
+
+        <div class="card">
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-sm-8">
                         <div class="chart" id="chart1" style="width: 100%; height: 350px"></div>
                     </div>
-                    <div class="card-header text-left">
-                        Overlaid histograms
+                    <div class="col-sm-4">
+                        <p class="lead">Two histograms overlaid using partial transparency</p>
+
+                        <p>Of course, you have your histograms one per chart if you prefer.</p>
                     </div>
-                    <div class="card-block text-left">
+                </div>
+            </div>
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#code1" aria-expanded="false" aria-controls="collapseExample">
+                    Show code
+                </a>
+            </div>
+
+            <div class="collapse card-block" id="code1">
                         <pre>
 Tayberry.create('chart1', {
     title: {
@@ -41,44 +71,55 @@ Tayberry.create('chart1', {
         title: 'Frequency'
     },
     xAxis: {
-        categories: [-50, -48, -46, -44, -42, -40, -38, -36, -34, -32, -30, -28, -26, -24, -22, -20, -18, -16, -14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50],
         title: 'Error',
-        labelPosition: 'left'
+        type: 'linear',
+        min: -50,
+        max: 50,
+        tickStepValue: 10
     },
     presets: ['histogram'],
     series: [{
         data: [11, 13, 20, 19, 37, 38, 43, 49, 53, 80, 84, 102, 122, 111, 115, 143, 161, 148, 196, 210, 213, 220, 226, 227, 235, 189, 233, 201, 188, 158, 177, 145, 120, 101, 112, 104, 69, 71, 52, 38, 31, 23, 17, 13, 12, 12, 9, 6, 6, 4],
         name: 'Sales',
-        colour: 'rgba(128, 128, 128, 0.5)'
+        colour: 'rgba(140, 40, 138, 0.5)'
     }, {
         data: [4, 3, 1, 4, 15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12],
         name: 'Customers',
-        colour: 'rgba(180, 128, 100, 0.5)'
+        colour: 'rgba(48, 140, 100, 0.5)'
     }]
-});
-                        </pre>
-                    </div>
-                </div>
+});</pre>
 
 
             </div>
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-block">
+        </div>
+
+        <div class="card">
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p class="lead">Stacked bar chart with negative values</p>
+
+                        <p>Also using shared tooltips, which display values for all series rather than just the one under the pointer.</p>
+                    </div>
+                    <div class="col-sm-8">
                         <div class="chart" id="chart2" style="width: 100%; height: 350px"></div>
                     </div>
-                    <div class="card-header text-left">
-                        Mixed positive and negative value stacked bar chart, shared tooltip
-                    </div>
-                    <div class="card-block text-left">
+                </div>
+            </div>
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#code2" aria-expanded="false" aria-controls="collapseExample">
+                    Show code
+                </a>
+            </div>
+            <div class="collapse card-block" id="code2">
                         <pre>
 Tayberry.create('chart2', {
     title: {
         text: 'Contribution to revenue growth'
     },
     xAxis: {
-        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-        title: 'Error'
+        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
+        title: 'Month'
     },
     yAxis: {
         title: 'Impact',
@@ -89,34 +130,42 @@ Tayberry.create('chart2', {
         shared: true
     },
     series: [{
-        data: [10, 9, 8, 7, 6, 5, 4],
+        data: [10, 9, 8, 7, 6, 5, 4, 3, 3, 0, -3, -5],
         name: 'Frequency'
     }, {
-        data: [-5, -6, -8, -10, -9, -7, -7],
+        data: [-5, -6, -8, -10, -9, -7, -7, -3, -2, 2, 1, 3],
         name: 'Price'
     }, {
-        data: [2, 1, 3, -1, -3, -3, -4],
-        name: 'Promotions'
+        data: [2, 1, 3, -1, -3, -3, -4, 3, 4, 7, 3, 2],
+        name: 'Special offers'
     }, {
-        data: [5, 6, 7, 6, 2, 2, 10],
+        data: [5, 6, 7, 6, 2, 2, 10, 6, 1, 2, -3, -6],
         name: 'Transaction size'
     }]
-});
-                        </pre>
+});</pre>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="chart" id="chart3" style="width: 100%; height: 350px"></div>
+                    </div>
+                    <div class="col-sm-4">
+                        <p class="lead">Standard bar chart with multiple series</p>
+
+                        <p>Using data labels and percentage formatting.</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-block">
-                        <div class="chart" id="chart3" style="width: 100%; height: 350px"></div>
-                    </div>
-                    <div class="card-header">
-                        Side-by-side series, with labels
-                    </div>
-                    <div class="card-block text-left">
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#code3" aria-expanded="false" aria-controls="collapseExample">
+                    Show code
+                </a>
+            </div>
+            <div class="collapse card-block" id="code3">
                         <pre>
 Tayberry.create('chart3', {
     title: {
@@ -132,16 +181,73 @@ Tayberry.create('chart3', {
         enabled: true
     },
     series: [{
-        data: [.306, .341, .156, .129, .069],
-        name: '2011'
-    },{
         data: [.132, .290, .224, .180, .173],
         name: '1961'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011'
     }]
-});
-                        </pre>
+
+});</pre>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <p class="lead">Horizontal bar chart</p>
+
+                        <p>Using a custom label formatter.</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="chart" id="chart4" style="width: 100%; height: 350px"></div>
                     </div>
                 </div>
+            </div>
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#code4" aria-expanded="false" aria-controls="collapseExample">
+                    Show code
+                </a>
+            </div>
+            <div class="collapse card-block" id="code4">
+                        <pre>
+Tayberry.create('chart4', {
+    title: {
+        text: 'UK population by region (mid-2013)'
+    },
+    xAxis: {
+        categories: ['North East',
+            'North West',
+            'Yorkshire and The Humber',
+            'East Midlands',
+            'West Midlands',
+            'East',
+            'London',
+            'South East',
+            'South West',
+        ]
+    },
+    swapAxes: true,
+    yAxis: {
+        labelFormatter: function(val) {
+            return (val/1000000).toFixed(1) + 'm';
+        }
+    },
+    series: [{
+        data: [2610481,
+            7103261,
+            5337711,
+            4598431,
+            5674712,
+            5954316,
+            8416543,
+            8792766,
+            5377596],
+        name: 'Population (people)'
+    }]
+});</pre>
             </div>
         </div>
 
@@ -150,17 +256,24 @@ Tayberry.create('chart3', {
 
 <!-- jQuery first, then Bootstrap JS. -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-<script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+<script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.min.js"></script>
 <script src="js/tayberry.js"></script>
 <script src="js/main.js"></script>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+                    (i[r].q = i[r].q || []).push(arguments)
+                }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-2243969-6', 'auto');
-  ga('send', 'pageview');
+    ga('create', 'UA-2243969-6', 'auto');
+    ga('send', 'pageview');
 
 </script>
 </body>
