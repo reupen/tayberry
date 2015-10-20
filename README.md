@@ -1,4 +1,4 @@
-# TayberryJS 0.1.0
+# TayberryJS 0.2.0
 
 &copy; Reupen Shah 2015
 
@@ -46,44 +46,43 @@ Available attributes on the option object are (full details still to be complete
 
 | Field           | Allowed values | Description |
 | ---------------------- | ------------- |------------- |
-| title.text             | String | Chart title  |
-| title.font.size        | Chart title size (logical pixels)                           |
-| font.colour           | Font colour                           |
-| barMode                       | 'normal'\|'stacked'\|'overlaid'                |
+| barMode                       | 'normal'\|'stacked'\|'overlaid'                |      |
 | barPadding                    | logical pixels          | Padding between bars in the same category |
 | categorySpacing               | percentage in [0, 1)                | Spacing between categories |
-| defaultPalette                | array of colour codes |
-| elementLargePadding           | logical pixels |
-| elementSmallPadding           | logical pixels |
-| font.colour                   | colour code   |
-| font.face                     | string |
-| font.size                     | logical pixels |
-| labels.enabled                | true|false      | Show data labels in the plot area
+| elementLargePadding           | logical pixels |       |
+| elementSmallPadding           | logical pixels |       |
+| font.colour                   | HTML colour code    | Font colour
+| font.face                     | string              | Font name
+| font.size                     | logical pixels      | Font size
+| labels.enabled                | boolean             | Show data labels in the plot area
 | labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                | Where in each bar labels should appear
-| labels.verticalPosition       | 'outside'\|'inside'\|'middle' | 
-| legend.enabled                | true|false      |
-| legend.indicatorSize          |                 | 
-| presets                       | array           |
-| series                        | array of objects |
+| labels.verticalPosition       | 'outside'\|'inside'\|'middle' |      | 
+| legend.enabled                | boolean         |      |
+| legend.indicatorSize          | logical pixels  |       |
+| presets                       | array           |      |
+| series                        | array of objects |      |
+| swapAxes                      | boolean |      |
 | title.font.size               | logical pixels  | Font size of the chart title
 | title.text                    | string          | Title for the chart
-| tooltips.footerTemplate       |                 |
-| tooltips.headerTemplate       |                 |
-| tooltips.shared               | true|false      |
-| tooltips.valueTemplate        |                 |
-| xAxis.categories              | array           |
-| xAxis.labelPosition           | 'left'\|'middle'\|'right' |
-| xAxis.title                   | string          |
-| yAxis.currencySymbol          | string          |
-| yAxis.gridLines.colour        |                 |
-| yAxis.labelFormat             | 'number'\|'percentage'\|'currency'                |
-| yAxis.labelFormatter          | function          |
-| yAxis.labelPrefix             |                |
-| yAxis.labelSuffix             |                 |
-| yAxis.min                     | number          | Use this to override the automatic axis minimum value calculation
-| yAxis.max                     | number          | Use this to override the automatic axis maximum value calculation
-| yAxis.tickStep                | logical pixels  | 
-| yAxis.title                   | string          |
+| tooltips.footerTemplate       | string          |      |
+| tooltips.headerTemplate       | string          |      |
+| tooltips.shared               | boolean         |      |
+| tooltips.valueTemplate        | string          |      |
+| [xAxis|yAxis].categories              | array           | (categorial axes only)      |
+| [xAxis|yAxis].currencySymbol          | string          | (linear axes only)     |
+| [xAxis|yAxis].labelPosition           | 'left'\|'middle'\|'right' |
+| [xAxis|yAxis].gridLines.colour        | HTML colour code |      |
+| [xAxis|yAxis].labelFormat             | 'number'\|'percentage'\|'currency'                | (linear axes only)
+| [xAxis|yAxis].labelFormatter          | function          |      |
+| [xAxis|yAxis].labelPrefix             | string          | (linear axes only)      |
+| [xAxis|yAxis].labelSuffix             | string          | (linear axes only)      |
+| [xAxis|yAxis].min                     | number          | Use this to override the automatic axis minimum value calculation (linear axes only)
+| [xAxis|yAxis].max                     | number          | Use this to override the automatic axis maximum value calculation (linear axes only)
+| [xAxis|yAxis].placement               | 'start'\|'end'  |       |
+| [xAxis|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
+| [xAxis|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
+| [xAxis|yAxis].title                   | string          |      |
+| [xAxis|yAxis].type                    | 'linear'\|'categorial'          |      |
 
 See the demos for some examples.
 
