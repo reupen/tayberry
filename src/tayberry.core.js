@@ -5,6 +5,14 @@ var Utils = require('./utils');
 var Tayberry = require('./tayberry.base').Tayberry;
 var Axis = require('./tayberry.axes').Axis;
 
+var currentAutoColourIndex = 0;
+
+Tayberry.getAutoColour = function() {
+    let ret = Tayberry.defaultColours[currentAutoColourIndex % Tayberry.defaultColours.length];
+    currentAutoColourIndex++;
+    return ret;
+};
+
 Tayberry.prototype.create = function (containerElement) {
     if (typeof containerElement == 'string') {
         this.containerElement = document.getElementById(containerElement);
@@ -95,7 +103,7 @@ Tayberry.prototype.setSeries = function (series) {
     this.renderedSeries = series.slice(0);
     for (i = 0; i < this.renderedSeries.length; i++) {
         let actualSeries = this.series[i];
-        actualSeries.colour = actualSeries.colour || this.options.defaultPalette[i];
+        actualSeries.colour = actualSeries.colour || Tayberry.getAutoColour();
         actualSeries.highlightColour = actualSeries.highlightColour || Tayberry.calculateHighlightColour(actualSeries.colour);
         let elem = Utils.assign({}, actualSeries);
         elem.data = this.renderedSeries[i].data.slice(0);

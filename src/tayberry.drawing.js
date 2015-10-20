@@ -29,7 +29,9 @@ Tayberry.prototype.drawTitle = function () {
 };
 
 Tayberry.prototype.drawLabel = function (sign, text, rect) {
-    const x = (rect.left + rect.right) / 2;
+    if (this.options.swapAxes)
+        rect = rect.clone().swapXY();
+    let x = (rect.left + rect.right) / 2;
     let y;
     if (this.options.labels.verticalAlignment === 'top')
         y = rect.top;
@@ -37,10 +39,21 @@ Tayberry.prototype.drawLabel = function (sign, text, rect) {
         y = rect.bottom;
     else
         y = (rect.top + rect.bottom) / 2;
+    let baseline = 'middle';
+    let align = 'center';
+    if (this.options.swapAxes) {
+        [x, y] = [y, x];
+        if (this.options.labels.verticalPosition === 'outside')
+            align = 'left';
+        else if (this.options.labels.verticalPosition === 'inside')
+            align = 'right';
+    } else {
+        baseline = Tayberry.mapVerticalPosition(sign, this.options.labels.verticalPosition);
+    }
     if (this.plotArea.containsPoint(x, y)) {
         this.ctx.save();
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = Tayberry.mapVerticalPosition(sign, this.options.labels.verticalPosition);
+        this.ctx.textAlign = align;
+        this.ctx.textBaseline = baseline;
         this.ctx.fillStyle = this.options.font.colour;
         this.ctx.fillText(text, x, y);
         this.ctx.restore();

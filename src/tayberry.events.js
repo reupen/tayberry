@@ -40,7 +40,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-            const category = this.xAxis.options.categories[hitTestResult.categoryIndex];
+            const category = this.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.series[0].data.length);
             this.tooltipElement.style.display = 'block';
             let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
             if (this.options.tooltips.shared) {

@@ -43,6 +43,9 @@ class Axis {
     }
 
     maxLabelSize() {
+        let tb = this.tayberry;
+        let ticks = this.getTicks();
+        return Utils.reduce(ticks, Math.max, x => tb.getTextWidth(this.options.labelFormatter(x.value)));
     }
 
     mapLogicalXOrYUnit(x) {
@@ -70,6 +73,16 @@ class Axis {
             if (this.isYAxis) {
                 size += this.maxLabelSize()
             } else {
+                // A bit hacky - need to generalise
+                let ticks = this.getTicks(false);
+                if (ticks.length) {
+                    const lastTick = ticks[ticks.length-1];
+                    const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value));
+                    const lastTickXEnd = lastTick.x + textWidth/2;
+                    if (lastTickXEnd >= tb.canvas.width) {
+                        plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
+                    }
+                }
                 size += this.mapLogicalXOrYUnit(tb.options.font.size);
             }
         }
@@ -98,6 +111,8 @@ class Axis {
     calculateExtent() {
     }
 
+    getCategoryLabel() {}
+
     draw() {
         this.drawTicksAndLabels();
         this.drawTitle();
@@ -110,21 +125,22 @@ class Axis {
 
         tb.ctx.save();
         tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = this.isYAxis ? 'right' : 'center';
-        tb.ctx.textBaseline = this.isYAxis ? 'middle' : 'top';
+        tb.ctx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
+        tb.ctx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
         let lastXEnd;
 
         this.enumerateTicks(function (tick) {
             let textWidth, xStart, xEnd;
+            const formattedValue = this.options.labelFormatter(tick.value);
             if (!this.isYAxis) {
-                textWidth = tb.getTextWidth(tick.value);
-                xStart = tick.x1 - textWidth / 2;
-                xEnd = tick.x1 + textWidth / 2;
+                textWidth = tb.getTextWidth(formattedValue);
+                xStart = tick.x - textWidth / 2;
+                xEnd = tick.x + textWidth / 2;
             }
 
             if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.canvas.width) {
-                tb.ctx.fillText(this.options.labelFormatter(tick.value), tick.x + labelPaddingX, tick.y + labelPaddingY);
+                tb.ctx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY);
                 lastXEnd = xEnd;
             }
             if (this.options.gridLines.colour)
@@ -170,6 +186,14 @@ class Axis {
         tb.ctx.restore();
     }
 
+    getTicks(visibleOnly = true) {
+        let ret = [];
+        this.enumerateTicks(function (tick) {
+            ret.push(tick)
+        }, visibleOnly);
+        return ret;
+    }
+
     getOrigin() {
     }
 
@@ -204,7 +228,7 @@ class CategorialAxis extends Axis {
             let y1 = (this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
             let y2 = (!this.isPlacedAtStart ? plotArea.top : plotArea.bottom);
             let x1 = plotArea.left + Math.floor(i * categoryWidth);
-            let x2 = x2;
+            let x2 = x1;
             let x = plotArea.left + Math.floor(i * categoryWidth + categoryWidth * factor);
             let y = y1;
             if (this.isYAxis)
@@ -223,25 +247,18 @@ class CategorialAxis extends Axis {
         }
     }
 
-    maxLabelSize() {
-        let tb = this.tayberry;
-        return Utils.reduce(this.options.categories, Math.max, tb.getTextWidth.bind(tb));
-    }
-
     updateFormatter() {
         if (!this.options.labelFormatter) {
             this.options.labelFormatter = Utils.identity;
         }
     }
+
+    getCategoryLabel(index) {
+        return this.options.labelFormatter(this.options.categories[index]);
+    }
 }
 
 class LinearAxis extends Axis {
-    maxLabelSize() {
-        let tb = this.tayberry;
-        let ticks = this.getTicks();
-        return Utils.reduce(ticks, Math.max, x => tb.getTextWidth(x.value));
-    }
-
     updateFormatter() {
         if (!this.options.labelFormatter) {
             if (this.options.labelFormat === 'percentage') {
@@ -254,9 +271,9 @@ class LinearAxis extends Axis {
                 this.options.labelFormatter = Utils.createAutoNumberFormatter(this.max - this.min, this.options.labelPrefix, this.options.labelSuffix);
             }
         }
-    };
+    }
 
-    enumerateTicks(callback) {
+    enumerateTicks(callback, visibleOnly = true) {
         let tb = this.tayberry;
 
         const start = this.startProperty,
@@ -265,7 +282,7 @@ class LinearAxis extends Axis {
         for (let yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
             let y = this.getValueDisplacement(yValue);
             if (this.isYAxis) {
-                if (tb.plotArea.containsY(y)) {
+                if (!visibleOnly || tb.plotArea.containsY(y)) {
                     if (callback({
                             value: yValue,
                             x1: tb.plotArea[start],
@@ -279,7 +296,7 @@ class LinearAxis extends Axis {
                         break;
                 }
             } else {
-                if (tb.plotArea.containsX(y)) {
+                if (!visibleOnly || tb.plotArea.containsX(y)) {
                     if (callback({
                             value: yValue,
                             y1: tb.plotArea[start],
@@ -296,53 +313,63 @@ class LinearAxis extends Axis {
         }
     }
 
-    getTicks() {
-        let ret = [];
-        this.enumerateTicks(function (tick) {
-            ret.push(tick)
-        });
-        return ret;
+    static snapScaledValue(scaledStep) {
+        if (scaledStep < 1)
+            scaledStep = 1;
+        else if (scaledStep < 2)
+            scaledStep = 2;
+        else if (scaledStep < 2.5)
+            scaledStep = 2.5;
+        else if (scaledStep < 5)
+            scaledStep = 5;
+        else
+            scaledStep = 10;
+        return scaledStep;
     }
 
     calculateExtent() {
-        if (this.options.type === 'linear') {
-            let targetTicks, approxStep, scale;
+        let targetTicks, approxStep, scale;
 
-            let targetStart = this.options.min;
-            let targetEnd = this.options.max;
-            const overriddenStart = typeof targetStart !== 'undefined';
-            const overriddenEnd = typeof targetEnd !== 'undefined';
+        let targetStart = this.options.min;
+        let targetEnd = this.options.max;
+        const overriddenStart = !Utils.isMissingValue(targetStart);
+        const overriddenEnd = !Utils.isMissingValue(targetEnd);
 
-            if (!overriddenStart || !overriddenEnd) {
-                const [dataMin, dataMax] = this.tayberry.getDataMinMax(); //TODO: implement for x-axis
-                const dataRange = dataMax - dataMin;
-                if (!overriddenStart) {
-                    targetStart = dataMin - dataRange * 0.1;
-                    if (dataMin >= 0 && targetStart < 0)
-                        targetStart = 0;
-                }
-                if (!overriddenEnd) {
-                    targetEnd = dataMax + dataRange * 0.1;
-                    if (dataMax <= 0 && targetStart > 0)
-                        targetEnd = 0;
-                }
+        if (!overriddenStart || !overriddenEnd) {
+            const [dataMin, dataMax] = this.tayberry.getDataMinMax(); //TODO: implement for x-axis
+            const dataRange = dataMax - dataMin;
+            if (!overriddenStart) {
+                targetStart = dataMin - dataRange * 0.1;
+                if (dataMin >= 0 && targetStart < 0)
+                    targetStart = 0;
             }
+            if (!overriddenEnd) {
+                targetEnd = dataMax + dataRange * 0.1;
+                if (dataMax <= 0 && targetStart > 0)
+                    targetEnd = 0;
+            }
+        }
 
+        if (this.options.tickStepValue) {
+            this.tickStep = this.options.tickStepValue;
+            this.min = targetStart;
+            this.max = targetEnd;
+        } else {
             const targetRange = targetEnd - targetStart;
-
             targetTicks = this.plotLength / this.mapLogicalYOrXUnit(this.options.tickStep);
             approxStep = targetRange / targetTicks;
             scale = Math.pow(10, Math.floor(Math.log(approxStep) / Math.log(10)));
-            this.tickStep = Math.ceil(approxStep / scale) * scale;
+            let scaledStep = LinearAxis.snapScaledValue(Math.ceil(approxStep / scale));
+            this.tickStep = scaledStep * scale;
             this.min = targetStart;
             this.max = targetEnd;
-            if (!overriddenStart)
-                this.min = Math.floor(this.min / scale) * scale;
-            if (!overriddenEnd)
-                this.max = Math.ceil(this.max / scale) * scale;
-            this.tickStart = Math.floor(this.min / this.tickStep) * this.tickStep;
-            this.tickEnd = Math.ceil(this.max / this.tickStep) * this.tickStep;
         }
+        this.tickStart = this.options.tickStepValue && overriddenStart ? this.min : Math.floor(this.min / this.tickStep) * this.tickStep;
+        this.tickEnd = this.options.tickStepValue && overriddenEnd ? this.max : Math.ceil(this.max / this.tickStep) * this.tickStep;
+        if (!overriddenStart)
+            this.min = this.tickStart;
+        if (!overriddenEnd)
+            this.max = this.tickEnd;
     }
 
     get plotDisplacement() {
@@ -364,6 +391,13 @@ class LinearAxis extends Axis {
         let ret = this.getOrigin() - value * this.plotDisplacement / (this.max - this.min);
         ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
         return ret;
+    }
+
+    getCategoryLabel(index, totalCategories) {
+        const start = index/totalCategories;
+        const end = (index + 1)/totalCategories;
+        const axisRange = this.max - this.min;
+        return Utils.formatString('{0} \u2264 x < {1}', [this.options.labelFormatter(this.min + start*axisRange), this.options.labelFormatter(this.min + end*axisRange)]);
     }
 }
 

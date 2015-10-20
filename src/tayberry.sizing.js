@@ -46,6 +46,7 @@ Tayberry.prototype.calculatePlotArea = function () {
 
     for (let i = 0; i < MAX_AXIS_CALC_SIZE_ATTEMPTS; i++) {
         this.yAxis.calculateExtent();
+        this.xAxis.calculateExtent();
         this.yAxis.updateFormatter();
         this.xAxis.updateFormatter();
         if (!this.yAxis.adjustSize(this.plotArea) && !this.xAxis.adjustSize(this.plotArea))
@@ -117,7 +118,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
             let categoryXEnd = plotArea.left + Math.floor((categoryIndex + 1) * categoryWidth);
             let barXStart = categoryXStart + Math.ceil(categoryWidth * this.options.categorySpacing / 2);
             let barXEnd = categoryXEnd - Math.floor(categoryWidth * this.options.categorySpacing / 2);
-            let x = barXStart;
+
             let yBottomPositive = yOrigin,
                 yBottomNegative = yOrigin,
                 yRunningTotalPositive = 0,

@@ -26,7 +26,7 @@ class Colour {
      */
     parseString (str) {
         let regExHex = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})|^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/i;
-        let regExInt = /^rgba?\((\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(\s*,\s*([0-9]*\.?[0-9]+))+\)$/i;
+        let regExInt = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(\s*,\s*([0-9]*\.?[0-9]+)\s*)?\)$/i;
         const groupsHex = regExHex.exec(str);
         const groupsInt = regExInt.exec(str);
         if (groupsHex) {
@@ -46,10 +46,7 @@ class Colour {
             this.b = parseInt(groupsInt[3]);
             this.a = groupsInt[5] ? parseFloat(groupsInt[5]) : null;
         } else {
-            this.r = null;
-            this.g = null;
-            this.b = null;
-            this.a = null;
+            throw new RangeError(str + " is not a valid HTML colour");
         }
         return this;
     }

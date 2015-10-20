@@ -3,14 +3,6 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.defaultOptions = function () {
     return {
-        defaultPalette: [
-            '#6FE87B', //green
-            '#FFAB51', //orange
-            '#51A8FF', //blue
-            '#B651FF', //purple
-            '#FF6051', //red
-            '#636363' //dark grey
-        ],
         title: {
             text: '',
             font: {
@@ -25,14 +17,14 @@ Tayberry.prototype.defaultOptions = function () {
         xAxis: {
             title: '',
             type: 'categorial',
-            min: 0,
-            max: 100,
-            step: 1,
+            min: null,
+            max: null,
+            tickStep: 40,
+            tickStepValue: null,
             categories: [],
             labelPosition: 'middle', //left|middle|right
             placement: 'auto',
-            gridLines: {
-            }
+            gridLines: {}
         },
         yAxis: {
             title: '',
@@ -41,7 +33,8 @@ Tayberry.prototype.defaultOptions = function () {
             },
             min: undefined,
             max: undefined,
-            tickStep: 30,
+            tickStep: 40,
+            tickStepValue: null,
             labelFormat: 'number', //[number|percentage|currency],
             labelFormatter: undefined,
             labelPrefix: undefined,
@@ -86,3 +79,15 @@ Tayberry.presets = {
         barPadding: 1
     }
 };
+
+Tayberry.defaultColours = [
+    '#6FE87B', //green
+    '#FFAB51', //orange
+    '#51A8FF', //blue
+    '#B651FF', //purple
+    '#FF6051', //red
+    '#636363', //dark grey
+    '#FFE314', //yellow
+    '#A88572', //brown
+    '#B7B7B7' //light grey
+];
