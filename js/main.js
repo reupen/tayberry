@@ -3,10 +3,14 @@ Tayberry.create('chart1', {
         text: 'Forecast errors'
     },
     yAxis: {
-        title: 'Frequency'
+        title: {
+            text: 'Frequency'
+        }
     },
     xAxis: {
-        title: 'Error',
+        title: {
+            text: 'Error'
+        },
         type: 'linear',
         min: -50,
         max: 50,
@@ -30,10 +34,14 @@ Tayberry.create('chart2', {
     },
     xAxis: {
         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
-        title: 'Month'
+        title: {
+            text: 'Month'
+        }
     },
     yAxis: {
-        title: 'Impact',
+        title: {
+            text: 'Impact'
+        },
         labelFormat: 'currency'
     },
     barMode: 'stacked',
@@ -96,8 +104,8 @@ Tayberry.create('chart4', {
     },
     swapAxes: true,
     yAxis: {
-        labelFormatter: function(val) {
-            return (val/1000000).toFixed(1) + 'm';
+        labelFormatter: function (val) {
+            return (val / 1000000).toFixed(1) + 'm';
         }
     },
     series: [{

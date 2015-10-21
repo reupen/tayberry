@@ -215,16 +215,17 @@ var Rect = (function () {
     }, {
         key: "containsY",
         value: function containsY(y) {
-            return y >= this.minY && y < this.maxY;
+            return y >= this.top && y < this.bottom || y >= this.bottom && y < this.top;
         }
     }, {
         key: "containsX",
         value: function containsX(x) {
-            return x >= this.minX && x < this.maxX;
+            return x >= this.left && x < this.right || x >= this.right && x < this.left;
         }
     }, {
         key: "clip",
         value: function clip(clipRect) {
+            //FIXME: In theory, we should be more careful about how we handle rects where right < left or bottom < top
             if (this.left < clipRect.minX) this.left = clipRect.minX;else if (this.left > clipRect.maxX) this.left = clipRect.maxX;
 
             if (this.right < clipRect.minX) this.right = clipRect.minX;else if (this.right > clipRect.maxX) this.right = clipRect.maxX;
@@ -328,11 +329,17 @@ var Axis = (function () {
         this.tickStart = null;
         this.tickEnd = null;
         this.calculatedSize = 0;
+        this.titleFont = null;
 
         this.setPlacement();
     }
 
     _createClass(Axis, [{
+        key: 'updateFonts',
+        value: function updateFonts() {
+            this.titleFont = this.tayberry.createFontString(this.options.title.font);
+        }
+    }, {
         key: 'setPlacement',
         value: function setPlacement() {
             var validAndSpecificPlacements = ['left', 'right', 'top', 'bottom', 'start', 'end'];
@@ -371,11 +378,13 @@ var Axis = (function () {
                 tb = this.tayberry,
                 ret = undefined;
 
+            var fontHeight = tb.getFontHeight(this.options.title.font);
+
             if (reset) this.calculatedSize = 0;
 
             size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
-            if (this.options.title) {
-                size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding + tb.options.font.size);
+            if (this.options.title.text) {
+                size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + fontHeight;
             }
 
             if (!fixedOnly) {
@@ -392,7 +401,7 @@ var Axis = (function () {
                             plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
                         }
                     }
-                    size += this.mapLogicalXOrYUnit(tb.options.font.size);
+                    size += fontHeight;
                 }
             }
 
@@ -465,25 +474,28 @@ var Axis = (function () {
     }, {
         key: 'drawTitle',
         value: function drawTitle() {
-            var tb = this.tayberry;
-            tb.ctx.save();
-            tb.ctx.fillStyle = tb.options.font.colour;
-            tb.ctx.textAlign = 'center';
-            tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
+            if (this.options.title.text) {
+                var tb = this.tayberry;
+                tb.ctx.save();
+                tb.ctx.font = this.titleFont;
+                tb.ctx.fillStyle = this.options.title.font.colour;
+                tb.ctx.textAlign = 'center';
+                tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
 
-            if (this.isYAxis) {
-                var x = 0;
-                var y = tb.plotArea.top + tb.plotArea.height / 2;
-                tb.ctx.translate(x, y);
-                tb.ctx.rotate(-Math.PI / 2);
-                tb.ctx.fillText(this.options.title, 0, 0);
-            } else {
-                var x = tb.plotArea.left + tb.plotArea.width / 2;
-                var y = tb.plotArea[this.startProperty] - this.calculatedSize;
-                //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
-                tb.ctx.fillText(this.options.title, x, y);
+                if (this.isYAxis) {
+                    var x = 0;
+                    var y = tb.plotArea.top + tb.plotArea.height / 2;
+                    tb.ctx.translate(x, y);
+                    tb.ctx.rotate(-Math.PI / 2);
+                    tb.ctx.fillText(this.options.title.text, 0, 0);
+                } else {
+                    var x = tb.plotArea.left + tb.plotArea.width / 2;
+                    var y = tb.plotArea[this.startProperty] - this.calculatedSize;
+                    //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
+                    tb.ctx.fillText(this.options.title.text, x, y);
+                }
+                tb.ctx.restore();
             }
-            tb.ctx.restore();
         }
     }, {
         key: 'getTicks',
@@ -629,7 +641,7 @@ var LinearAxis = (function (_Axis2) {
     }, {
         key: 'enumerateTicks',
         value: function enumerateTicks(callback) {
-            var visibleOnly = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+            var visibleOnly = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
             var tb = this.tayberry;
 
@@ -827,8 +839,8 @@ Tayberry.prototype.create = function (containerElement) {
         this.containerElement = containerElement;
     }
     this.canvas = document.createElement('canvas');
-    this.canvas.style.width = '100%';
-    this.canvas.style.height = '100%';
+    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.containerElement.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     this.renderedSeries = null;
@@ -859,9 +871,26 @@ Tayberry.prototype.initialise = function () {
     this.plotArea = null;
 };
 
+Tayberry.prototype.getFontHeight = function (font) {
+    var forDom = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+    var ret = font.size;
+    if (font.autoScale) ret *= Math.pow(this.canvas.width / 800, 0.25);
+    if (!forDom) ret = this.mapLogicalYUnit(ret);
+    return ret;
+};
+
+Tayberry.prototype.createFontString = function (font) {
+    var forDom = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+    return (font.style ? font.style + ' ' : '') + this.getFontHeight(font, forDom).toFixed(1) + 'px ' + font.face;
+};
+
 Tayberry.prototype.updateFonts = function () {
-    this.ctx.font = this.mapLogicalYUnit(this.options.font.size) + 'px ' + this.options.font.face;
-    this.titleFont = this.mapLogicalYUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
+    this.ctx.font = this.createFontString(this.options.font);
+    this.titleFont = this.createFontString(this.options.title.font);
+    this.yAxis.updateFonts();
+    this.xAxis.updateFonts();
 };
 
 Tayberry.prototype.setOptions = function (options) {
@@ -873,11 +902,15 @@ Tayberry.prototype.setOptions = function (options) {
     }
     optionOverrides.push(options);
     this.options = Utils.deepAssign({}, optionOverrides);
+    this.options.title.font = Utils.deepAssign({}, [this.options.font, this.options.title.font]);
+    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.xAxis.title.font, this.options.yAxis.title.font]);
+    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.xAxis.title.font, this.options.yAxis.title.font]);
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
-    this.updateFonts();
+
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
     this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
+    this.updateFonts();
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
@@ -967,14 +1000,17 @@ Tayberry.prototype.getDataMinMax = function () {
 };
 
 Tayberry.prototype.createTooltip = function () {
-
+    if (this.tooltipElement) {
+        this.tooltipElement.remove();
+        this.tooltipElement = null;
+    }
     this.tooltipElement = document.createElement('div');
     this.tooltipElement.className = 'tayberry-tooltip';
     this.tooltipElement.style.position = 'absolute';
     this.tooltipElement.style.left = '0px';
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
-    this.tooltipElement.style.font = this.options.font.size + 'px ' + this.options.font.face;
+    this.tooltipElement.style.font = this.createFontString(this.options.font, true);
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
     this.tooltipElement.style.border = '2px solid black';
@@ -1001,10 +1037,14 @@ Tayberry.prototype.defaultOptions = function () {
         font: {
             colour: '#444',
             size: 12,
-            face: 'sans-serif'
+            face: 'sans-serif',
+            autoScale: true
         },
         xAxis: {
-            title: '',
+            title: {
+                text: '',
+                font: {}
+            },
             type: 'categorial',
             min: null,
             max: null,
@@ -1016,7 +1056,10 @@ Tayberry.prototype.defaultOptions = function () {
             gridLines: {}
         },
         yAxis: {
-            title: '',
+            title: {
+                text: '',
+                font: {}
+            },
             gridLines: {
                 colour: '#ccc'
             },
@@ -1084,6 +1127,19 @@ Tayberry.defaultColours = ['#6FE87B', //green
 'use strict';
 var Tayberry = require('./tayberry.base.js').Tayberry;
 
+Tayberry.prototype.getTextWidth = function (text, fontString) {
+    var ret = undefined;
+    if (fontString) {
+        this.ctx.save();
+        this.ctx.font = fontString;
+    }
+    ret = this.ctx.measureText(text).width;
+    if (fontString) {
+        this.ctx.restore();
+    }
+    return ret;
+};
+
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
@@ -1106,7 +1162,7 @@ Tayberry.prototype.drawTitle = function () {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'top';
         this.ctx.font = this.titleFont;
-        this.ctx.fillStyle = this.options.font.colour;
+        this.ctx.fillStyle = this.options.title.font.colour;
         this.ctx.fillText(this.options.title.text, x, y);
         this.ctx.restore();
     }
@@ -1299,9 +1355,12 @@ Tayberry.prototype.onMouseMove = function (event) {
 
 Tayberry.prototype.onWindowResize = function () {
     this.tooltipElement.style.display = 'none';
+    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();
+    this.createTooltip();
     this.redraw();
 };
 
@@ -1364,16 +1423,12 @@ Tayberry.prototype.mapScreenUnit = function (x) {
     return x / this.scaleFactor;
 };
 
-Tayberry.prototype.getTextWidth = function (text) {
-    return this.ctx.measureText(text).width;
-};
-
 Tayberry.prototype.calculatePlotArea = function () {
     var MAX_AXIS_CALC_SIZE_ATTEMPTS = 5;
 
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
-        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.title.font.size);
+        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding) + this.getFontHeight(this.options.title.font);
     }
     if (this.options.legend.enabled) this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
 

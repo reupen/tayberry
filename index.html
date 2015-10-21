@@ -18,6 +18,9 @@
         <a class="navbar-brand" href="#">TayberryJS</a>
         <ul class="nav navbar-nav">
             <li class="nav-item">
+                <a class="nav-link" href="#download">Downloads</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#docs">Docs</a>
             </li>
             <li class="nav-item">
@@ -28,6 +31,12 @@
 </nav>
 
 <div class="container">
+
+    <a name="download"></a>
+
+    <h1>Download</h1>
+
+    <p>The latest version is 0.2.1, available from <a href="https://github.com/reupen/tayberry/releases">GitHub</a>.</p>
 
     <a name="docs"></a>
 
@@ -67,10 +76,14 @@ Tayberry.create('chart1', {
         text: 'Forecast errors'
     },
     yAxis: {
-        title: 'Frequency'
+        title: {
+            text: 'Frequency'
+        }
     },
     xAxis: {
-        title: 'Error',
+        title: {
+            text: 'Error'
+        },
         type: 'linear',
         min: -50,
         max: 50,
@@ -86,7 +99,8 @@ Tayberry.create('chart1', {
         name: 'Customers',
         colour: 'rgba(48, 140, 100, 0.5)'
     }]
-});</pre>
+});
+</pre>
 
 
             </div>
@@ -118,10 +132,14 @@ Tayberry.create('chart2', {
     },
     xAxis: {
         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
-        title: 'Month'
+        title: {
+            text: 'Month'
+        }
     },
     yAxis: {
-        title: 'Impact',
+        title: {
+            text: 'Impact'
+        },
         labelFormat: 'currency'
     },
     barMode: 'stacked',
