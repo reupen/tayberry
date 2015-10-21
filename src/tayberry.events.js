@@ -92,8 +92,11 @@ Tayberry.prototype.onMouseMove = function (event) {
 
 Tayberry.prototype.onWindowResize = function () {
     this.tooltipElement.style.display = 'none';
+    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();
+    this.createTooltip();
     this.redraw();
 };

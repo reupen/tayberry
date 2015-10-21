@@ -20,8 +20,8 @@ Tayberry.prototype.create = function (containerElement) {
         this.containerElement = containerElement;
     }
     this.canvas = document.createElement('canvas');
-    this.canvas.style.width = '100%';
-    this.canvas.style.height = '100%';
+    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.containerElement.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d');
     this.renderedSeries = null;
@@ -52,9 +52,23 @@ Tayberry.prototype.initialise = function () {
     this.plotArea = null;
 };
 
+Tayberry.prototype.getFontHeight = function (font, forDom = false) {
+    let ret = font.size;
+    if (font.autoScale)
+        ret *= Math.pow(this.canvas.width/800, 0.25);
+    if (!forDom) ret = this.mapLogicalYUnit(ret);
+    return ret;
+};
+
+Tayberry.prototype.createFontString = function (font, forDom = false) {
+    return (font.style ? font.style + ' ' : '') + this.getFontHeight(font, forDom).toFixed(1) + 'px ' + font.face;
+};
+
 Tayberry.prototype.updateFonts = function () {
-    this.ctx.font = this.mapLogicalYUnit(this.options.font.size) + 'px ' + this.options.font.face;
-    this.titleFont = this.mapLogicalYUnit(this.options.title.font.size) + 'px ' + this.options.font.face;
+    this.ctx.font = this.createFontString(this.options.font);
+    this.titleFont = this.createFontString(this.options.title.font);
+    this.yAxis.updateFonts();
+    this.xAxis.updateFonts();
 };
 
 Tayberry.prototype.setOptions = function (options) {
@@ -66,11 +80,15 @@ Tayberry.prototype.setOptions = function (options) {
     }
     optionOverrides.push(options);
     this.options = Utils.deepAssign({}, optionOverrides);
+    this.options.title.font = Utils.deepAssign({}, [this.options.font, this.options.title.font]);
+    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.xAxis.title.font, this.options.yAxis.title.font]);
+    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.xAxis.title.font, this.options.yAxis.title.font]);
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
-    this.updateFonts();
+
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
     this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
+    this.updateFonts();
     this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
@@ -162,14 +180,17 @@ Tayberry.prototype.getDataMinMax = function () {
 
 
 Tayberry.prototype.createTooltip = function () {
-
+    if (this.tooltipElement) {
+        this.tooltipElement.remove();
+        this.tooltipElement = null;
+    }
     this.tooltipElement = document.createElement('div');
     this.tooltipElement.className = 'tayberry-tooltip';
     this.tooltipElement.style.position = 'absolute';
     this.tooltipElement.style.left = '0px';
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
-    this.tooltipElement.style.font = this.options.font.size + 'px ' + this.options.font.face;
+    this.tooltipElement.style.font = this.createFontString(this.options.font, true);
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
     this.tooltipElement.style.border = '2px solid black';

@@ -44,14 +44,15 @@ class Rect {
     }
 
     containsY(y) {
-        return y >= this.minY && y < this.maxY;
+        return (y >= this.top && y < this.bottom) || (y >= this.bottom && y < this.top);
     }
 
     containsX(x) {
-        return x >= this.minX && x < this.maxX;
+        return (x >= this.left && x < this.right) || (x >= this.right && x < this.left);
     }
 
     clip(clipRect) {
+        //FIXME: In theory, we should be more careful about how we handle rects where right < left or bottom < top
         if (this.left < clipRect.minX) this.left = clipRect.minX;
         else if (this.left > clipRect.maxX) this.left = clipRect.maxX;
 

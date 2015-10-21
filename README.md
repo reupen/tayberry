@@ -1,4 +1,4 @@
-# TayberryJS 0.2.0
+# TayberryJS 0.2.1
 
 &copy; Reupen Shah 2015
 
@@ -54,6 +54,7 @@ Available attributes on the option object are (full details still to be complete
 | font.colour                   | HTML colour code    | Font colour
 | font.face                     | string              | Font name
 | font.size                     | logical pixels      | Font size
+| font.autoScale                | boolean             | Auto-scale font with chart width
 | labels.enabled                | boolean             | Show data labels in the plot area
 | labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                | Where in each bar labels should appear
 | labels.verticalPosition       | 'outside'\|'inside'\|'middle' |      | 
@@ -62,7 +63,7 @@ Available attributes on the option object are (full details still to be complete
 | presets                       | array           |      |
 | series                        | array of objects |      |
 | swapAxes                      | boolean |      |
-| title.font.size               | logical pixels  | Font size of the chart title
+| title.font.\*                  | \-               | Overrides font.\* values for the chart title |
 | title.text                    | string          | Title for the chart
 | tooltips.footerTemplate       | string          |      |
 | tooltips.headerTemplate       | string          |      |
@@ -81,7 +82,8 @@ Available attributes on the option object are (full details still to be complete
 | [xAxis\|yAxis].placement               | 'start'\|'end'  |       |
 | [xAxis\|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
 | [xAxis\|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
-| [xAxis\|yAxis].title                   | string          |      |
+| [xAxis\|yAxis].title.text              | string          |      |
+| [xAxis\|yAxis].title.font.\*           | \-              | Overrides font.\* values for the axis title |
 | [xAxis\|yAxis].type                    | 'linear'\|'categorial'          |      |
 
 See the demos for some examples.

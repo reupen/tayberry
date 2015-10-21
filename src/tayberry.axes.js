@@ -23,8 +23,13 @@ class Axis {
         this.tickStart = null;
         this.tickEnd = null;
         this.calculatedSize = 0;
+        this.titleFont = null;
 
         this.setPlacement();
+    }
+
+    updateFonts() {
+        this.titleFont = this.tayberry.createFontString(this.options.title.font);
     }
 
     setPlacement() {
@@ -61,12 +66,14 @@ class Axis {
             tb = this.tayberry,
             ret;
 
+        const fontHeight = tb.getFontHeight(this.options.title.font);
+
         if (reset)
             this.calculatedSize = 0;
 
         size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
-        if (this.options.title) {
-            size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding + tb.options.font.size);
+        if (this.options.title.text) {
+            size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + fontHeight;
         }
 
         if (!fixedOnly) {
@@ -76,14 +83,14 @@ class Axis {
                 // A bit hacky - need to generalise
                 let ticks = this.getTicks(false);
                 if (ticks.length) {
-                    const lastTick = ticks[ticks.length-1];
+                    const lastTick = ticks[ticks.length - 1];
                     const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value));
-                    const lastTickXEnd = lastTick.x + textWidth/2;
+                    const lastTickXEnd = lastTick.x + textWidth / 2;
                     if (lastTickXEnd >= tb.canvas.width) {
                         plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
                     }
                 }
-                size += this.mapLogicalXOrYUnit(tb.options.font.size);
+                size += fontHeight;
             }
         }
 
@@ -111,7 +118,8 @@ class Axis {
     calculateExtent() {
     }
 
-    getCategoryLabel() {}
+    getCategoryLabel() {
+    }
 
     draw() {
         this.drawTicksAndLabels();
@@ -165,25 +173,28 @@ class Axis {
     }
 
     drawTitle() {
-        let tb = this.tayberry;
-        tb.ctx.save();
-        tb.ctx.fillStyle = tb.options.font.colour;
-        tb.ctx.textAlign = 'center';
-        tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
+        if (this.options.title.text) {
+            let tb = this.tayberry;
+            tb.ctx.save();
+            tb.ctx.font = this.titleFont;
+            tb.ctx.fillStyle = this.options.title.font.colour;
+            tb.ctx.textAlign = 'center';
+            tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
 
-        if (this.isYAxis) {
-            const x = 0;
-            const y = tb.plotArea.top + (tb.plotArea.height) / 2;
-            tb.ctx.translate(x, y);
-            tb.ctx.rotate(-Math.PI / 2);
-            tb.ctx.fillText(this.options.title, 0, 0);
-        } else {
-            const x = tb.plotArea.left + tb.plotArea.width / 2;
-            const y = tb.plotArea[this.startProperty] - this.calculatedSize;
-            //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
-            tb.ctx.fillText(this.options.title, x, y);
+            if (this.isYAxis) {
+                const x = 0;
+                const y = tb.plotArea.top + (tb.plotArea.height) / 2;
+                tb.ctx.translate(x, y);
+                tb.ctx.rotate(-Math.PI / 2);
+                tb.ctx.fillText(this.options.title.text, 0, 0);
+            } else {
+                const x = tb.plotArea.left + tb.plotArea.width / 2;
+                const y = tb.plotArea[this.startProperty] - this.calculatedSize;
+                //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
+                tb.ctx.fillText(this.options.title.text, x, y);
+            }
+            tb.ctx.restore();
         }
-        tb.ctx.restore();
     }
 
     getTicks(visibleOnly = true) {
@@ -273,7 +284,7 @@ class LinearAxis extends Axis {
         }
     }
 
-    enumerateTicks(callback, visibleOnly = true) {
+    enumerateTicks(callback, visibleOnly = false) {
         let tb = this.tayberry;
 
         const start = this.startProperty,
@@ -394,10 +405,10 @@ class LinearAxis extends Axis {
     }
 
     getCategoryLabel(index, totalCategories) {
-        const start = index/totalCategories;
-        const end = (index + 1)/totalCategories;
+        const start = index / totalCategories;
+        const end = (index + 1) / totalCategories;
         const axisRange = this.max - this.min;
-        return Utils.formatString('{0} \u2264 x < {1}', [this.options.labelFormatter(this.min + start*axisRange), this.options.labelFormatter(this.min + end*axisRange)]);
+        return Utils.formatString('{0} \u2264 x < {1}', [this.options.labelFormatter(this.min + start * axisRange), this.options.labelFormatter(this.min + end * axisRange)]);
     }
 }
 

@@ -12,10 +12,15 @@ Tayberry.prototype.defaultOptions = function () {
         font: {
             colour: '#444',
             size: 12,
-            face: 'sans-serif'
+            face: 'sans-serif',
+            autoScale: true
         },
         xAxis: {
-            title: '',
+            title: {
+                text: '',
+                font: {
+                }
+            },
             type: 'categorial',
             min: null,
             max: null,
@@ -27,7 +32,11 @@ Tayberry.prototype.defaultOptions = function () {
             gridLines: {}
         },
         yAxis: {
-            title: '',
+            title: {
+                text: '',
+                font: {
+                }
+            },
             gridLines: {
                 colour: '#ccc'
             },

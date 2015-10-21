@@ -1,6 +1,19 @@
 'use strict';
 var Tayberry = require('./tayberry.base.js').Tayberry;
 
+Tayberry.prototype.getTextWidth = function (text, fontString) {
+    let ret;
+    if (fontString) {
+        this.ctx.save();
+        this.ctx.font = fontString;
+    }
+    ret = this.ctx.measureText(text).width;
+    if (fontString) {
+        this.ctx.restore();
+    }
+    return ret;
+};
+
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
     this.animator = requestAnimationFrame(this.onAnimate.bind(this));
@@ -22,7 +35,7 @@ Tayberry.prototype.drawTitle = function () {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'top';
         this.ctx.font = this.titleFont;
-        this.ctx.fillStyle = this.options.font.colour;
+        this.ctx.fillStyle = this.options.title.font.colour;
         this.ctx.fillText(this.options.title.text, x, y);
         this.ctx.restore();
     }

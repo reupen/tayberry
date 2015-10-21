@@ -27,16 +27,12 @@ Tayberry.prototype.mapScreenUnit = function (x) {
     return x / this.scaleFactor;
 };
 
-Tayberry.prototype.getTextWidth = function (text) {
-    return this.ctx.measureText(text).width;
-};
-
 Tayberry.prototype.calculatePlotArea = function () {
     const MAX_AXIS_CALC_SIZE_ATTEMPTS = 5;
 
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
-        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.title.font.size);
+        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding) + this.getFontHeight(this.options.title.font);
     }
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
