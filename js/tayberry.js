@@ -851,8 +851,8 @@ Tayberry.prototype.create = function (containerElement) {
 };
 
 Tayberry.prototype.destroy = function () {
-    this.canvas.remove();
-    this.tooltipElement.remove();
+    this.canvas.parentNode.removeChild(this.canvas);
+    this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
     this.series = {};
     this.canvas.removeEventListener('mousemove', this.onMouseMoveReal);
@@ -863,10 +863,10 @@ Tayberry.prototype.destroy = function () {
 
 Tayberry.prototype.initialise = function () {
     this.scaleFactor = window.devicePixelRatio || 1.0;
-    this.canvas.width = Math.round(this.containerElement.clientWidth * this.scaleFactor);
-    this.canvas.height = Math.round(this.containerElement.clientHeight * this.scaleFactor);
-    this.scaleFactorX = this.canvas.width / this.containerElement.clientWidth;
-    this.scaleFactorY = this.canvas.height / this.containerElement.clientHeight;
+    this.canvas.width = Math.round(this.canvas.clientWidth * this.scaleFactor);
+    this.canvas.height = Math.round(this.canvas.clientHeight * this.scaleFactor);
+    this.scaleFactorX = this.canvas.width / this.canvas.clientWidth;
+    this.scaleFactorY = this.canvas.height / this.canvas.clientHeight;
     this.selectedItem = {};
     this.plotArea = null;
 };
@@ -1001,7 +1001,7 @@ Tayberry.prototype.getDataMinMax = function () {
 
 Tayberry.prototype.createTooltip = function () {
     if (this.tooltipElement) {
-        this.tooltipElement.remove();
+        this.tooltipElement.parentNode.removeChild(this.tooltipElement);
         this.tooltipElement = null;
     }
     this.tooltipElement = document.createElement('div');
