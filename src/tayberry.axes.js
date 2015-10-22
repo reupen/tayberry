@@ -66,14 +66,15 @@ class Axis {
             tb = this.tayberry,
             ret;
 
-        const fontHeight = tb.getFontHeight(this.options.title.font);
+        const titleFontHeight = tb.getFontHeight(this.options.title.font);
+        const fontHeight = tb.getFontHeight(tb.options.font);
 
         if (reset)
             this.calculatedSize = 0;
 
         size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
         if (this.options.title.text) {
-            size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + fontHeight;
+            size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + titleFontHeight;
         }
 
         if (!fixedOnly) {
