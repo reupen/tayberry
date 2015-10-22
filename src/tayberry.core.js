@@ -67,6 +67,8 @@ Tayberry.prototype.createFontString = function (font, forDom = false) {
 Tayberry.prototype.updateFonts = function () {
     this.ctx.font = this.createFontString(this.options.font);
     this.titleFont = this.createFontString(this.options.title.font);
+    this.labelFont = this.createFontString(this.options.labels.font);
+    this.legendFont = this.createFontString(this.options.legend.font);
     this.yAxis.updateFonts();
     this.xAxis.updateFonts();
 };
@@ -81,8 +83,11 @@ Tayberry.prototype.setOptions = function (options) {
     optionOverrides.push(options);
     this.options = Utils.deepAssign({}, optionOverrides);
     this.options.title.font = Utils.deepAssign({}, [this.options.font, this.options.title.font]);
-    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.xAxis.title.font, this.options.yAxis.title.font]);
-    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.xAxis.title.font, this.options.yAxis.title.font]);
+    this.options.tooltips.font = Utils.deepAssign({}, [this.options.font, this.options.tooltips.font]);
+    this.options.labels.font = Utils.deepAssign({}, [this.options.font, this.options.labels.font]);
+    this.options.legend.font = Utils.deepAssign({}, [this.options.font, this.options.legend.font]);
+    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.yAxis.title.font]);
+    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.xAxis.title.font]);
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
 
@@ -190,7 +195,7 @@ Tayberry.prototype.createTooltip = function () {
     this.tooltipElement.style.left = '0px';
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
-    this.tooltipElement.style.font = this.createFontString(this.options.font, true);
+    this.tooltipElement.style.font = this.createFontString(this.options.tooltips.font, true);
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
     this.tooltipElement.style.border = '2px solid black';

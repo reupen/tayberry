@@ -24,11 +24,13 @@ class Axis {
         this.tickEnd = null;
         this.calculatedSize = 0;
         this.titleFont = null;
+        this.labelFont = null;
 
         this.setPlacement();
     }
 
     updateFonts() {
+        this.labelFont = this.tayberry.createFontString(this.options.font);
         this.titleFont = this.tayberry.createFontString(this.options.title.font);
     }
 
@@ -50,7 +52,7 @@ class Axis {
     maxLabelSize() {
         let tb = this.tayberry;
         let ticks = this.getTicks();
-        return Utils.reduce(ticks, Math.max, x => tb.getTextWidth(this.options.labelFormatter(x.value)));
+        return Utils.reduce(ticks, Math.max, x => tb.getTextWidth(this.options.labelFormatter(x.value), this.labelFont));
     }
 
     mapLogicalXOrYUnit(x) {
@@ -85,7 +87,7 @@ class Axis {
                 let ticks = this.getTicks(false);
                 if (ticks.length) {
                     const lastTick = ticks[ticks.length - 1];
-                    const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value));
+                    const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
                     const lastTickXEnd = lastTick.x + textWidth / 2;
                     if (lastTickXEnd >= tb.canvas.width) {
                         plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
@@ -133,7 +135,8 @@ class Axis {
         const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
 
         tb.ctx.save();
-        tb.ctx.fillStyle = tb.options.font.colour;
+        tb.ctx.font = this.labelFont;
+        tb.ctx.fillStyle = this.options.font.colour;
         tb.ctx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
         tb.ctx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
@@ -143,7 +146,7 @@ class Axis {
             let textWidth, xStart, xEnd;
             const formattedValue = this.options.labelFormatter(tick.value);
             if (!this.isYAxis) {
-                textWidth = tb.getTextWidth(formattedValue);
+                textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                 xStart = tick.x - textWidth / 2;
                 xEnd = tick.x + textWidth / 2;
             }

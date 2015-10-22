@@ -15,17 +15,23 @@ Tayberry.prototype.defaultOptions = function () {
             face: 'sans-serif',
             autoScale: true
         },
+        allAxes: {
+            font: {},
+            title: {
+                font: {}
+            }
+        },
         xAxis: {
             title: {
                 text: '',
-                font: {
-                }
+                font: {}
             },
             type: 'categorial',
             min: null,
             max: null,
             tickStep: 40,
             tickStepValue: null,
+            font: {},
             categories: [],
             labelPosition: 'middle', //left|middle|right
             placement: 'auto',
@@ -34,8 +40,7 @@ Tayberry.prototype.defaultOptions = function () {
         yAxis: {
             title: {
                 text: '',
-                font: {
-                }
+                font: {}
             },
             gridLines: {
                 colour: '#ccc'
@@ -44,6 +49,7 @@ Tayberry.prototype.defaultOptions = function () {
             max: undefined,
             tickStep: 40,
             tickStepValue: null,
+            font: {},
             labelFormat: 'number', //[number|percentage|currency],
             labelFormatter: undefined,
             labelPrefix: undefined,
@@ -51,6 +57,9 @@ Tayberry.prototype.defaultOptions = function () {
             currencySymbol: '£',
             placement: 'auto',
             type: 'linear'
+        },
+        animations: {
+            enabled: true
         },
         series: [],
         swapAxes: false,
@@ -64,16 +73,19 @@ Tayberry.prototype.defaultOptions = function () {
             shared: false,
             headerTemplate: '<strong>{category}</strong><table>',
             valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">\u25CF</span> {name}</td><td style="text-align: right">{value}</td></tr>',
-            footerTemplate: '</table>'
+            footerTemplate: '</table>',
+            font: {}
         },
         legend: {
             enabled: true,
-            indicatorSize: 15
+            indicatorSize: 15,
+            font: {}
         },
         labels: {
             enabled: false,
             verticalAlignment: 'top',
-            verticalPosition: 'outside'
+            verticalPosition: 'outside',
+            font: {}
         }
     }
 };

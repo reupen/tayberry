@@ -1,4 +1,4 @@
-# TayberryJS 0.2.1
+# TayberryJS 0.2.2
 
 &copy; Reupen Shah 2015
 
@@ -46,6 +46,9 @@ Available attributes on the option object are (full details still to be complete
 
 | Field           | Allowed values | Description |
 | ---------------------- | ------------- |------------- |
+| allAxes.font.\*               | \-              | Overrides font.\* values for axis labels |
+| allAxes.title.font.\*         | \-              | Overrides font.\* values for axis titles |
+| animations.enabled            | boolean             | Enable animations        |
 | barMode                       | 'normal'\|'stacked'\|'overlaid'                |      |
 | barPadding                    | logical pixels          | Padding between bars in the same category |
 | categorySpacing               | percentage in [0, 1)                | Spacing between categories |
@@ -56,21 +59,25 @@ Available attributes on the option object are (full details still to be complete
 | font.size                     | logical pixels      | Font size
 | font.autoScale                | boolean             | Auto-scale font with chart width
 | labels.enabled                | boolean             | Show data labels in the plot area
+| labels.font.\*                | \-                  | Overrides font.\* values for data labels |
 | labels.verticalAlignment      | 'top'\|'middle'\|'bottom'                | Where in each bar labels should appear
 | labels.verticalPosition       | 'outside'\|'inside'\|'middle' |      | 
 | legend.enabled                | boolean         |      |
+| legend.font.\*                | \-                  | Overrides font.\* values for the legend |
 | legend.indicatorSize          | logical pixels  |       |
 | presets                       | array           |      |
 | series                        | array of objects |      |
 | swapAxes                      | boolean |      |
 | title.font.\*                  | \-               | Overrides font.\* values for the chart title |
 | title.text                    | string          | Title for the chart
+| tooltips.font.\*              | \-               | Overrides font.\* values for tooltips |
 | tooltips.footerTemplate       | string          |      |
 | tooltips.headerTemplate       | string          |      |
 | tooltips.shared               | boolean         |      |
 | tooltips.valueTemplate        | string          |      |
 | [xAxis\|yAxis].categories              | array           | (categorial axes only)      |
 | [xAxis\|yAxis].currencySymbol          | string          | (linear axes only)     |
+| [xAxis\|yAxis].font.\*                 | \-              | Overrides allAxes.font.\* values for the axis labels |
 | [xAxis\|yAxis].labelPosition           | 'left'\|'middle'\|'right' |
 | [xAxis\|yAxis].gridLines.colour        | HTML colour code |      |
 | [xAxis\|yAxis].labelFormat             | 'number'\|'percentage'\|'currency'                | (linear axes only)
@@ -83,7 +90,7 @@ Available attributes on the option object are (full details still to be complete
 | [xAxis\|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
 | [xAxis\|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
 | [xAxis\|yAxis].title.text              | string          |      |
-| [xAxis\|yAxis].title.font.\*           | \-              | Overrides font.\* values for the axis title |
+| [xAxis\|yAxis].title.font.\*           | \-              | Overrides allAxes.font.\* values for the axis title |
 | [xAxis\|yAxis].type                    | 'linear'\|'categorial'          |      |
 
 See the demos for some examples.

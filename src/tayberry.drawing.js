@@ -16,12 +16,18 @@ Tayberry.prototype.getTextWidth = function (text, fontString) {
 
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
-    this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-    this.animatationStart = performance.now();
-    this.animationLength = 500;
+    this.drawTitle();
     this.xAxis.draw();
     this.yAxis.draw();
+    this.drawLegend();
     this.createTooltip();
+    if (this.options.animations.enabled) {
+        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
+        this.animatationStart = performance.now();
+        this.animationLength = 500;
+    } else {
+        this.draw();
+    }
 };
 
 Tayberry.prototype.clear = function () {
@@ -67,7 +73,6 @@ Tayberry.prototype.drawLabel = function (sign, text, rect) {
         this.ctx.save();
         this.ctx.textAlign = align;
         this.ctx.textBaseline = baseline;
-        this.ctx.fillStyle = this.options.font.colour;
         this.ctx.fillText(text, x, y);
         this.ctx.restore();
     }
@@ -86,6 +91,8 @@ Tayberry.prototype.draw = function () {
     if (this.options.labels.enabled) {
         this.ctx.save();
         this.enumerateBars(function (bar) {
+            this.ctx.font = this.labelFont;
+            this.ctx.fillStyle = this.options.labels.font.colour;
             this.drawLabel(bar.value, this.options.yAxis.labelFormatter(bar.value), bar.rect);
         }.bind(this));
         this.ctx.restore();
@@ -116,12 +123,14 @@ Tayberry.prototype.redraw = function () {
 
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
+        this.ctx.save();
+        this.ctx.font = this.legendFont;
         let totalWidth = 0;
         const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
         for (let index = 0; index < this.series.length; index++) {
             const series = this.series[index];
             if (series.name) {
-                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
+                totalWidth += this.getTextWidth(series.name, this.legendFont) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
             }
         }
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
@@ -133,11 +142,12 @@ Tayberry.prototype.drawLegend = function () {
                 this.ctx.fillStyle = series.colour;
                 this.ctx.fillRect(x, y, indicatorSize, indicatorSize);
                 this.ctx.textBaseline = 'middle';
-                this.ctx.fillStyle = this.options.font.colour;
+                this.ctx.fillStyle = this.options.legend.font.colour;
                 x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);
                 this.ctx.fillText(series.name, x, y + indicatorSize / 2);
-                x += this.getTextWidth(series.name) + this.mapLogicalXUnit(this.options.elementLargePadding);
+                x += this.getTextWidth(series.name, this.legendFont) + this.mapLogicalXUnit(this.options.elementLargePadding);
             }
         }
+        this.ctx.restore();
     }
 };

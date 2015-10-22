@@ -11,6 +11,9 @@ class Tayberry {
         this.plotArea = null;
         this.series = [];
         this.categories = [];
+        this.titleFont = null;
+        this.labelFont = null;
+        this.legendFont = null;
     }
 
     get seriesCount() {
