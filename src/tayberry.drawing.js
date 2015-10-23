@@ -14,6 +14,49 @@ Tayberry.prototype.getTextWidth = function (text, fontString) {
     return ret;
 };
 
+Tayberry.prototype.splitMultilineText = function (maxWidth, text) {
+    let lines = [];
+    let lineWidth = 0;
+    let lineText = '';
+    const spaceWidth = this.ctx.measureText(' ').width;
+    for (let i = 0; i < text.length;) {
+        const wordStart = i;
+        while (i < text.length && text[i] !== ' ' && text[i] !== '\r' && text[i] !== '\n') i++;
+        const wordEnd = i;
+        while (i < text.length && (text[i] === ' ' || text[i] === '\r' || text[i] === '\n')) i++;
+        if (wordEnd > wordStart) {
+            const word = text.substring(wordStart, wordEnd);
+            const wordWidth = this.ctx.measureText(word).width;
+            if (lineWidth + wordWidth > maxWidth) {
+                if (!lineWidth) {
+                    lineText = word;
+                }
+                lines.push(lineText);
+                if (lineWidth) {
+                    lineWidth = 0;
+                    lineText = word;
+                }
+            } else {
+                lineText += (lineText ? ' ' : '') + word;
+                lineWidth += wordWidth + spaceWidth;
+            }
+        }
+    }
+    if (lineText) {
+        lines.push(lineText);
+    }
+    return lines;
+};
+
+Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, text) {
+    let lines = this.splitMultilineText(maxWidth, text);
+
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        this.ctx.fillText(line, x, y + lineHeight * i);
+    }
+};
+
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
     this.drawTitle();
@@ -42,7 +85,8 @@ Tayberry.prototype.drawTitle = function () {
         this.ctx.textBaseline = 'top';
         this.ctx.font = this.titleFont;
         this.ctx.fillStyle = this.options.title.font.colour;
-        this.ctx.fillText(this.options.title.text, x, y);
+        this.drawTextMultiline(this.getFontHeight(this.options.title.font), x, y, this.canvas.width, this.options.title.text);
+        // this.ctx.fillText(this.options.title.text, x, y);
         this.ctx.restore();
     }
 };
