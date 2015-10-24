@@ -4,7 +4,9 @@
 
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
-[Demos and examples.](https://reupen.github.io/tayberry)
+## Demos
+
+[Click here for some demos and examples](https://reupen.github.io/tayberry).
 
 ## What's good about it?
 
@@ -69,15 +71,7 @@ Available attributes on the option object are (full details still to be complete
 | legend.font.\*                | \-                  | Overrides font.\* values for the legend |
 | legend.indicatorSize          | logical pixels  | Width/height of the coloured box of each legend item |
 | presets                       | array of strings    | Use this to override some of the default settings using a preset. Currently only one preset, `histogram` |
-| series                        | array of objects | e.g. ```[{
-        data: [.306, .341, .156, .129, .069],
-        name: '2011',
-        colour: '#afa' //colour is optional
-    }, {
-        data: [.306, .341, .156, .129, .069],
-        name: '2011',
-        colour: '#faa'
-    }]``` |
+| series                        | array of objects | Each object represents a series with mandatory property `data` and optional properties `name` and `colour`. |
 | swapAxes                      | boolean |   Swap the displayed positions of the x- and y-axes; set to true for a horizontal bar chart |
 | title.font.\*                  | \-               | Overrides font.\* values for the chart title |
 | title.text                    | string          | Title for the chart
