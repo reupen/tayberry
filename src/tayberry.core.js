@@ -13,17 +13,25 @@ Tayberry.getAutoColour = function() {
     return ret;
 };
 
+Tayberry.prototype.createCanvas = function () {
+    let ret = document.createElement('canvas');
+    ret.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    ret.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    ret.style.position = 'absolute';
+    this.containerElement.appendChild(ret);
+    return ret;
+};
+
 Tayberry.prototype.create = function (containerElement) {
     if (typeof containerElement == 'string') {
         this.containerElement = document.getElementById(containerElement);
     } else {
         this.containerElement = containerElement;
     }
-    this.canvas = document.createElement('canvas');
-    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
-    this.containerElement.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext('2d');
+    this.labelsCanvas = this.createCanvas();
+    this.labelsCtx = this.labelsCanvas.getContext('2d');
+    this.plotCanvas = this.createCanvas();
+    this.plotCtx = this.plotCanvas.getContext('2d');
     this.renderedSeries = null;
     this.options = {};
     this.yAxis = null;
@@ -32,22 +40,24 @@ Tayberry.prototype.create = function (containerElement) {
 };
 
 Tayberry.prototype.destroy = function () {
-    this.canvas.parentNode.removeChild(this.canvas);
+    this.labelsCanvas.parentNode.removeChild(this.labelsCanvas);
     this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
     this.series = {};
-    this.canvas.removeEventListener('mousemove', this.onMouseMoveReal);
-    this.canvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
-    this.canvas.removeEventListener('touchstart', this.onTouchStartReal);
+    this.labelsCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
+    this.labelsCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+    this.labelsCanvas.removeEventListener('touchstart', this.onTouchStartReal);
     window.removeEventListener('resize', this.onWindowResizeReal);
 };
 
 Tayberry.prototype.initialise = function () {
     this.scaleFactor = window.devicePixelRatio || 1.0;
-    this.canvas.width = Math.round(this.canvas.clientWidth * this.scaleFactor);
-    this.canvas.height = Math.round(this.canvas.clientHeight * this.scaleFactor);
-    this.scaleFactorX = this.canvas.width / this.canvas.clientWidth;
-    this.scaleFactorY = this.canvas.height / this.canvas.clientHeight;
+    this.labelsCanvas.width = Math.round(this.labelsCanvas.clientWidth * this.scaleFactor);
+    this.labelsCanvas.height = Math.round(this.labelsCanvas.clientHeight * this.scaleFactor);
+    this.plotCanvas.width = this.labelsCanvas.width;
+    this.plotCanvas.height = this.labelsCanvas.height;
+    this.scaleFactorX = this.labelsCanvas.width / this.labelsCanvas.clientWidth;
+    this.scaleFactorY = this.labelsCanvas.height / this.labelsCanvas.clientHeight;
     this.selectedItem = {};
     this.plotArea = null;
 };
@@ -55,7 +65,7 @@ Tayberry.prototype.initialise = function () {
 Tayberry.prototype.getFontHeight = function (font, forDom = false) {
     let ret = font.size;
     if (font.autoScale)
-        ret *= Math.pow(this.canvas.width/800, 0.25);
+        ret *= Math.pow(this.labelsCanvas.width/800, 0.25);
     if (!forDom) ret = this.mapLogicalYUnit(ret);
     return ret;
 };
@@ -65,7 +75,7 @@ Tayberry.prototype.createFontString = function (font, forDom = false) {
 };
 
 Tayberry.prototype.updateFonts = function () {
-    this.ctx.font = this.createFontString(this.options.font);
+    //this.labelsCtx.font = this.createFontString(this.options.font);
     this.titleFont = this.createFontString(this.options.title.font);
     this.labelFont = this.createFontString(this.options.labels.font);
     this.legendFont = this.createFontString(this.options.legend.font);
@@ -88,15 +98,17 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.legend.font = Utils.deepAssign({}, [this.options.font, this.options.legend.font]);
     this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.yAxis.title.font]);
     this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.xAxis.title.font]);
+    this.options.xAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.xAxis.font]);
+    this.options.yAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.yAxis.font]);
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
 
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
     this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
     this.updateFonts();
-    this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
-    this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
-    this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
+    this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
+    this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
+    this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
     window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
@@ -134,17 +146,6 @@ Tayberry.prototype.setSeries = function (series) {
     }
 };
 
-
-Tayberry.prototype.setCategories = function (categories) {
-    this.categories = (categories);
-    //if (this.options.xAxis.type === 'numeric' || this.options.xAxis.type === 'numerical') {
-    //    this.categories = [];
-    //    for (let i = this.options.xAxis.min; i <= this.options.xAxis.max; i += this.options.xAxis.step) {
-    //        i = Math.round(i / this.options.xAxis.step) * this.options.xAxis.step;
-    //        this.categories.push(i);
-    //    }
-    //}
-};
 
 Tayberry.prototype.getDataMinMax = function () {
     var categoryIndex, seriesIndex, min, max;

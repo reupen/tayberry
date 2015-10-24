@@ -30,10 +30,10 @@ Tayberry.prototype.mapScreenUnit = function (x) {
 Tayberry.prototype.calculatePlotArea = function () {
     const MAX_AXIS_CALC_SIZE_ATTEMPTS = 5;
 
-    this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
+    this.plotArea = new Rect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
     if (this.options.title.text) {
         this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding);
-        this.plotArea.top += this.getFontHeight(this.options.title.font)*this.getMultilineTextHeight(this.titleFont, this.canvas.width, this.options.title.text);
+        this.plotArea.top += this.getFontHeight(this.options.title.font)*this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
     }
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);

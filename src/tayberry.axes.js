@@ -89,8 +89,8 @@ class Axis {
                     const lastTick = ticks[ticks.length - 1];
                     const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
                     const lastTickXEnd = lastTick.x + textWidth / 2;
-                    if (lastTickXEnd >= tb.canvas.width) {
-                        plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
+                    if (lastTickXEnd >= tb.labelsCanvas.width) {
+                        plotArea.right -= lastTickXEnd - tb.labelsCanvas.width + 1;
                     }
                 }
                 size += fontHeight;
@@ -134,11 +134,11 @@ class Axis {
         const labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
         const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
 
-        tb.ctx.save();
-        tb.ctx.font = this.labelFont;
-        tb.ctx.fillStyle = this.options.font.colour;
-        tb.ctx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
-        tb.ctx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
+        tb.labelsCtx.save();
+        tb.labelsCtx.font = this.labelFont;
+        tb.labelsCtx.fillStyle = this.options.font.colour;
+        tb.labelsCtx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
+        tb.labelsCtx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
         let lastXEnd;
 
@@ -151,15 +151,15 @@ class Axis {
                 xEnd = tick.x + textWidth / 2;
             }
 
-            if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.canvas.width) {
-                tb.ctx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY);
+            if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
+                tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY);
                 lastXEnd = xEnd;
             }
             if (this.options.gridLines.colour)
                 tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
         }.bind(this));
 
-        tb.ctx.restore();
+        tb.labelsCtx.restore();
     }
 
     get startProperty() {
@@ -179,25 +179,25 @@ class Axis {
     drawTitle() {
         if (this.options.title.text) {
             let tb = this.tayberry;
-            tb.ctx.save();
-            tb.ctx.font = this.titleFont;
-            tb.ctx.fillStyle = this.options.title.font.colour;
-            tb.ctx.textAlign = 'center';
-            tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
+            tb.labelsCtx.save();
+            tb.labelsCtx.font = this.titleFont;
+            tb.labelsCtx.fillStyle = this.options.title.font.colour;
+            tb.labelsCtx.textAlign = 'center';
+            tb.labelsCtx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
 
             if (this.isYAxis) {
                 const x = 0;
                 const y = tb.plotArea.top + (tb.plotArea.height) / 2;
-                tb.ctx.translate(x, y);
-                tb.ctx.rotate(-Math.PI / 2);
-                tb.ctx.fillText(this.options.title.text, 0, 0);
+                tb.labelsCtx.translate(x, y);
+                tb.labelsCtx.rotate(-Math.PI / 2);
+                tb.labelsCtx.fillText(this.options.title.text, 0, 0);
             } else {
                 const x = tb.plotArea.left + tb.plotArea.width / 2;
                 const y = tb.plotArea[this.startProperty] - this.calculatedSize;
                 //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
-                tb.ctx.fillText(this.options.title.text, x, y);
+                tb.labelsCtx.fillText(this.options.title.text, x, y);
             }
-            tb.ctx.restore();
+            tb.labelsCtx.restore();
         }
     }
 

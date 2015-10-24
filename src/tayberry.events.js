@@ -16,14 +16,14 @@ Tayberry.prototype.onAnimate = function (timestamp) {
             this.renderedSeries[seriesIndex].data[categoryIndex] = yOrigin + scaleFactor * ((value - yOrigin));
         }
     }
-    this.redraw();
+    this.redraw(true);
     if (scaleFactor < 1) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     }
 };
 
 Tayberry.prototype.onMouseLeave = function (event) {
-    if ((event.currentTarget == this.canvas && event.relatedTarget !== this.tooltipElement) || (event.currentTarget == this.tooltipElement && event.relatedTarget !== this.canvas)) {
+    if ((event.currentTarget == this.plotCanvas && event.relatedTarget !== this.tooltipElement) || (event.currentTarget == this.tooltipElement && event.relatedTarget !== this.plotCanvas)) {
         this.selectedItem = {};
         this.tooltipElement.style.display = 'none';
         this.redraw();
@@ -31,7 +31,7 @@ Tayberry.prototype.onMouseLeave = function (event) {
 };
 
 Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
-    let boundingRect = new Rect(this.canvas.getBoundingClientRect());
+    let boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
     let ret = false;
     if (boundingRect.containsPoint(clientX, clientY)) {
         let x = clientX - boundingRect.left;
@@ -92,8 +92,10 @@ Tayberry.prototype.onMouseMove = function (event) {
 
 Tayberry.prototype.onWindowResize = function () {
     this.tooltipElement.style.display = 'none';
-    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    this.labelsCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.labelsCanvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    this.plotCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.plotCanvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();

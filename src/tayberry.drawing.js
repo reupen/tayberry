@@ -4,12 +4,12 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;
     if (fontString) {
-        this.ctx.save();
-        this.ctx.font = fontString;
+        this.labelsCtx.save();
+        this.labelsCtx.font = fontString;
     }
-    ret = this.ctx.measureText(text).width;
+    ret = this.labelsCtx.measureText(text).width;
     if (fontString) {
-        this.ctx.restore();
+        this.labelsCtx.restore();
     }
     return ret;
 };
@@ -17,12 +17,12 @@ Tayberry.prototype.getTextWidth = function (text, fontString) {
 Tayberry.prototype.getMultilineTextHeight = function (fontString, maxWidth, text) {
     let ret;
     if (fontString) {
-        this.ctx.save();
-        this.ctx.font = fontString;
+        this.labelsCtx.save();
+        this.labelsCtx.font = fontString;
     }
     ret = this.splitMultilineText(maxWidth, text).length;
     if (fontString) {
-        this.ctx.restore();
+        this.labelsCtx.restore();
     }
     return ret;
 };
@@ -32,7 +32,7 @@ Tayberry.prototype.splitMultilineText = function (maxWidth, text) {
     let lines = [];
     let lineWidth = 0;
     let lineText = '';
-    const spaceWidth = this.ctx.measureText(' ').width;
+    const spaceWidth = this.labelsCtx.measureText(' ').width;
     for (let i = 0; i < text.length;) {
         const wordStart = i;
         while (i < text.length && text[i] !== ' ' && text[i] !== '\r' && text[i] !== '\n') i++;
@@ -40,7 +40,7 @@ Tayberry.prototype.splitMultilineText = function (maxWidth, text) {
         while (i < text.length && (text[i] === ' ' || text[i] === '\r' || text[i] === '\n')) i++;
         if (wordEnd > wordStart) {
             const word = text.substring(wordStart, wordEnd);
-            const wordWidth = this.ctx.measureText(word).width;
+            const wordWidth = this.labelsCtx.measureText(word).width;
             if (lineWidth + wordWidth > maxWidth) {
                 if (!lineWidth) {
                     lineText = word;
@@ -67,7 +67,7 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
-        this.ctx.fillText(line, x, y + lineHeight * i);
+        this.labelsCtx.fillText(line, x, y + lineHeight * i);
     }
 };
 
@@ -87,21 +87,22 @@ Tayberry.prototype.render = function () {
     }
 };
 
-Tayberry.prototype.clear = function () {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+Tayberry.prototype.clear = function (plot = true, labels = true) {
+    if (plot) this.plotCtx.clearRect(0, 0, this.plotCanvas.width, this.plotCanvas.height);
+    if (labels) this.labelsCtx.clearRect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
 };
 
 Tayberry.prototype.drawTitle = function () {
     if (this.options.title.text) {
-        const x = (this.canvas.width) / 2, y = 0;
-        this.ctx.save();
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        this.ctx.font = this.titleFont;
-        this.ctx.fillStyle = this.options.title.font.colour;
-        this.drawTextMultiline(this.getFontHeight(this.options.title.font), x, y, this.canvas.width, this.options.title.text);
-        // this.ctx.fillText(this.options.title.text, x, y);
-        this.ctx.restore();
+        const x = (this.labelsCanvas.width) / 2, y = 0;
+        this.labelsCtx.save();
+        this.labelsCtx.textAlign = 'center';
+        this.labelsCtx.textBaseline = 'top';
+        this.labelsCtx.font = this.titleFont;
+        this.labelsCtx.fillStyle = this.options.title.font.colour;
+        this.drawTextMultiline(this.getFontHeight(this.options.title.font), x, y, this.labelsCanvas.width, this.options.title.text);
+        // this.labelsCtx.fillText(this.options.title.text, x, y);
+        this.labelsCtx.restore();
     }
 };
 
@@ -128,61 +129,63 @@ Tayberry.prototype.drawLabel = function (sign, text, rect) {
         baseline = Tayberry.mapVerticalPosition(sign, this.options.labels.verticalPosition);
     }
     if (this.plotArea.containsPoint(x, y)) {
-        this.ctx.save();
-        this.ctx.textAlign = align;
-        this.ctx.textBaseline = baseline;
-        this.ctx.fillText(text, x, y);
-        this.ctx.restore();
+        this.plotCtx.save();
+        this.plotCtx.textAlign = align;
+        this.plotCtx.textBaseline = baseline;
+        this.plotCtx.fillText(text, x, y);
+        this.plotCtx.restore();
     }
 };
 
 
 Tayberry.prototype.draw = function () {
 
-    this.ctx.save();
+    this.plotCtx.save();
     this.enumerateBars(function (bar) {
-        this.ctx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
-        this.ctx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
+        this.plotCtx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
+        this.plotCtx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
     }.bind(this));
-    this.ctx.restore();
+    this.plotCtx.restore();
 
     if (this.options.labels.enabled) {
-        this.ctx.save();
+        this.plotCtx.save();
         this.enumerateBars(function (bar) {
-            this.ctx.font = this.labelFont;
-            this.ctx.fillStyle = this.options.labels.font.colour;
+            this.plotCtx.font = this.labelFont;
+            this.plotCtx.fillStyle = this.options.labels.font.colour;
             this.drawLabel(bar.value, this.options.yAxis.labelFormatter(bar.value), bar.rect);
         }.bind(this));
-        this.ctx.restore();
+        this.plotCtx.restore();
     }
 };
 
 Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
-    this.ctx.save();
+    this.labelsCtx.save();
     if (colour) {
-        this.ctx.strokeStyle = colour;
+        this.labelsCtx.strokeStyle = colour;
     }
-    this.ctx.beginPath();
-    this.ctx.moveTo(x1 + 0.5, y1 + 0.5);
-    this.ctx.lineTo(x2 + 0.5, y2 + 0.5);
-    this.ctx.stroke();
-    this.ctx.restore();
+    this.labelsCtx.beginPath();
+    this.labelsCtx.moveTo(x1 + 0.5, y1 + 0.5);
+    this.labelsCtx.lineTo(x2 + 0.5, y2 + 0.5);
+    this.labelsCtx.stroke();
+    this.labelsCtx.restore();
 };
 
-Tayberry.prototype.redraw = function () {
-    this.clear();
-    this.drawTitle();
-    this.xAxis.draw();
-    this.yAxis.draw();
-    this.drawLegend();
+Tayberry.prototype.redraw = function (plotOnly) {
+    this.clear(true, !plotOnly);
+    if (!plotOnly) {
+        this.drawTitle();
+        this.xAxis.draw();
+        this.yAxis.draw();
+        this.drawLegend();
+    }
     this.draw();
 };
 
 
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
-        this.ctx.save();
-        this.ctx.font = this.legendFont;
+        this.labelsCtx.save();
+        this.labelsCtx.font = this.legendFont;
         let totalWidth = 0;
         const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
         for (let index = 0; index < this.series.length; index++) {
@@ -192,20 +195,20 @@ Tayberry.prototype.drawLegend = function () {
             }
         }
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
-            y = this.canvas.height - indicatorSize;
+            y = this.labelsCanvas.height - indicatorSize;
 
         for (let index = 0; index < this.renderedSeries.length; index++) {
             const series = this.renderedSeries[index];
             if (series.name) {
-                this.ctx.fillStyle = series.colour;
-                this.ctx.fillRect(x, y, indicatorSize, indicatorSize);
-                this.ctx.textBaseline = 'middle';
-                this.ctx.fillStyle = this.options.legend.font.colour;
+                this.labelsCtx.fillStyle = series.colour;
+                this.labelsCtx.fillRect(x, y, indicatorSize, indicatorSize);
+                this.labelsCtx.textBaseline = 'middle';
+                this.labelsCtx.fillStyle = this.options.legend.font.colour;
                 x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);
-                this.ctx.fillText(series.name, x, y + indicatorSize / 2);
+                this.labelsCtx.fillText(series.name, x, y + indicatorSize / 2);
                 x += this.getTextWidth(series.name, this.legendFont) + this.mapLogicalXUnit(this.options.elementLargePadding);
             }
         }
-        this.ctx.restore();
+        this.labelsCtx.restore();
     }
 };

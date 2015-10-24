@@ -2,8 +2,8 @@ class Tayberry {
     constructor() {
         this.selectedItem = {};
         this.containerElement = null;
-        this.canvas = null;
-        this.ctx = null;
+        this.labelsCanvas = null;
+        this.labelsCtx = null;
         this.renderedSeries = null;
         this.options = null;
         this.scaleFactor = null;
