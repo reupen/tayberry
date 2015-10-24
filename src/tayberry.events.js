@@ -57,7 +57,9 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             tooltipHtml += this.options.tooltips.footerTemplate;
             this.tooltipElement.innerHTML = tooltipHtml;
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
-            this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
+            if (!this.options.tooltips.shared) {
+                this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
+            }
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
             this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
             this.selectedItem = hitTestResult;

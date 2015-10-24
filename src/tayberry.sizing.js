@@ -146,7 +146,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                     value: this.series[seriesIndex].data[categoryIndex],
                     renderedValue: this.renderedSeries[seriesIndex].data[categoryIndex],
                     rect: rect,
-                    selected: this.selectedItem.categoryIndex === categoryIndex && this.selectedItem.seriesIndex === seriesIndex
+                    selected: this.selectedItem.categoryIndex === categoryIndex && (this.options.tooltips.shared || this.selectedItem.seriesIndex === seriesIndex)
                 });
                 if (stopEnumerating)
                     break;
