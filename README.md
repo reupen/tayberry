@@ -4,8 +4,7 @@
 
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
-## Demos
-[Click here for some demos and examples.](https://reupen.github.io/tayberry)
+[Demos and examples.](https://reupen.github.io/tayberry)
 
 ## What's good about it?
 
@@ -20,9 +19,12 @@ Zero external dependencies. No jQuery, no D3.
 ### Easy-to-use and customisable
 
 Creating a chart is as simple as:
+```html
+<div id="chart-id" style="width: 600px; height: 350px"></div>
+```
 
 ```javascript
-Tayberry.create('container-id', {
+Tayberry.create('chart-id', {
     xAxis: {
         categories: ['1', '2', '3', '4', '5+']
     },
@@ -35,7 +37,7 @@ Tayberry.create('container-id', {
 
 ## Supported browsers
 
-Tayberry only supports modern browsers. Tested on Firefox 42, Chrome 45 and Internet Explorer 11.
+TayberryJS only supports modern browsers. Tested on Firefox 30+, Chrome 45, Internet Explorer 10+ and Edge.
 
 ## Usage
 
@@ -64,34 +66,42 @@ Available attributes on the option object are (full details still to be complete
 | labels.verticalPosition       | 'outside'\|'inside'\|'middle' |      | 
 | legend.enabled                | boolean         |      |
 | legend.font.\*                | \-                  | Overrides font.\* values for the legend |
-| legend.indicatorSize          | logical pixels  |       |
-| presets                       | array           |      |
-| series                        | array of objects |      |
-| swapAxes                      | boolean |      |
+| legend.indicatorSize          | logical pixels  | Width/height of the coloured box of each legend item |
+| presets                       | array of strings    | Use this to override some of the default settings using a preset. Currently only one preset, `histogram` |
+| series                        | array of objects | e.g. ```[{
+        data: [.306, .341, .156, .129, .069],
+        name: '2011',
+        colour: '#afa' //colour is optional
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011',
+        colour: '#faa'
+    }]``` |
+| swapAxes                      | boolean |   Swap the displayed positions of the x- and y-axes; set to true for a horizontal bar chart |
 | title.font.\*                  | \-               | Overrides font.\* values for the chart title |
 | title.text                    | string          | Title for the chart
 | tooltips.font.\*              | \-               | Overrides font.\* values for tooltips |
-| tooltips.footerTemplate       | string          |      |
-| tooltips.headerTemplate       | string          |      |
-| tooltips.shared               | boolean         |      |
-| tooltips.valueTemplate        | string          |      |
+| tooltips.footerTemplate       | string          | HTML template string used for tooltip footer. |
+| tooltips.headerTemplate       | string          | HTML template string used for tooltip header. Use `{category}` to sub in the category name    |
+| tooltips.shared               | boolean         | Set to true to share tooltips between all series     |
+| tooltips.valueTemplate        | string          | HTML template string used for each series in a tooltip. Fields available: `{name}`, `{value}` and `{colour}` |
 | [xAxis\|yAxis].categories              | array           | (categorial axes only)      |
 | [xAxis\|yAxis].currencySymbol          | string          | (linear axes only)     |
 | [xAxis\|yAxis].font.\*                 | \-              | Overrides allAxes.font.\* values for the axis labels |
-| [xAxis\|yAxis].labelPosition           | 'left'\|'middle'\|'right' |
+| [xAxis\|yAxis].labelPosition           | `left`\|`middle`\|`right` |
 | [xAxis\|yAxis].gridLines.colour        | HTML colour code |      |
-| [xAxis\|yAxis].labelFormat             | 'number'\|'percentage'\|'currency'                | (linear axes only)
+| [xAxis\|yAxis].labelFormat             | `number`\|`percentage`\|`currency`                | (linear axes only)
 | [xAxis\|yAxis].labelFormatter          | function          |      |
 | [xAxis\|yAxis].labelPrefix             | string          | (linear axes only)      |
 | [xAxis\|yAxis].labelSuffix             | string          | (linear axes only)      |
 | [xAxis\|yAxis].min                     | number          | Use this to override the automatic axis minimum value calculation (linear axes only)
 | [xAxis\|yAxis].max                     | number          | Use this to override the automatic axis maximum value calculation (linear axes only)
-| [xAxis\|yAxis].placement               | 'start'\|'end'  |       |
+| [xAxis\|yAxis].placement               | `start`\|`end`  |       |
 | [xAxis\|yAxis].tickStep                | logical pixels  | Hint used for the distance between ticks (linear axes only)
 | [xAxis\|yAxis].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
 | [xAxis\|yAxis].title.text              | string          |      |
 | [xAxis\|yAxis].title.font.\*           | \-              | Overrides allAxes.font.\* values for the axis title |
-| [xAxis\|yAxis].type                    | 'linear'\|'categorial'          |      |
+| [xAxis\|yAxis].type                    | `linear`\|`categorial`          |      |
 
 See the demos for some examples.
 
