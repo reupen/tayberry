@@ -1,5 +1,6 @@
 'use strict';
 var Tayberry = require('./tayberry.base.js').Tayberry;
+var Utils = require('./utils');
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;
@@ -80,7 +81,7 @@ Tayberry.prototype.render = function () {
     this.createTooltip();
     if (this.options.animations.enabled) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-        this.animatationStart = performance.now();
+        this.animatationStart = Utils.now();
         this.animationLength = 500;
     } else {
         this.draw();
