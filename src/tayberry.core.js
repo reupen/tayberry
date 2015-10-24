@@ -15,6 +15,8 @@ Tayberry.getAutoColour = function() {
 
 Tayberry.prototype.createCanvas = function () {
     let ret = document.createElement('canvas');
+    // IE11 hack-fix - clientWidth sometimes incorrect on first access
+    ret.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
     ret.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
     ret.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     ret.style.position = 'absolute';

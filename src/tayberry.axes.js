@@ -23,6 +23,8 @@ class Axis {
         this.tickStart = null;
         this.tickEnd = null;
         this.calculatedSize = 0;
+        this.topAdjustment = 0;
+        this.rightAdjustment = 0;
         this.titleFont = null;
         this.labelFont = null;
 
@@ -71,8 +73,11 @@ class Axis {
         const titleFontHeight = tb.getFontHeight(this.options.title.font);
         const fontHeight = tb.getFontHeight(tb.options.font);
 
-        if (reset)
+        if (reset) {
             this.calculatedSize = 0;
+            this.topAdjustment = 0;
+            this.rightAdjustment = 0;
+        }
 
         size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
         if (this.options.title.text) {
@@ -80,17 +85,27 @@ class Axis {
         }
 
         if (!fixedOnly) {
+            let ticks = this.getTicks(false);
             if (this.isYAxis) {
+                if (ticks.length) {
+                    const lastTick = ticks[ticks.length - 1];
+                    const lastTickYStart = lastTick.y - fontHeight / 2;
+                    if (lastTickYStart < plotArea.top - this.topAdjustment) {
+                        const adjustment = plotArea.top - lastTickYStart - this.topAdjustment + 1;
+                        plotArea.top += adjustment;
+                        this.topAdjustment += adjustment;
+                    }
+                }
                 size += this.maxLabelSize()
             } else {
-                // A bit hacky - need to generalise
-                let ticks = this.getTicks(false);
                 if (ticks.length) {
                     const lastTick = ticks[ticks.length - 1];
                     const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
                     const lastTickXEnd = lastTick.x + textWidth / 2;
-                    if (lastTickXEnd >= tb.labelsCanvas.width) {
-                        plotArea.right -= lastTickXEnd - tb.labelsCanvas.width + 1;
+                    if (lastTickXEnd >= plotArea.right + this.rightAdjustment) {
+                        const adjustment = lastTickXEnd - plotArea.right - this.rightAdjustment + 1;
+                        plotArea.right -= adjustment;
+                        this.rightAdjustment += adjustment;
                     }
                 }
                 size += fontHeight;
