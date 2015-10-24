@@ -73,7 +73,7 @@ Tayberry.prototype.onTouchStart = function (event) {
     for (let index = 0; index < event.targetTouches.length; index++) {
         let touch = event.targetTouches[index];
         if (this.handleMouseMove(touch.clientX, touch.clientY)) {
-            event.preventDefault();
+            // event.preventDefault();
             this.redraw();
             break;
         }

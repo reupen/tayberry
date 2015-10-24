@@ -46,9 +46,9 @@ Tayberry.prototype.destroy = function () {
     this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
     this.series = {};
-    this.labelsCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
-    this.labelsCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
-    this.labelsCanvas.removeEventListener('touchstart', this.onTouchStartReal);
+    this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
+    this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+    // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
     window.removeEventListener('resize', this.onWindowResizeReal);
 };
 
@@ -110,7 +110,7 @@ Tayberry.prototype.setOptions = function (options) {
     this.updateFonts();
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
-    this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
+    //this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
     window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
