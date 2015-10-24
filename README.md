@@ -46,7 +46,7 @@ TayberryJS only supports modern browsers. As of 0.2.2, it has been tested on:
 - Chrome for Android 45+
 - Internet Explorer 10+
 - Edge
-- Safari for OS X 7.1.6+.
+- Safari for OS X 7.1.6+
 
 ## Usage
 
