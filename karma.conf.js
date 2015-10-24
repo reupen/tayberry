@@ -24,8 +24,7 @@ module.exports = function (config) {
         frameworks: ['browserify', 'jasmine'],
 
         files: [
-            'src/**/*.js',
-            'test/**/*.js'
+            'test/unit/**/*.js'
         ],
 
         exclude: [],
