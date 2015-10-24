@@ -33,7 +33,7 @@ Tayberry.prototype.calculatePlotArea = function () {
     this.plotArea = new Rect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
     if (this.options.title.text) {
         this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding);
-        this.plotArea.top += this.getFontHeight(this.options.title.font)*this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
+        this.plotArea.top += this.getFontHeight(this.options.title.font) * this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
     }
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
@@ -124,8 +124,8 @@ Tayberry.prototype.enumerateBars = function (callback) {
             for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
                 const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                 const barWidth = Math.floor((barXEnd - barXStart) / barCount);
-                const xStart = Math.floor(barXStart + barIndex*barWidth);
-                const xEnd = Math.ceil(barXStart + (barIndex+1)*barWidth);
+                const xStart = Math.floor(barXStart + barIndex * barWidth);
+                const xEnd = Math.ceil(barXStart + (barIndex + 1) * barWidth);
                 if (Utils.isMissingValue(value))
                     continue;
                 const yTop = this.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));

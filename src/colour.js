@@ -24,15 +24,15 @@ class Colour {
      * @param str
      * @returns {Colour}
      */
-    parseString (str) {
+    parseString(str) {
         let regExHex = /^#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})|^#?([0-9A-F]{1})([0-9A-F]{1})([0-9A-F]{1})$/i;
         let regExInt = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(\s*,\s*([0-9]*\.?[0-9]+)\s*)?\)$/i;
         const groupsHex = regExHex.exec(str);
         const groupsInt = regExInt.exec(str);
         if (groupsHex) {
-            let parseHex = function(value) {
+            let parseHex = function (value) {
                 let ret = parseInt(value, 16);
-                ret = ret*0x10 + ret;
+                ret = ret * 0x10 + ret;
                 return ret;
             };
             this.r = groupsHex[1] ? parseInt(groupsHex[1], 16) : parseHex(groupsHex[4]);
@@ -69,23 +69,10 @@ class Colour {
      * the nearest integer
      * @returns {Colour}
      */
-    clip () {
+    clip() {
         this.clipComponent('r');
         this.clipComponent('g');
         this.clipComponent('b');
-        return this;
-    }
-
-    /**
-     * Multiplies each colour component by a number
-     * @param number
-     * @returns {Colour}
-     */
-    multiplyBy (number) {
-        this.r *= number;
-        this.g *= number;
-        this.b *= number;
-        this.clip();
         return this;
     }
 
@@ -94,7 +81,7 @@ class Colour {
      * @param number
      * @returns {Colour}
      */
-    increaseBy (number) {
+    increaseBy(number) {
         this.r += number;
         this.g += number;
         this.b += number;
@@ -118,16 +105,6 @@ class Colour {
             ret = Utils.formatString('rgb({r},{g},{b})', this);
         }
         return ret;
-    }
-
-    /**
-     * Multiplies each colour component of a colour code by a number
-     * @param colour
-     * @param number
-     * @returns {String}
-     */
-    static multiplyBy(colour, number) {
-        return (new Colour(colour)).multiplyBy(number).toString();
     }
 
 }

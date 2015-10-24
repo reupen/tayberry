@@ -44,15 +44,23 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             this.tooltipElement.style.display = 'block';
             let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
             if (this.options.tooltips.shared) {
-                for (let index = 0; index<this.series.length; index++) {
+                for (let index = 0; index < this.series.length; index++) {
                     const series = this.series[index];
                     const value = series.data[hitTestResult.categoryIndex];
-                    tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                    tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
+                        value: this.options.yAxis.labelFormatter(value),
+                        name: series.name,
+                        colour: series.colour
+                    }, true);
                 }
             } else {
                 const series = this.series[hitTestResult.seriesIndex];
                 const value = series.data[hitTestResult.categoryIndex];
-                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour}, true);
+                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
+                    value: this.options.yAxis.labelFormatter(value),
+                    name: series.name,
+                    colour: series.colour
+                }, true);
             }
             tooltipHtml += this.options.tooltips.footerTemplate;
             this.tooltipElement.innerHTML = tooltipHtml;
@@ -69,16 +77,17 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
     return ret;
 };
 
-Tayberry.prototype.onTouchStart = function (event) {
-    for (let index = 0; index < event.targetTouches.length; index++) {
-        let touch = event.targetTouches[index];
-        if (this.handleMouseMove(touch.clientX, touch.clientY)) {
-            // event.preventDefault();
-            this.redraw();
-            break;
-        }
-    }
-};
+
+//Tayberry.prototype.onTouchStart = function (event) {
+//    for (let index = 0; index < event.targetTouches.length; index++) {
+//        let touch = event.targetTouches[index];
+//        if (this.handleMouseMove(touch.clientX, touch.clientY)) {
+//            // event.preventDefault();
+//            this.redraw();
+//            break;
+//        }
+//    }
+//};
 
 
 Tayberry.prototype.onMouseMove = function (event) {

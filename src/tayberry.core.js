@@ -7,7 +7,7 @@ var Axis = require('./tayberry.axes').Axis;
 
 var currentAutoColourIndex = 0;
 
-Tayberry.getAutoColour = function() {
+Tayberry.getAutoColour = function () {
     let ret = Tayberry.defaultColours[currentAutoColourIndex % Tayberry.defaultColours.length];
     currentAutoColourIndex++;
     return ret;
@@ -64,15 +64,15 @@ Tayberry.prototype.initialise = function () {
     this.plotArea = null;
 };
 
-Tayberry.prototype.getFontHeight = function (font, forDom = false) {
+Tayberry.prototype.getFontHeight = function (font, forDom) {
     let ret = font.size;
     if (font.autoScale)
-        ret *= Math.pow(this.labelsCanvas.width/800, 0.25);
+        ret *= Math.pow(this.labelsCanvas.width / 800, 0.25);
     if (!forDom) ret = this.mapLogicalYUnit(ret);
     return ret;
 };
 
-Tayberry.prototype.createFontString = function (font, forDom = false) {
+Tayberry.prototype.createFontString = function (font, forDom) {
     return (font.style ? font.style + ' ' : '') + this.getFontHeight(font, forDom).toFixed(1) + 'px ' + font.face;
 };
 
@@ -119,17 +119,6 @@ Tayberry.calculateHighlightColour = function (colour) {
     return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
 };
 
-/**
- * Format:
- * [{
- *   data: {array|object},
- *   name: {string}
- * },{
- *   data: {array|object},
- *   name: {string}
- * }]
- * @param series
- */
 Tayberry.prototype.setSeries = function (series) {
     var i;
     if (!Array.isArray(series)) {

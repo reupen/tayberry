@@ -66,7 +66,7 @@ class Axis {
         return !this.isYAxis ? this.tayberry.mapLogicalXUnit(x) : this.tayberry.mapLogicalYUnit(x);
     }
 
-    adjustSize(plotArea, fixedOnly = false, reset = false) {
+    adjustSize(plotArea, fixedOnly, reset) {
         let size = 0,
             tb = this.tayberry,
             ret;
@@ -124,7 +124,7 @@ class Axis {
                         this.rightAdjustment += adjustment;
                     }
                 }
-                size += fontHeight*this.numLabelLines;
+                size += fontHeight * this.numLabelLines;
             }
         }
 
@@ -178,7 +178,7 @@ class Axis {
             let textWidth, xStart, xEnd;
             const formattedValue = this.options.labelFormatter(tick.value);
             const row = tickIndex % this.numLabelLines;
-            const rowOffset = this.isYAxis ? 0 : fontHeight*row;
+            const rowOffset = this.isYAxis ? 0 : fontHeight * row;
             if (!this.isYAxis) {
                 textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                 xStart = tick.x - textWidth / 2;
@@ -323,7 +323,7 @@ class LinearAxis extends Axis {
         }
     }
 
-    enumerateTicks(callback, visibleOnly = false) {
+    enumerateTicks(callback) {
         let tb = this.tayberry;
 
         const start = this.startProperty,
@@ -332,32 +332,28 @@ class LinearAxis extends Axis {
         for (let yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
             let y = this.getValueDisplacement(yValue);
             if (this.isYAxis) {
-                if (!visibleOnly || tb.plotArea.containsY(y)) {
-                    if (callback({
-                            value: yValue,
-                            x1: tb.plotArea[start],
-                            y1: y,
-                            x2: tb.plotArea[end],
-                            y2: y,
-                            x: tb.plotArea[start],
-                            y: y
+                if (callback({
+                        value: yValue,
+                        x1: tb.plotArea[start],
+                        y1: y,
+                        x2: tb.plotArea[end],
+                        y2: y,
+                        x: tb.plotArea[start],
+                        y: y
 
-                        }))
-                        break;
-                }
+                    }))
+                    break;
             } else {
-                if (!visibleOnly || tb.plotArea.containsX(y)) {
-                    if (callback({
-                            value: yValue,
-                            y1: tb.plotArea[start],
-                            x1: y,
-                            y2: tb.plotArea[end],
-                            x2: y,
-                            y: tb.plotArea[start],
-                            x: y
-                        }))
-                        break;
-                }
+                if (callback({
+                        value: yValue,
+                        y1: tb.plotArea[start],
+                        x1: y,
+                        y2: tb.plotArea[end],
+                        x2: y,
+                        y: tb.plotArea[start],
+                        x: y
+                    }))
+                    break;
             }
             yValue = this.tickStart + Math.round((yValue + this.tickStep - this.tickStart) / this.tickStep) * this.tickStep;
         }
