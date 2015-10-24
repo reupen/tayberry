@@ -1142,6 +1142,7 @@ Tayberry.defaultColours = ['#6FE87B', //green
 },{"./tayberry.base.js":5}],8:[function(require,module,exports){
 'use strict';
 var Tayberry = require('./tayberry.base.js').Tayberry;
+var Utils = require('./utils');
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     var ret = undefined;
@@ -1221,7 +1222,7 @@ Tayberry.prototype.render = function () {
     this.createTooltip();
     if (this.options.animations.enabled) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-        this.animatationStart = performance.now();
+        this.animatationStart = Utils.now();
         this.animationLength = 500;
     } else {
         this.draw();
@@ -1350,7 +1351,7 @@ Tayberry.prototype.drawLegend = function () {
     }
 };
 
-},{"./tayberry.base.js":5}],9:[function(require,module,exports){
+},{"./tayberry.base.js":5,"./utils":12}],9:[function(require,module,exports){
 'use strict';
 var Rect = require('./rect').Rect;
 var Easing = require('./easing.js');
