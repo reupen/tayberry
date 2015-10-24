@@ -39,7 +39,7 @@ Tayberry.create('chart-id', {
 
 ## Supported browsers
 
-TayberryJS only supports modern browsers. Tested on Firefox 30+, Chrome 45, Internet Explorer 10+ and Edge.
+TayberryJS only supports modern browsers. As of 0.2.2, it has been tested on Firefox 30+, Chrome for Windows and Android 45+, Internet Explorer 10+, Edge and Safari for OS X 7.1.6+.
 
 ## Usage
 
