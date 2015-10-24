@@ -14,6 +14,20 @@ Tayberry.prototype.getTextWidth = function (text, fontString) {
     return ret;
 };
 
+Tayberry.prototype.getMultilineTextHeight = function (fontString, maxWidth, text) {
+    let ret;
+    if (fontString) {
+        this.ctx.save();
+        this.ctx.font = fontString;
+    }
+    ret = this.splitMultilineText(maxWidth, text).length;
+    if (fontString) {
+        this.ctx.restore();
+    }
+    return ret;
+};
+
+
 Tayberry.prototype.splitMultilineText = function (maxWidth, text) {
     let lines = [];
     let lineWidth = 0;

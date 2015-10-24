@@ -33,7 +33,7 @@ Tayberry.prototype.calculatePlotArea = function () {
     this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
     if (this.options.title.text) {
         this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding);
-        this.plotArea.top += this.getFontHeight(this.options.title.font)*this.splitMultilineText(this.canvas.width, this.options.title.text).length;
+        this.plotArea.top += this.getFontHeight(this.options.title.font)*this.getMultilineTextHeight(this.titleFont, this.canvas.width, this.options.title.text);
     }
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
