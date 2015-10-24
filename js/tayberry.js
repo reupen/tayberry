@@ -1222,7 +1222,7 @@ Tayberry.prototype.render = function () {
     this.createTooltip();
     if (this.options.animations.enabled) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-        this.animatationStart = Utils.now();
+        this.animationStart = typeof performance !== 'undefined' && typeof performance.now !== 'undefined' ? performance.now() : null;
         this.animationLength = 500;
     } else {
         this.draw();
@@ -1361,7 +1361,10 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.onAnimate = function (timestamp) {
     var elapsed, scaleFactor;
-    elapsed = timestamp - this.animatationStart;
+    if (this.animationStart === null) {
+        this.animationStart = timestamp;
+    }
+    elapsed = timestamp - this.animationStart;
     scaleFactor = Math.min(Easing.inQuad(elapsed, this.animationLength), 1);
     for (var categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
         for (var seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
