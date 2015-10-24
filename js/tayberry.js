@@ -92,21 +92,6 @@ var Colour = (function () {
         }
 
         /**
-         * Multiplies each colour component by a number
-         * @param number
-         * @returns {Colour}
-         */
-    }, {
-        key: 'multiplyBy',
-        value: function multiplyBy(number) {
-            this.r *= number;
-            this.g *= number;
-            this.b *= number;
-            this.clip();
-            return this;
-        }
-
-        /**
          * Adds a number to each colour component
          * @param number
          * @returns {Colour}
@@ -136,22 +121,10 @@ var Colour = (function () {
             }
             return ret;
         }
-
-        /**
-         * Multiplies each colour component of a colour code by a number
-         * @param colour
-         * @param number
-         * @returns {String}
-         */
     }, {
         key: 'sum',
         get: function get() {
             return this.r + this.g + this.b;
-        }
-    }], [{
-        key: 'multiplyBy',
-        value: function multiplyBy(colour, number) {
-            return new Colour(colour).multiplyBy(number).toString();
         }
     }]);
 
@@ -295,7 +268,7 @@ exports.Rect = Rect;
 
 var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -329,7 +302,11 @@ var Axis = (function () {
         this.tickStart = null;
         this.tickEnd = null;
         this.calculatedSize = 0;
+        this.topAdjustment = 0;
+        this.rightAdjustment = 0;
         this.titleFont = null;
+        this.labelFont = null;
+        this.numLabelLines = 1;
 
         this.setPlacement();
     }
@@ -337,6 +314,7 @@ var Axis = (function () {
     _createClass(Axis, [{
         key: 'updateFonts',
         value: function updateFonts() {
+            this.labelFont = this.tayberry.createFontString(this.options.font);
             this.titleFont = this.tayberry.createFontString(this.options.title.font);
         }
     }, {
@@ -355,7 +333,7 @@ var Axis = (function () {
             var tb = this.tayberry;
             var ticks = this.getTicks();
             return Utils.reduce(ticks, Math.max, function (x) {
-                return tb.getTextWidth(_this.options.labelFormatter(x.value));
+                return tb.getTextWidth(_this.options.labelFormatter(x.value), _this.labelFont);
             });
         }
     }, {
@@ -370,38 +348,65 @@ var Axis = (function () {
         }
     }, {
         key: 'adjustSize',
-        value: function adjustSize(plotArea) {
-            var fixedOnly = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-            var reset = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
-
+        value: function adjustSize(plotArea, fixedOnly, reset) {
             var size = 0,
                 tb = this.tayberry,
                 ret = undefined;
 
-            var fontHeight = tb.getFontHeight(this.options.title.font);
+            var titleFontHeight = tb.getFontHeight(this.options.title.font);
+            var fontHeight = tb.getFontHeight(this.options.font);
 
-            if (reset) this.calculatedSize = 0;
+            if (reset) {
+                this.calculatedSize = 0;
+                this.topAdjustment = 0;
+                this.rightAdjustment = 0;
+                this.numLabelLines = 1;
+            }
 
             size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
             if (this.options.title.text) {
-                size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + fontHeight;
+                size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) + titleFontHeight;
             }
 
             if (!fixedOnly) {
+                var ticks = this.getTicks(false);
                 if (this.isYAxis) {
-                    size += this.maxLabelSize();
-                } else {
-                    // A bit hacky - need to generalise
-                    var ticks = this.getTicks(false);
                     if (ticks.length) {
                         var lastTick = ticks[ticks.length - 1];
-                        var textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value));
-                        var lastTickXEnd = lastTick.x + textWidth / 2;
-                        if (lastTickXEnd >= tb.canvas.width) {
-                            plotArea.right -= lastTickXEnd - tb.canvas.width + 1;
+                        var lastTickYStart = lastTick.y - fontHeight / 2;
+                        if (lastTickYStart < plotArea.top - this.topAdjustment) {
+                            var adjustment = plotArea.top - lastTickYStart - this.topAdjustment + 1;
+                            plotArea.top += adjustment;
+                            this.topAdjustment += adjustment;
                         }
                     }
-                    size += fontHeight;
+                    size += this.maxLabelSize();
+                } else {
+                    {
+                        var lastXEnd = undefined;
+                        for (var i = 0; i < ticks.length; i++) {
+                            var tick = ticks[i];
+                            var textWidth = tb.getTextWidth(this.options.labelFormatter(tick.value), this.labelFont);
+                            var xStart = tick.x - textWidth / 2;
+                            var xEnd = tick.x + textWidth / 2;
+                            if (typeof lastXEnd !== 'undefined' && xStart <= lastXEnd + 1) {
+                                this.numLabelLines = 2;
+                                break;
+                            }
+                            lastXEnd = xEnd;
+                        }
+                    }
+                    if (ticks.length) {
+                        var lastTick = ticks[ticks.length - 1];
+                        var textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
+                        var lastTickXEnd = lastTick.x + textWidth / 2;
+                        if (lastTickXEnd >= plotArea.right + this.rightAdjustment) {
+                            var adjustment = lastTickXEnd - plotArea.right - this.rightAdjustment + 1;
+                            plotArea.right -= adjustment;
+                            this.rightAdjustment += adjustment;
+                        }
+                    }
+                    size += fontHeight * this.numLabelLines;
                 }
             }
 
@@ -443,58 +448,64 @@ var Axis = (function () {
             var tb = this.tayberry;
             var labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
             var labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+            var fontHeight = tb.getFontHeight(this.options.font);
 
-            tb.ctx.save();
-            tb.ctx.fillStyle = tb.options.font.colour;
-            tb.ctx.textAlign = this.isYAxis ? this.isPlacedAtStart ? 'right' : 'left' : 'center';
-            tb.ctx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
+            tb.labelsCtx.save();
+            tb.labelsCtx.font = this.labelFont;
+            tb.labelsCtx.fillStyle = this.options.font.colour;
+            tb.labelsCtx.textAlign = this.isYAxis ? this.isPlacedAtStart ? 'right' : 'left' : 'center';
+            tb.labelsCtx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
-            var lastXEnd = undefined;
+            var lastXEnds = [],
+                tickIndex = 0;
 
             this.enumerateTicks((function (tick) {
                 var textWidth = undefined,
                     xStart = undefined,
                     xEnd = undefined;
                 var formattedValue = this.options.labelFormatter(tick.value);
+                var row = tickIndex % this.numLabelLines;
+                var rowOffset = this.isYAxis ? 0 : fontHeight * row;
                 if (!this.isYAxis) {
-                    textWidth = tb.getTextWidth(formattedValue);
+                    textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                     xStart = tick.x - textWidth / 2;
                     xEnd = tick.x + textWidth / 2;
                 }
 
-                if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.canvas.width) {
-                    tb.ctx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY);
-                    lastXEnd = xEnd;
+                if (this.isYAxis || (typeof lastXEnds[row] === 'undefined' || xStart > lastXEnds[row] + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
+                    tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY + rowOffset);
+                    lastXEnds[row] = xEnd;
                 }
                 if (this.options.gridLines.colour) tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
+                tickIndex++;
             }).bind(this));
 
-            tb.ctx.restore();
+            tb.labelsCtx.restore();
         }
     }, {
         key: 'drawTitle',
         value: function drawTitle() {
             if (this.options.title.text) {
                 var tb = this.tayberry;
-                tb.ctx.save();
-                tb.ctx.font = this.titleFont;
-                tb.ctx.fillStyle = this.options.title.font.colour;
-                tb.ctx.textAlign = 'center';
-                tb.ctx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
+                tb.labelsCtx.save();
+                tb.labelsCtx.font = this.titleFont;
+                tb.labelsCtx.fillStyle = this.options.title.font.colour;
+                tb.labelsCtx.textAlign = 'center';
+                tb.labelsCtx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
 
                 if (this.isYAxis) {
                     var x = 0;
                     var y = tb.plotArea.top + tb.plotArea.height / 2;
-                    tb.ctx.translate(x, y);
-                    tb.ctx.rotate(-Math.PI / 2);
-                    tb.ctx.fillText(this.options.title.text, 0, 0);
+                    tb.labelsCtx.translate(x, y);
+                    tb.labelsCtx.rotate(-Math.PI / 2);
+                    tb.labelsCtx.fillText(this.options.title.text, 0, 0);
                 } else {
                     var x = tb.plotArea.left + tb.plotArea.width / 2;
                     var y = tb.plotArea[this.startProperty] - this.calculatedSize;
                     //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
-                    tb.ctx.fillText(this.options.title.text, x, y);
+                    tb.labelsCtx.fillText(this.options.title.text, x, y);
                 }
-                tb.ctx.restore();
+                tb.labelsCtx.restore();
             }
         }
     }, {
@@ -641,8 +652,6 @@ var LinearAxis = (function (_Axis2) {
     }, {
         key: 'enumerateTicks',
         value: function enumerateTicks(callback) {
-            var visibleOnly = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
             var tb = this.tayberry;
 
             var start = this.startProperty,
@@ -651,30 +660,26 @@ var LinearAxis = (function (_Axis2) {
             for (var yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
                 var y = this.getValueDisplacement(yValue);
                 if (this.isYAxis) {
-                    if (!visibleOnly || tb.plotArea.containsY(y)) {
-                        if (callback({
-                            value: yValue,
-                            x1: tb.plotArea[start],
-                            y1: y,
-                            x2: tb.plotArea[end],
-                            y2: y,
-                            x: tb.plotArea[start],
-                            y: y
+                    if (callback({
+                        value: yValue,
+                        x1: tb.plotArea[start],
+                        y1: y,
+                        x2: tb.plotArea[end],
+                        y2: y,
+                        x: tb.plotArea[start],
+                        y: y
 
-                        })) break;
-                    }
+                    })) break;
                 } else {
-                    if (!visibleOnly || tb.plotArea.containsX(y)) {
-                        if (callback({
-                            value: yValue,
-                            y1: tb.plotArea[start],
-                            x1: y,
-                            y2: tb.plotArea[end],
-                            x2: y,
-                            y: tb.plotArea[start],
-                            x: y
-                        })) break;
-                    }
+                    if (callback({
+                        value: yValue,
+                        y1: tb.plotArea[start],
+                        x1: y,
+                        y2: tb.plotArea[end],
+                        x2: y,
+                        y: tb.plotArea[start],
+                        x: y
+                    })) break;
                 }
                 yValue = this.tickStart + Math.round((yValue + this.tickStep - this.tickStart) / this.tickStep) * this.tickStep;
             }
@@ -788,8 +793,8 @@ var Tayberry = (function () {
 
         this.selectedItem = {};
         this.containerElement = null;
-        this.canvas = null;
-        this.ctx = null;
+        this.labelsCanvas = null;
+        this.labelsCtx = null;
         this.renderedSeries = null;
         this.options = null;
         this.scaleFactor = null;
@@ -797,6 +802,9 @@ var Tayberry = (function () {
         this.plotArea = null;
         this.series = [];
         this.categories = [];
+        this.titleFont = null;
+        this.labelFont = null;
+        this.legendFont = null;
     }
 
     _createClass(Tayberry, [{
@@ -832,17 +840,27 @@ Tayberry.getAutoColour = function () {
     return ret;
 };
 
+Tayberry.prototype.createCanvas = function () {
+    var ret = document.createElement('canvas');
+    // IE11 hack-fix - clientWidth sometimes incorrect on first access
+    ret.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    ret.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    ret.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    ret.style.position = 'absolute';
+    this.containerElement.appendChild(ret);
+    return ret;
+};
+
 Tayberry.prototype.create = function (containerElement) {
     if (typeof containerElement == 'string') {
         this.containerElement = document.getElementById(containerElement);
     } else {
         this.containerElement = containerElement;
     }
-    this.canvas = document.createElement('canvas');
-    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
-    this.containerElement.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext('2d');
+    this.labelsCanvas = this.createCanvas();
+    this.labelsCtx = this.labelsCanvas.getContext('2d');
+    this.plotCanvas = this.createCanvas();
+    this.plotCtx = this.plotCanvas.getContext('2d');
     this.renderedSeries = null;
     this.options = {};
     this.yAxis = null;
@@ -851,44 +869,44 @@ Tayberry.prototype.create = function (containerElement) {
 };
 
 Tayberry.prototype.destroy = function () {
-    this.canvas.parentNode.removeChild(this.canvas);
+    this.labelsCanvas.parentNode.removeChild(this.labelsCanvas);
     this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
     this.series = {};
-    this.canvas.removeEventListener('mousemove', this.onMouseMoveReal);
-    this.canvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
-    this.canvas.removeEventListener('touchstart', this.onTouchStartReal);
+    this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
+    this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+    // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
     window.removeEventListener('resize', this.onWindowResizeReal);
 };
 
 Tayberry.prototype.initialise = function () {
     this.scaleFactor = window.devicePixelRatio || 1.0;
-    this.canvas.width = Math.round(this.canvas.clientWidth * this.scaleFactor);
-    this.canvas.height = Math.round(this.canvas.clientHeight * this.scaleFactor);
-    this.scaleFactorX = this.canvas.width / this.canvas.clientWidth;
-    this.scaleFactorY = this.canvas.height / this.canvas.clientHeight;
+    this.labelsCanvas.width = Math.round(this.labelsCanvas.clientWidth * this.scaleFactor);
+    this.labelsCanvas.height = Math.round(this.labelsCanvas.clientHeight * this.scaleFactor);
+    this.plotCanvas.width = this.labelsCanvas.width;
+    this.plotCanvas.height = this.labelsCanvas.height;
+    this.scaleFactorX = this.labelsCanvas.width / this.labelsCanvas.clientWidth;
+    this.scaleFactorY = this.labelsCanvas.height / this.labelsCanvas.clientHeight;
     this.selectedItem = {};
     this.plotArea = null;
 };
 
-Tayberry.prototype.getFontHeight = function (font) {
-    var forDom = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
+Tayberry.prototype.getFontHeight = function (font, forDom) {
     var ret = font.size;
-    if (font.autoScale) ret *= Math.pow(this.canvas.width / 800, 0.25);
+    if (font.autoScale) ret *= Math.pow(this.labelsCanvas.width / 800, 0.25);
     if (!forDom) ret = this.mapLogicalYUnit(ret);
     return ret;
 };
 
-Tayberry.prototype.createFontString = function (font) {
-    var forDom = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
+Tayberry.prototype.createFontString = function (font, forDom) {
     return (font.style ? font.style + ' ' : '') + this.getFontHeight(font, forDom).toFixed(1) + 'px ' + font.face;
 };
 
 Tayberry.prototype.updateFonts = function () {
-    this.ctx.font = this.createFontString(this.options.font);
+    //this.labelsCtx.font = this.createFontString(this.options.font);
     this.titleFont = this.createFontString(this.options.title.font);
+    this.labelFont = this.createFontString(this.options.labels.font);
+    this.legendFont = this.createFontString(this.options.legend.font);
     this.yAxis.updateFonts();
     this.xAxis.updateFonts();
 };
@@ -903,17 +921,22 @@ Tayberry.prototype.setOptions = function (options) {
     optionOverrides.push(options);
     this.options = Utils.deepAssign({}, optionOverrides);
     this.options.title.font = Utils.deepAssign({}, [this.options.font, this.options.title.font]);
-    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.xAxis.title.font, this.options.yAxis.title.font]);
-    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.xAxis.title.font, this.options.yAxis.title.font]);
+    this.options.tooltips.font = Utils.deepAssign({}, [this.options.font, this.options.tooltips.font]);
+    this.options.labels.font = Utils.deepAssign({}, [this.options.font, this.options.labels.font]);
+    this.options.legend.font = Utils.deepAssign({}, [this.options.font, this.options.legend.font]);
+    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.yAxis.title.font]);
+    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.xAxis.title.font]);
+    this.options.xAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.xAxis.font]);
+    this.options.yAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.yAxis.font]);
     this.setSeries(options.series);
     //this.setCategories(options.xAxis.categories);
 
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
     this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
     this.updateFonts();
-    this.canvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
-    this.canvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
-    this.canvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
+    this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
+    this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
+    //this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
     window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
@@ -922,17 +945,6 @@ Tayberry.calculateHighlightColour = function (colour) {
     return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
 };
 
-/**
- * Format:
- * [{
- *   data: {array|object},
- *   name: {string}
- * },{
- *   data: {array|object},
- *   name: {string}
- * }]
- * @param series
- */
 Tayberry.prototype.setSeries = function (series) {
     var i;
     if (!Array.isArray(series)) {
@@ -949,17 +961,6 @@ Tayberry.prototype.setSeries = function (series) {
         elem.data = this.renderedSeries[i].data.slice(0);
         this.renderedSeries[i] = elem;
     }
-};
-
-Tayberry.prototype.setCategories = function (categories) {
-    this.categories = categories;
-    //if (this.options.xAxis.type === 'numeric' || this.options.xAxis.type === 'numerical') {
-    //    this.categories = [];
-    //    for (let i = this.options.xAxis.min; i <= this.options.xAxis.max; i += this.options.xAxis.step) {
-    //        i = Math.round(i / this.options.xAxis.step) * this.options.xAxis.step;
-    //        this.categories.push(i);
-    //    }
-    //}
 };
 
 Tayberry.prototype.getDataMinMax = function () {
@@ -1010,10 +1011,10 @@ Tayberry.prototype.createTooltip = function () {
     this.tooltipElement.style.left = '0px';
     this.tooltipElement.style.top = '0px';
     this.tooltipElement.style.zIndex = '99999';
-    this.tooltipElement.style.font = this.createFontString(this.options.font, true);
+    this.tooltipElement.style.font = this.createFontString(this.options.tooltips.font, true);
     this.tooltipElement.style.borderRadius = '3px';
     this.tooltipElement.style.backgroundColor = 'white';
-    this.tooltipElement.style.border = '2px solid black';
+    this.tooltipElement.style.border = '2px solid #bbb';
     this.tooltipElement.style.padding = '0.15em 0.4em';
     this.tooltipElement.style.display = 'none';
     this.tooltipElement.innerHTML = '';
@@ -1038,7 +1039,14 @@ Tayberry.prototype.defaultOptions = function () {
             colour: '#444',
             size: 12,
             face: 'sans-serif',
+            style: '',
             autoScale: true
+        },
+        allAxes: {
+            font: {},
+            title: {
+                font: {}
+            }
         },
         xAxis: {
             title: {
@@ -1050,6 +1058,7 @@ Tayberry.prototype.defaultOptions = function () {
             max: null,
             tickStep: 40,
             tickStepValue: null,
+            font: {},
             categories: [],
             labelPosition: 'middle', //left|middle|right
             placement: 'auto',
@@ -1067,6 +1076,7 @@ Tayberry.prototype.defaultOptions = function () {
             max: undefined,
             tickStep: 40,
             tickStepValue: null,
+            font: {},
             labelFormat: 'number', //[number|percentage|currency],
             labelFormatter: undefined,
             labelPrefix: undefined,
@@ -1074,6 +1084,9 @@ Tayberry.prototype.defaultOptions = function () {
             currencySymbol: '£',
             placement: 'auto',
             type: 'linear'
+        },
+        animations: {
+            enabled: true
         },
         series: [],
         swapAxes: false,
@@ -1087,16 +1100,19 @@ Tayberry.prototype.defaultOptions = function () {
             shared: false,
             headerTemplate: '<strong>{category}</strong><table>',
             valueTemplate: '<tr><td style="padding-right: 0.5em"><span style="color: {colour}">●</span> {name}</td><td style="text-align: right">{value}</td></tr>',
-            footerTemplate: '</table>'
+            footerTemplate: '</table>',
+            font: {}
         },
         legend: {
             enabled: true,
-            indicatorSize: 15
+            indicatorSize: 15,
+            font: {}
         },
         labels: {
             enabled: false,
             verticalAlignment: 'top',
-            verticalPosition: 'outside'
+            verticalPosition: 'outside',
+            font: {}
         }
     };
 };
@@ -1130,41 +1146,108 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     var ret = undefined;
     if (fontString) {
-        this.ctx.save();
-        this.ctx.font = fontString;
+        this.labelsCtx.save();
+        this.labelsCtx.font = fontString;
     }
-    ret = this.ctx.measureText(text).width;
+    ret = this.labelsCtx.measureText(text).width;
     if (fontString) {
-        this.ctx.restore();
+        this.labelsCtx.restore();
     }
     return ret;
 };
 
+Tayberry.prototype.getMultilineTextHeight = function (fontString, maxWidth, text) {
+    var ret = undefined;
+    if (fontString) {
+        this.labelsCtx.save();
+        this.labelsCtx.font = fontString;
+    }
+    ret = this.splitMultilineText(maxWidth, text).length;
+    if (fontString) {
+        this.labelsCtx.restore();
+    }
+    return ret;
+};
+
+Tayberry.prototype.splitMultilineText = function (maxWidth, text) {
+    var lines = [];
+    var lineWidth = 0;
+    var lineText = '';
+    var spaceWidth = this.labelsCtx.measureText(' ').width;
+    for (var i = 0; i < text.length;) {
+        var wordStart = i;
+        while (i < text.length && text[i] !== ' ' && text[i] !== '\r' && text[i] !== '\n') i++;
+        var wordEnd = i;
+        while (i < text.length && (text[i] === ' ' || text[i] === '\r' || text[i] === '\n')) i++;
+        if (wordEnd > wordStart) {
+            var word = text.substring(wordStart, wordEnd);
+            var wordWidth = this.labelsCtx.measureText(word).width;
+            if (lineWidth + wordWidth > maxWidth) {
+                if (!lineWidth) {
+                    lineText = word;
+                }
+                lines.push(lineText);
+                if (lineWidth) {
+                    lineWidth = 0;
+                    lineText = word;
+                }
+            } else {
+                lineText += (lineText ? ' ' : '') + word;
+                lineWidth += wordWidth + spaceWidth;
+            }
+        }
+    }
+    if (lineText) {
+        lines.push(lineText);
+    }
+    return lines;
+};
+
+Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, text) {
+    var lines = this.splitMultilineText(maxWidth, text);
+
+    for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        this.labelsCtx.fillText(line, x, y + lineHeight * i);
+    }
+};
+
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
-    this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-    this.animatationStart = performance.now();
-    this.animationLength = 500;
+    this.drawTitle();
     this.xAxis.draw();
     this.yAxis.draw();
+    this.drawLegend();
     this.createTooltip();
+    if (this.options.animations.enabled) {
+        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
+        this.animatationStart = performance.now();
+        this.animationLength = 500;
+    } else {
+        this.draw();
+    }
 };
 
 Tayberry.prototype.clear = function () {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    var plot = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+    var labels = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
+    if (plot) this.plotCtx.clearRect(0, 0, this.plotCanvas.width, this.plotCanvas.height);
+    if (labels) this.labelsCtx.clearRect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
 };
 
 Tayberry.prototype.drawTitle = function () {
     if (this.options.title.text) {
-        var x = this.canvas.width / 2,
+        var x = this.labelsCanvas.width / 2,
             y = 0;
-        this.ctx.save();
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'top';
-        this.ctx.font = this.titleFont;
-        this.ctx.fillStyle = this.options.title.font.colour;
-        this.ctx.fillText(this.options.title.text, x, y);
-        this.ctx.restore();
+        this.labelsCtx.save();
+        this.labelsCtx.textAlign = 'center';
+        this.labelsCtx.textBaseline = 'top';
+        this.labelsCtx.font = this.titleFont;
+        this.labelsCtx.fillStyle = this.options.title.font.colour;
+        this.drawTextMultiline(this.getFontHeight(this.options.title.font), x, y, this.labelsCanvas.width, this.options.title.text);
+        // this.labelsCtx.fillText(this.options.title.text, x, y);
+        this.labelsCtx.restore();
     }
 };
 
@@ -1185,79 +1268,85 @@ Tayberry.prototype.drawLabel = function (sign, text, rect) {
         baseline = Tayberry.mapVerticalPosition(sign, this.options.labels.verticalPosition);
     }
     if (this.plotArea.containsPoint(x, y)) {
-        this.ctx.save();
-        this.ctx.textAlign = align;
-        this.ctx.textBaseline = baseline;
-        this.ctx.fillStyle = this.options.font.colour;
-        this.ctx.fillText(text, x, y);
-        this.ctx.restore();
+        this.plotCtx.save();
+        this.plotCtx.textAlign = align;
+        this.plotCtx.textBaseline = baseline;
+        this.plotCtx.fillText(text, x, y);
+        this.plotCtx.restore();
     }
 };
 
 Tayberry.prototype.draw = function () {
 
-    this.ctx.save();
+    this.plotCtx.save();
     this.enumerateBars((function (bar) {
-        this.ctx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
-        this.ctx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
+        this.plotCtx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
+        this.plotCtx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
     }).bind(this));
-    this.ctx.restore();
+    this.plotCtx.restore();
 
     if (this.options.labels.enabled) {
-        this.ctx.save();
+        this.plotCtx.save();
         this.enumerateBars((function (bar) {
+            this.plotCtx.font = this.labelFont;
+            this.plotCtx.fillStyle = this.options.labels.font.colour;
             this.drawLabel(bar.value, this.options.yAxis.labelFormatter(bar.value), bar.rect);
         }).bind(this));
-        this.ctx.restore();
+        this.plotCtx.restore();
     }
 };
 
 Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
-    this.ctx.save();
+    this.labelsCtx.save();
     if (colour) {
-        this.ctx.strokeStyle = colour;
+        this.labelsCtx.strokeStyle = colour;
     }
-    this.ctx.beginPath();
-    this.ctx.moveTo(x1 + 0.5, y1 + 0.5);
-    this.ctx.lineTo(x2 + 0.5, y2 + 0.5);
-    this.ctx.stroke();
-    this.ctx.restore();
+    this.labelsCtx.beginPath();
+    this.labelsCtx.moveTo(x1 + 0.5, y1 + 0.5);
+    this.labelsCtx.lineTo(x2 + 0.5, y2 + 0.5);
+    this.labelsCtx.stroke();
+    this.labelsCtx.restore();
 };
 
-Tayberry.prototype.redraw = function () {
-    this.clear();
-    this.drawTitle();
-    this.xAxis.draw();
-    this.yAxis.draw();
-    this.drawLegend();
+Tayberry.prototype.redraw = function (plotOnly) {
+    this.clear(true, !plotOnly);
+    if (!plotOnly) {
+        this.drawTitle();
+        this.xAxis.draw();
+        this.yAxis.draw();
+        this.drawLegend();
+    }
     this.draw();
 };
 
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
+        this.labelsCtx.save();
+        this.labelsCtx.font = this.legendFont;
         var totalWidth = 0;
         var indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
         for (var index = 0; index < this.series.length; index++) {
             var series = this.series[index];
             if (series.name) {
-                totalWidth += this.getTextWidth(series.name) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
+                totalWidth += this.getTextWidth(series.name, this.legendFont) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
             }
         }
         var x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
-            y = this.canvas.height - indicatorSize;
+            y = this.labelsCanvas.height - indicatorSize;
 
         for (var index = 0; index < this.renderedSeries.length; index++) {
             var series = this.renderedSeries[index];
             if (series.name) {
-                this.ctx.fillStyle = series.colour;
-                this.ctx.fillRect(x, y, indicatorSize, indicatorSize);
-                this.ctx.textBaseline = 'middle';
-                this.ctx.fillStyle = this.options.font.colour;
+                this.labelsCtx.fillStyle = series.colour;
+                this.labelsCtx.fillRect(x, y, indicatorSize, indicatorSize);
+                this.labelsCtx.textBaseline = 'middle';
+                this.labelsCtx.fillStyle = this.options.legend.font.colour;
                 x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);
-                this.ctx.fillText(series.name, x, y + indicatorSize / 2);
-                x += this.getTextWidth(series.name) + this.mapLogicalXUnit(this.options.elementLargePadding);
+                this.labelsCtx.fillText(series.name, x, y + indicatorSize / 2);
+                x += this.getTextWidth(series.name, this.legendFont) + this.mapLogicalXUnit(this.options.elementLargePadding);
             }
         }
+        this.labelsCtx.restore();
     }
 };
 
@@ -1280,14 +1369,14 @@ Tayberry.prototype.onAnimate = function (timestamp) {
             this.renderedSeries[seriesIndex].data[categoryIndex] = yOrigin + scaleFactor * (value - yOrigin);
         }
     }
-    this.redraw();
+    this.redraw(true);
     if (scaleFactor < 1) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     }
 };
 
 Tayberry.prototype.onMouseLeave = function (event) {
-    if (event.currentTarget == this.canvas && event.relatedTarget !== this.tooltipElement || event.currentTarget == this.tooltipElement && event.relatedTarget !== this.canvas) {
+    if (event.currentTarget == this.plotCanvas && event.relatedTarget !== this.tooltipElement || event.currentTarget == this.tooltipElement && event.relatedTarget !== this.plotCanvas) {
         this.selectedItem = {};
         this.tooltipElement.style.display = 'none';
         this.redraw();
@@ -1295,7 +1384,7 @@ Tayberry.prototype.onMouseLeave = function (event) {
 };
 
 Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
-    var boundingRect = new Rect(this.canvas.getBoundingClientRect());
+    var boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
     var ret = false;
     if (boundingRect.containsPoint(clientX, clientY)) {
         var x = clientX - boundingRect.left;
@@ -1311,17 +1400,27 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
                 for (var index = 0; index < this.series.length; index++) {
                     var series = this.series[index];
                     var value = series.data[hitTestResult.categoryIndex];
-                    tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, { value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour }, true);
+                    tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
+                        value: this.options.yAxis.labelFormatter(value),
+                        name: series.name,
+                        colour: series.colour
+                    }, true);
                 }
             } else {
                 var series = this.series[hitTestResult.seriesIndex];
                 var value = series.data[hitTestResult.categoryIndex];
-                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, { value: this.options.yAxis.labelFormatter(value), name: series.name, colour: series.colour }, true);
+                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
+                    value: this.options.yAxis.labelFormatter(value),
+                    name: series.name,
+                    colour: series.colour
+                }, true);
             }
             tooltipHtml += this.options.tooltips.footerTemplate;
             this.tooltipElement.innerHTML = tooltipHtml;
             var tooltipRect = this.tooltipElement.getBoundingClientRect();
-            this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
+            if (!this.options.tooltips.shared) {
+                this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
+            }
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
             this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
             this.selectedItem = hitTestResult;
@@ -1331,16 +1430,16 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
     return ret;
 };
 
-Tayberry.prototype.onTouchStart = function (event) {
-    for (var index = 0; index < event.targetTouches.length; index++) {
-        var touch = event.targetTouches[index];
-        if (this.handleMouseMove(touch.clientX, touch.clientY)) {
-            event.preventDefault();
-            this.redraw();
-            break;
-        }
-    }
-};
+//Tayberry.prototype.onTouchStart = function (event) {
+//    for (let index = 0; index < event.targetTouches.length; index++) {
+//        let touch = event.targetTouches[index];
+//        if (this.handleMouseMove(touch.clientX, touch.clientY)) {
+//            // event.preventDefault();
+//            this.redraw();
+//            break;
+//        }
+//    }
+//};
 
 Tayberry.prototype.onMouseMove = function (event) {
     var oldSelectedItem = Utils.assign({}, this.selectedItem);
@@ -1355,8 +1454,10 @@ Tayberry.prototype.onMouseMove = function (event) {
 
 Tayberry.prototype.onWindowResize = function () {
     this.tooltipElement.style.display = 'none';
-    this.canvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-    this.canvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    this.labelsCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.labelsCanvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
+    this.plotCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.plotCanvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
     this.initialise();
     this.updateFonts();
     this.calculatePlotArea();
@@ -1426,9 +1527,10 @@ Tayberry.prototype.mapScreenUnit = function (x) {
 Tayberry.prototype.calculatePlotArea = function () {
     var MAX_AXIS_CALC_SIZE_ATTEMPTS = 5;
 
-    this.plotArea = new Rect(0, 0, this.canvas.width, this.canvas.height);
+    this.plotArea = new Rect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
     if (this.options.title.text) {
-        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding) + this.getFontHeight(this.options.title.font);
+        this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding);
+        this.plotArea.top += this.getFontHeight(this.options.title.font) * this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
     }
     if (this.options.legend.enabled) this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
 
@@ -1535,7 +1637,7 @@ Tayberry.prototype.enumerateBars = function (callback) {
                     value: this.series[seriesIndex].data[categoryIndex],
                     renderedValue: this.renderedSeries[seriesIndex].data[categoryIndex],
                     rect: rect,
-                    selected: this.selectedItem.categoryIndex === categoryIndex && this.selectedItem.seriesIndex === seriesIndex
+                    selected: this.selectedItem.categoryIndex === categoryIndex && (this.options.tooltips.shared || this.selectedItem.seriesIndex === seriesIndex)
                 });
                 if (stopEnumerating) break;
                 if (isStacked) {
