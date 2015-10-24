@@ -27,6 +27,7 @@ class Axis {
         this.rightAdjustment = 0;
         this.titleFont = null;
         this.labelFont = null;
+        this.numLabelLines = 1;
 
         this.setPlacement();
     }
@@ -71,12 +72,13 @@ class Axis {
             ret;
 
         const titleFontHeight = tb.getFontHeight(this.options.title.font);
-        const fontHeight = tb.getFontHeight(tb.options.font);
+        const fontHeight = tb.getFontHeight(this.options.font);
 
         if (reset) {
             this.calculatedSize = 0;
             this.topAdjustment = 0;
             this.rightAdjustment = 0;
+            this.numLabelLines = 1;
         }
 
         size += this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
@@ -98,6 +100,20 @@ class Axis {
                 }
                 size += this.maxLabelSize()
             } else {
+                {
+                    let lastXEnd;
+                    for (let i = 0; i < ticks.length; i++) {
+                        let tick = ticks[i];
+                        const textWidth = tb.getTextWidth(this.options.labelFormatter(tick.value), this.labelFont);
+                        const xStart = tick.x - textWidth / 2;
+                        const xEnd = tick.x + textWidth / 2;
+                        if (typeof lastXEnd !== 'undefined' && xStart <= lastXEnd + 1) {
+                            this.numLabelLines = 2;
+                            break;
+                        }
+                        lastXEnd = xEnd;
+                    }
+                }
                 if (ticks.length) {
                     const lastTick = ticks[ticks.length - 1];
                     const textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
@@ -108,7 +124,7 @@ class Axis {
                         this.rightAdjustment += adjustment;
                     }
                 }
-                size += fontHeight;
+                size += fontHeight*this.numLabelLines;
             }
         }
 
@@ -148,6 +164,7 @@ class Axis {
         let tb = this.tayberry;
         const labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
         const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const fontHeight = tb.getFontHeight(this.options.font);
 
         tb.labelsCtx.save();
         tb.labelsCtx.font = this.labelFont;
@@ -155,23 +172,26 @@ class Axis {
         tb.labelsCtx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
         tb.labelsCtx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
-        let lastXEnd;
+        let lastXEnds = [], tickIndex = 0;
 
         this.enumerateTicks(function (tick) {
             let textWidth, xStart, xEnd;
             const formattedValue = this.options.labelFormatter(tick.value);
+            const row = tickIndex % this.numLabelLines;
+            const rowOffset = this.isYAxis ? 0 : fontHeight*row;
             if (!this.isYAxis) {
                 textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                 xStart = tick.x - textWidth / 2;
                 xEnd = tick.x + textWidth / 2;
             }
 
-            if (this.isYAxis || (typeof lastXEnd === 'undefined' || xStart > lastXEnd + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
-                tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY);
-                lastXEnd = xEnd;
+            if (this.isYAxis || (typeof lastXEnds[row] === 'undefined' || xStart > lastXEnds[row] + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
+                tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY + rowOffset);
+                lastXEnds[row] = xEnd;
             }
             if (this.options.gridLines.colour)
                 tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
+            tickIndex++;
         }.bind(this));
 
         tb.labelsCtx.restore();
