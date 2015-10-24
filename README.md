@@ -59,6 +59,7 @@ Available attributes on the option object are (full details still to be complete
 | font.colour                   | HTML colour code    | Font colour
 | font.face                     | string              | Font name
 | font.size                     | logical pixels      | Font size
+| font.style                    | string              | `bold`, `italic` etc. |
 | font.autoScale                | boolean             | Auto-scale font with chart width
 | labels.enabled                | boolean             | Show data labels in the plot area
 | labels.font.\*                | \-                  | Overrides font.\* values for data labels |

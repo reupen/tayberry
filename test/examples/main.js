@@ -121,3 +121,32 @@ Tayberry.create('chart4', {
         name: 'Population (people)'
     }]
 });
+
+Tayberry.create('chart5', {
+    title: {
+        text: 'UK household sizes'
+    },
+    yAxis: {
+        labelFormat: 'percentage'
+    },
+    xAxis: {
+        categories: ['1', '2', '3', '4', '5+'],
+        title: {
+            text: '123',
+            font: {
+                style: 'italic bold'
+            }
+        }
+    },
+    labels: {
+        enabled: true
+    },
+    series: [{
+        data: [.132, .290, .224, .180, .173],
+        name: '1961'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011'
+    }]
+
+});

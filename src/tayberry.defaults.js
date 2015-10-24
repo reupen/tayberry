@@ -13,6 +13,7 @@ Tayberry.prototype.defaultOptions = function () {
             colour: '#444',
             size: 12,
             face: 'sans-serif',
+            style: '',
             autoScale: true
         },
         allAxes: {
