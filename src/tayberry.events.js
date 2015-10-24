@@ -7,7 +7,10 @@ var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.onAnimate = function (timestamp) {
     var elapsed, scaleFactor;
-    elapsed = timestamp - this.animatationStart;
+    if (this.animationStart === null) {
+        this.animationStart = timestamp;
+    }
+    elapsed = timestamp - this.animationStart;
     scaleFactor = Math.min(Easing.inQuad(elapsed, this.animationLength), 1);
     for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
         for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {

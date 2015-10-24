@@ -81,7 +81,7 @@ Tayberry.prototype.render = function () {
     this.createTooltip();
     if (this.options.animations.enabled) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-        this.animatationStart = Utils.now();
+        this.animationStart = (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null;
         this.animationLength = 500;
     } else {
         this.draw();
