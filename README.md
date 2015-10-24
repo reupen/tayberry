@@ -4,7 +4,9 @@
 
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar charts, with more features coming soon.
 
-**[Demos and examples](https://reupen.github.io/tayberry)**
+## Demos
+
+[Click here for some demos and examples](https://reupen.github.io/tayberry).
 
 ## What's good about it?
 
