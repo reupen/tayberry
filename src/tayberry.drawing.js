@@ -107,57 +107,15 @@ Tayberry.prototype.drawTitle = function () {
     }
 };
 
-Tayberry.prototype.drawLabel = function (sign, text, rect) {
-    if (this.options.swapAxes)
-        rect = rect.clone().swapXY();
-    let x = (rect.left + rect.right) / 2;
-    let y;
-    if (this.options.labels.verticalAlignment === 'top')
-        y = rect.top;
-    else if (this.options.labels.verticalAlignment === 'bottom')
-        y = rect.bottom;
-    else
-        y = (rect.top + rect.bottom) / 2;
-    let baseline = 'middle';
-    let align = 'center';
-    if (this.options.swapAxes) {
-        [x, y] = [y, x];
-        if (this.options.labels.verticalPosition === 'outside')
-            align = 'left';
-        else if (this.options.labels.verticalPosition === 'inside')
-            align = 'right';
-    } else {
-        baseline = Tayberry.mapVerticalPosition(sign, this.options.labels.verticalPosition);
-    }
-    if (this.plotArea.containsPoint(x, y)) {
-        this.plotCtx.save();
-        this.plotCtx.textAlign = align;
-        this.plotCtx.textBaseline = baseline;
-        this.plotCtx.fillText(text, x, y);
-        this.plotCtx.restore();
-    }
-};
-
-
 Tayberry.prototype.draw = function () {
-
-    this.plotCtx.save();
-    this.enumerateBars(function (bar) {
-        this.plotCtx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
-        this.plotCtx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
-    }.bind(this));
-    this.plotCtx.restore();
-
-    if (this.options.labels.enabled) {
-        this.plotCtx.save();
-        this.enumerateBars(function (bar) {
-            this.plotCtx.font = this.labelFont;
-            this.plotCtx.fillStyle = this.options.labels.font.colour;
-            this.drawLabel(bar.value, this.options.yAxis.labelFormatter(bar.value), bar.rect);
-        }.bind(this));
-        this.plotCtx.restore();
+    for (let i = 0; i < this.renderers.length; i++) {
+        this.renderers[i].drawPlot();
+    }
+    for (let i = 0; i < this.renderers.length; i++) {
+        this.renderers[i].drawLabels();
     }
 };
+
 
 Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
     this.labelsCtx.save();
@@ -189,8 +147,8 @@ Tayberry.prototype.drawLegend = function () {
         this.labelsCtx.font = this.legendFont;
         let totalWidth = 0;
         const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
-        for (let index = 0; index < this.series.length; index++) {
-            const series = this.series[index];
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
             if (series.name) {
                 totalWidth += this.getTextWidth(series.name, this.legendFont) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
             }
@@ -198,8 +156,8 @@ Tayberry.prototype.drawLegend = function () {
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
             y = this.labelsCanvas.height - indicatorSize;
 
-        for (let index = 0; index < this.renderedSeries.length; index++) {
-            const series = this.renderedSeries[index];
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
             if (series.name) {
                 this.labelsCtx.fillStyle = series.colour;
                 this.labelsCtx.fillRect(x, y, indicatorSize, indicatorSize);

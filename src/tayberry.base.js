@@ -9,19 +9,19 @@ class Tayberry {
         this.scaleFactor = null;
         this.titleFont = null;
         this.plotArea = null;
-        this.series = [];
         this.categories = [];
         this.titleFont = null;
         this.labelFont = null;
         this.legendFont = null;
+        this.renderers = [];
     }
 
     get seriesCount() {
-        return this.series.length;
+        return this.options.series.length;
     }
 
     get categoryCount() {
-        return this.series.length ? this.series[0].data.length : 0;
+        return this.options.series.length ? this.options.series[0].data.length : 0;
     }
 }
 

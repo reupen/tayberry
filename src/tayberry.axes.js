@@ -259,7 +259,7 @@ class CategorialAxis extends Axis {
         let plotArea = tb.plotArea.clone();
         if (this.isYAxis)
             plotArea.swapXY();
-        const categoryWidth = (plotArea.width / tb.series[0].data.length);
+        const categoryWidth = (plotArea.width / tb.categoryCount);
         let factor = 0.5;
 
         if (!this.isYAxis) {

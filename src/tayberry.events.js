@@ -1,26 +1,20 @@
 'use strict';
 var Rect = require('./rect').Rect;
-var Easing = require('./easing.js');
 var Utils = require('./utils.js');
 
 var Tayberry = require('./tayberry.base.js').Tayberry;
 
 Tayberry.prototype.onAnimate = function (timestamp) {
-    var elapsed, scaleFactor;
+    var elapsed;
     if (this.animationStart === null) {
         this.animationStart = timestamp;
     }
     elapsed = timestamp - this.animationStart;
-    scaleFactor = Math.min(Easing.inQuad(elapsed, this.animationLength), 1);
-    for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
-        for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-            const value = this.series[seriesIndex].data[categoryIndex];
-            const yOrigin = this.yAxis.min <= 0 && 0 <= this.yAxis.max ? 0 : (this.yAxis.min > 0 ? this.yAxis.min : this.yAxis.max);
-            this.renderedSeries[seriesIndex].data[categoryIndex] = yOrigin + scaleFactor * ((value - yOrigin));
-        }
+    for (let i = 0; i < this.renderers.length; i++) {
+        this.renderers[i].onAnimationFrame(elapsed, this.animationLength);
     }
     this.redraw(true);
-    if (scaleFactor < 1) {
+    if (elapsed < this.animationLength) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     }
 };
@@ -43,12 +37,12 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-            const category = this.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.series[0].data.length);
+            const category = this.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount);
             this.tooltipElement.style.display = 'block';
             let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
             if (this.options.tooltips.shared) {
-                for (let index = 0; index < this.series.length; index++) {
-                    const series = this.series[index];
+                for (let index = 0; index < this.seriesCount; index++) {
+                    const series = this.options.series[index];
                     const value = series.data[hitTestResult.categoryIndex];
                     tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                         value: this.options.yAxis.labelFormatter(value),
@@ -57,8 +51,8 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
                     }, true);
                 }
             } else {
-                const series = this.series[hitTestResult.seriesIndex];
-                const value = series.data[hitTestResult.categoryIndex];
+                const series = hitTestResult.series;
+                const value = hitTestResult.dataPoint;
                 tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                     value: this.options.yAxis.labelFormatter(value),
                     name: series.name,
@@ -69,7 +63,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             this.tooltipElement.innerHTML = tooltipHtml;
             let tooltipRect = this.tooltipElement.getBoundingClientRect();
             if (!this.options.tooltips.shared) {
-                this.tooltipElement.style.borderColor = this.renderedSeries[hitTestResult.seriesIndex].colour;
+                this.tooltipElement.style.borderColor = hitTestResult.series.colour;
             }
             this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
             this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
@@ -99,7 +93,7 @@ Tayberry.prototype.onMouseMove = function (event) {
         this.selectedItem = {};
     }
 
-    if (oldSelectedItem.categoryIndex !== this.selectedItem.categoryIndex || oldSelectedItem.seriesIndex !== this.selectedItem.seriesIndex) {
+    if (oldSelectedItem.categoryIndex !== this.selectedItem.categoryIndex || oldSelectedItem.series !== this.selectedItem.series) {
         this.redraw();
     }
 };

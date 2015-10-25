@@ -4,6 +4,7 @@ var Utils = require('./utils');
 
 var Tayberry = require('./tayberry.base').Tayberry;
 var Axis = require('./tayberry.axes').Axis;
+var BarRenderer = require('./tayberry.bar').BarRenderer;
 
 var currentAutoColourIndex = 0;
 
@@ -45,7 +46,6 @@ Tayberry.prototype.destroy = function () {
     this.labelsCanvas.parentNode.removeChild(this.labelsCanvas);
     this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
-    this.series = {};
     this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
     this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
     // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
@@ -102,7 +102,7 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.xAxis.title.font]);
     this.options.xAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.xAxis.font]);
     this.options.yAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.yAxis.font]);
-    this.setSeries(options.series);
+    this.createRenderers();
     //this.setCategories(options.xAxis.categories);
 
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
@@ -119,21 +119,26 @@ Tayberry.calculateHighlightColour = function (colour) {
     return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
 };
 
-Tayberry.prototype.setSeries = function (series) {
-    var i;
-    if (!Array.isArray(series)) {
-        this.series = [series];
+Tayberry.prototype.createRenderers = function () {
+    let series, groupedSeries = {'bar': []};
+    if (!Array.isArray(this.options.series)) {
+        series = [this.options.series];
     } else {
-        this.series = series;
+        series = this.options.series;
     }
-    this.renderedSeries = series.slice(0);
-    for (i = 0; i < this.renderedSeries.length; i++) {
-        let actualSeries = this.series[i];
-        actualSeries.colour = actualSeries.colour || Tayberry.getAutoColour();
-        actualSeries.highlightColour = actualSeries.highlightColour || Tayberry.calculateHighlightColour(actualSeries.colour);
-        let elem = Utils.assign({}, actualSeries);
-        elem.data = this.renderedSeries[i].data.slice(0);
-        this.renderedSeries[i] = elem;
+
+    for (let i = 0; i < series.length; i++) {
+        const curSeries = series[i];
+        curSeries.index = i;
+        curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
+        curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
+        const plotType = curSeries.plotType || this.options.plotType;
+        if (groupedSeries.hasOwnProperty(plotType)) {
+            groupedSeries[plotType].push(curSeries);
+        }
+    }
+    if (groupedSeries['bar'].length) {
+        this.renderers.push(new BarRenderer(this.plotCtx, this, groupedSeries['bar']));
     }
 };
 
@@ -144,12 +149,12 @@ Tayberry.prototype.getDataMinMax = function () {
     let seriesNegativeTotals = [];
     const seriesMinima = [];
     const seriesMaxima = [];
-    if (this.series[0].data.length) {
-        for (categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
+    if (this.options.series[0].data.length) {
+        for (categoryIndex = 0; categoryIndex < this.options.series[0].data.length; categoryIndex++) {
             seriesPositiveTotals[categoryIndex] = 0;
             seriesNegativeTotals[categoryIndex] = 0;
-            for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-                const value = this.series[seriesIndex].data[categoryIndex];
+            for (seriesIndex = 0; seriesIndex < this.options.series.length; seriesIndex++) {
+                const value = this.options.series[seriesIndex].data[categoryIndex];
                 if (!Utils.isMissingValue(value)) {
                     if (value < 0) {
                         seriesNegativeTotals[categoryIndex] += value;
@@ -159,8 +164,8 @@ Tayberry.prototype.getDataMinMax = function () {
                 }
             }
         }
-        for (let index = 0; index < this.series.length; index++) {
-            const series = this.series[index];
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
             seriesMinima.push(Utils.reduce(series.data, Math.min, undefined, true));
             seriesMaxima.push(Utils.reduce(series.data, Math.max, undefined, true));
         }

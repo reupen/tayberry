@@ -64,6 +64,7 @@ Tayberry.prototype.defaultOptions = function () {
         },
         series: [],
         swapAxes: false,
+        plotType: 'bar',
         barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
         elementSmallPadding: 5,
