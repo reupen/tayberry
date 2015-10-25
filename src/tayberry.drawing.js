@@ -117,16 +117,16 @@ Tayberry.prototype.draw = function () {
 };
 
 
-Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour) {
-    this.labelsCtx.save();
+Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour, ctx = this.labelsCtx) {
+    ctx.save();
     if (colour) {
-        this.labelsCtx.strokeStyle = colour;
+        ctx.strokeStyle = colour;
     }
-    this.labelsCtx.beginPath();
-    this.labelsCtx.moveTo(x1 + 0.5, y1 + 0.5);
-    this.labelsCtx.lineTo(x2 + 0.5, y2 + 0.5);
-    this.labelsCtx.stroke();
-    this.labelsCtx.restore();
+    ctx.beginPath();
+    ctx.moveTo(x1 + 0.5, y1 + 0.5);
+    ctx.lineTo(x2 + 0.5, y2 + 0.5);
+    ctx.stroke();
+    ctx.restore();
 };
 
 Tayberry.prototype.redraw = function (plotOnly) {

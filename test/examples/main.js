@@ -141,6 +141,7 @@ Tayberry.create('chart5', {
     labels: {
         enabled: true
     },
+    plotType: 'line',
     series: [{
         data: [.132, .290, .224, .180, .173],
         name: '1961'

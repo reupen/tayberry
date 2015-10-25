@@ -5,6 +5,7 @@ var Utils = require('./utils');
 var Tayberry = require('./tayberry.base').Tayberry;
 var Axis = require('./tayberry.axes').Axis;
 var BarRenderer = require('./tayberry.bar').BarRenderer;
+var LineRenderer = require('./tayberry.line').LineRenderer;
 
 var currentAutoColourIndex = 0;
 
@@ -120,7 +121,7 @@ Tayberry.calculateHighlightColour = function (colour) {
 };
 
 Tayberry.prototype.createRenderers = function () {
-    let series, groupedSeries = {'bar': []};
+    let series, groupedSeries = {'bar': [], 'line': []};
     if (!Array.isArray(this.options.series)) {
         series = [this.options.series];
     } else {
@@ -139,6 +140,9 @@ Tayberry.prototype.createRenderers = function () {
     }
     if (groupedSeries['bar'].length) {
         this.renderers.push(new BarRenderer(this.plotCtx, this, groupedSeries['bar']));
+    }
+    if (groupedSeries['line'].length) {
+        this.renderers.push(new LineRenderer(this.plotCtx, this, groupedSeries['line']));
     }
 };
 
