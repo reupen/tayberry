@@ -3,19 +3,53 @@ var Utils = require('./helpers/utils');
 var Renderer = require('./renderer.base').Renderer;
 
 class LineRenderer extends Renderer {
+
+    drawMarker(type, x, y, size) {
+        if (type === 'square') {
+            this.ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        } else if (type === 'diamond') {
+            this.ctx.save();
+            this.ctx.translate(x, y);
+            this.ctx.rotate(-Math.PI / 4);
+            this.ctx.fillRect(0 - size / 2, 0 - size / 2, size, size);
+            this.ctx.restore();
+        } else if (type === 'circle') {
+            size = Math.round(size * 1.2);
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size / 2, 0, 2 * Math.PI);
+            this.ctx.fill();
+        } else if (type === 'triangle' || (type === 'triangle-inversed' && (size = -size))) {
+            size = Math.round(size * 1.2);
+            this.ctx.beginPath();
+            this.ctx.moveTo(x - size / 2, y + size / 2);
+            this.ctx.lineTo(x, y - size / 2);
+            this.ctx.lineTo(x + size / 2, y + size / 2);
+            this.ctx.closePath();
+            this.ctx.fill();
+        }
+    }
+
     drawPlot() {
         this.ctx.save();
-        let lastPoints = [];
+        this.ctx.lineWidth = '2';
         this.enumeratePoints(function (pt) {
-            const colour = pt.selected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
-            const lastPt = lastPoints[pt.seriesIndex];
-            this.ctx.fillStyle = colour;
-            if (lastPt) {
-                this.ctx.lineWidth = '1';
-                this.tb.drawLine(lastPt.x, lastPt.y, pt.x, pt.y, colour, this.ctx);
+            if (pt.firstPoint) {
+                this.ctx.strokeStyle = pt.selected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
+                this.ctx.beginPath();
+                this.ctx.moveTo(pt.x, pt.y);
+            } else {
+                this.ctx.lineTo(pt.x, pt.y);
             }
-            this.ctx.fillRect(pt.x - 4, pt.y - 4, 8, 8);
-            lastPoints[pt.seriesIndex] = pt;
+            if (pt.lastPoint) {
+                this.ctx.stroke();
+            }
+            //this.ctx.fillRect(pt.x - 4, pt.y - 4, 8, 8);
+        }.bind(this));
+        this.enumeratePoints(function (pt) {
+            if (pt.firstPoint) {
+                this.ctx.fillStyle = pt.selected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
+            }
+            this.drawMarker('circle', pt.x, pt.y, 8);
         }.bind(this));
         this.ctx.restore();
     }
@@ -54,15 +88,10 @@ class LineRenderer extends Renderer {
             if (isHorizontal)
                 plotArea.swapXY();
             const categoryWidth = (plotArea.width / categoryCount);
-            //const yOrigin = this.tb.yAxis.getOrigin();
 
-            //let xLast;
-
-            for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-                //let xStart = xLast;
-                let x = plotArea.left + Math.floor((categoryIndex + 0.5) * categoryWidth);
-
-                for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
+            for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
+                for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+                    let x = plotArea.left + Math.floor((categoryIndex + 0.5) * categoryWidth);
                     const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                     if (Utils.isMissingValue(value))
                         continue;
@@ -70,9 +99,10 @@ class LineRenderer extends Renderer {
 
                     if (isHorizontal)
                         [x, y] = [y, x];
-                    //[xStart, xEnd, yStart, yEnd] = [yStart, yEnd, xStart, xEnd];
 
                     const stopEnumerating = callback({
+                        firstPoint: categoryIndex === 0,
+                        lastPoint: categoryIndex + 1 === categoryCount,
                         seriesIndex: seriesIndex,
                         categoryIndex: categoryIndex,
                         series: this.series[seriesIndex],
@@ -81,7 +111,6 @@ class LineRenderer extends Renderer {
                         renderedValue: this.renderedSeries[seriesIndex].data[categoryIndex],
                         x: x,
                         y: y,
-                        //FIXME: series comparison
                         selected: this.tb.selectedItem.categoryIndex === categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.series[seriesIndex])
                     });
                     if (stopEnumerating)
