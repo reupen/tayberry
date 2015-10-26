@@ -306,6 +306,21 @@ class CategorialAxis extends Axis {
     getCategoryLabel(index) {
         return this.options.labelFormatter(this.options.categories[index]);
     }
+
+    get plotDisplacement() {
+        return this.isYAxis ? (-this.tayberry.plotArea.height) : (this.tayberry.plotArea.width);
+    }
+
+    getOrigin() {
+        return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'];
+    }
+
+    getValueDisplacement(value) {
+        let ret = this.getOrigin() + this.plotDisplacement * (value + 0.5) / this.options.categories.length;
+        ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
+        return ret;
+    }
+
 }
 
 class LinearAxis extends Axis {

@@ -87,11 +87,10 @@ class LineRenderer extends Renderer {
             let plotArea = this.tb.plotArea.clone();
             if (isHorizontal)
                 plotArea.swapXY();
-            const categoryWidth = (plotArea.width / categoryCount);
 
             for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
                 for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-                    let x = plotArea.left + Math.floor((categoryIndex + 0.5) * categoryWidth);
+                    let x = this.tb.xAxis.getValueDisplacement(categoryIndex);
                     const value = this.renderedSeries[seriesIndex].data[categoryIndex];
                     if (Utils.isMissingValue(value))
                         continue;
