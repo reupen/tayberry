@@ -144,10 +144,12 @@ Tayberry.create('chart5', {
     plotType: 'line',
     series: [{
         data: [.132, .290, .224, .180, .173],
-        name: '1961'
+        name: '1961',
+        colour: '#6FE87B'
     }, {
         data: [.306, .341, .156, .129, .069],
-        name: '2011'
+        name: '2011',
+        colour: '#FFAB51'
     }]
 
 });
