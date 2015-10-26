@@ -1,5 +1,5 @@
 'use strict';
-var Tayberry = require('./tayberry.base.js').Tayberry;
+var Tayberry = require('./base.js').Tayberry;
 
 Tayberry.prototype.defaultOptions = function () {
     return {

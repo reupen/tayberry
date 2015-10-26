@@ -1,11 +1,11 @@
 'use strict';
-var Colour = require('./colour').Colour;
-var Utils = require('./utils');
+var Colour = require('./helpers/colour').Colour;
+var Utils = require('./helpers/utils');
 
-var Tayberry = require('./tayberry.base').Tayberry;
-var Axis = require('./tayberry.axes').Axis;
-var BarRenderer = require('./tayberry.bar').BarRenderer;
-var LineRenderer = require('./tayberry.line').LineRenderer;
+var Tayberry = require('./base').Tayberry;
+var Axis = require('./axis').Axis;
+var BarRenderer = require('./renderer.bar').BarRenderer;
+var LineRenderer = require('./renderer.line').LineRenderer;
 
 var currentAutoColourIndex = 0;
 

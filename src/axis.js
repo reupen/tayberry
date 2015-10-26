@@ -1,5 +1,5 @@
 'use strict';
-var Utils = require('./utils.js');
+var Utils = require('./helpers/utils.js');
 
 class Axis {
     static create(tayberry, options, index, axisType, xYSwapped) {

@@ -1,8 +1,8 @@
 'use strict';
-var Rect = require('./rect').Rect;
-var Utils = require('./utils.js');
+var Rect = require('./helpers/rect').Rect;
+var Utils = require('./helpers/utils');
 
-var Tayberry = require('./tayberry.base.js').Tayberry;
+var Tayberry = require('./base').Tayberry;
 
 Tayberry.prototype.onAnimate = function (timestamp) {
     var elapsed;

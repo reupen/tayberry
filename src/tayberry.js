@@ -1,12 +1,12 @@
 (function () {
     'use strict';
-    var Tayberry = require('./tayberry.base.js').Tayberry;
-    require('./tayberry.axes.js');
-    require('./tayberry.core.js');
-    require('./tayberry.drawing.js');
-    require('./tayberry.events.js');
-    require('./tayberry.defaults.js');
-    require('./tayberry.sizing.js');
+    var Tayberry = require('./base.js').Tayberry;
+    require('./axis.js');
+    require('./core.js');
+    require('./drawing.js');
+    require('./events.js');
+    require('./defaults.js');
+    require('./sizing.js');
 
     module.exports = {
         /**

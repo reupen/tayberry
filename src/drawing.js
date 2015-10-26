@@ -1,6 +1,6 @@
 'use strict';
-var Tayberry = require('./tayberry.base.js').Tayberry;
-var Utils = require('./utils');
+var Tayberry = require('./base').Tayberry;
+var Utils = require('./helpers/utils');
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;

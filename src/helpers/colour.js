@@ -1,4 +1,4 @@
-var Utils = require('./utils.js');
+var Utils = require('./utils');
 class Colour {
     /**
      * Constructs a Colour object.

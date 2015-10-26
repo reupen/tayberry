@@ -1,6 +1,6 @@
 'use strict';
-var Utils = require('./utils');
-var Easing = require('./easing.js');
+var Utils = require('./helpers/utils');
+var Easing = require('./helpers/easing');
 
 class LineRenderer {
     constructor(ctx, tayberry, series) {

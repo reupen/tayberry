@@ -1,9 +1,9 @@
 'use strict';
-var Rect = require('./rect').Rect;
-var Utils = require('./utils');
-var Easing = require('./easing.js');
+var Rect = require('./helpers/rect').Rect;
+var Utils = require('./helpers/utils');
+var Easing = require('./helpers/easing');
 
-var Tayberry = require('./tayberry.base.js').Tayberry;
+var Tayberry = require('./base').Tayberry;
 
 class BarRenderer {
     constructor(ctx, tayberry, series) {

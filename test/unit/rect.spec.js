@@ -1,6 +1,6 @@
 /*eslint-env jasmine */
 
-var Rect = require('../../src/rect').Rect;
+var Rect = require('../../src/helpers/rect').Rect;
 
 describe('rect', () => {
     beforeEach(() => {
