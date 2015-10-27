@@ -43,7 +43,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             if (this.options.tooltips.shared) {
                 for (let index = 0; index < this.seriesCount; index++) {
                     const series = this.options.series[index];
-                    const value = series.data[hitTestResult.categoryIndex];
+                    const value = Tayberry.getDataValue(series.data[hitTestResult.categoryIndex]);
                     tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                         value: this.options.yAxis.labelFormatter(value),
                         name: series.name,
@@ -52,7 +52,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
                 }
             } else {
                 const series = hitTestResult.series;
-                const value = hitTestResult.dataPoint;
+                const value = hitTestResult.value;
                 tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                     value: this.options.yAxis.labelFormatter(value),
                     name: series.name,

@@ -15,6 +15,24 @@ Tayberry.getAutoColour = function () {
     return ret;
 };
 
+Tayberry.getDataValue = function (dataPoint) {
+    let ret;
+    if (Array.isArray(dataPoint)) {
+        ret = dataPoint[1];
+    } else {
+        ret = dataPoint;
+    }
+    return ret;
+};
+
+Tayberry.setDataValue = function (data, index, newValue) {
+    if (Array.isArray(data[index])) {
+        data[index][1] = newValue;
+    } else {
+        data[index] = newValue;
+    }
+};
+
 Tayberry.prototype.createCanvas = function () {
     let ret = document.createElement('canvas');
     // IE11 hack-fix - clientWidth sometimes incorrect on first access
@@ -158,7 +176,7 @@ Tayberry.prototype.getDataMinMax = function () {
             seriesPositiveTotals[categoryIndex] = 0;
             seriesNegativeTotals[categoryIndex] = 0;
             for (seriesIndex = 0; seriesIndex < this.options.series.length; seriesIndex++) {
-                const value = this.options.series[seriesIndex].data[categoryIndex];
+                const value = Tayberry.getDataValue(this.options.series[seriesIndex].data[categoryIndex]);
                 if (!Utils.isMissingValue(value)) {
                     if (value < 0) {
                         seriesNegativeTotals[categoryIndex] += value;
@@ -170,8 +188,8 @@ Tayberry.prototype.getDataMinMax = function () {
         }
         for (let index = 0; index < this.options.series.length; index++) {
             const series = this.options.series[index];
-            seriesMinima.push(Utils.reduce(series.data, Math.min, undefined, true));
-            seriesMaxima.push(Utils.reduce(series.data, Math.max, undefined, true));
+            seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataValue, true));
+            seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataValue, true));
         }
         if (this.options.barMode === 'stacked') {
             min = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));

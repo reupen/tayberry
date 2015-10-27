@@ -153,3 +153,37 @@ Tayberry.create('chart5', {
     }]
 
 });
+
+Tayberry.create('chart6', {
+    title: {
+        text: 'UK household sizes'
+    },
+    yAxis: {
+        labelFormat: 'percentage'
+    },
+    xAxis: {
+        min: 0,
+        max: 10,
+        type: 'linear',
+        title: {
+            text: '123',
+            font: {
+                style: 'italic bold'
+            }
+        }
+    },
+    labels: {
+        enabled: true
+    },
+    plotType: 'line',
+    series: [{
+        data: [[0,.132], [3,.290], [4,.224], [6,.180], [10,.173]],
+        name: '1961',
+        colour: '#6FE87B'
+    }, {
+        data: [[1,.306], [2,.341], [3,.156], [4,.129], [5,.069]],
+        name: '2011',
+        colour: '#FFAB51'
+    }]
+
+});

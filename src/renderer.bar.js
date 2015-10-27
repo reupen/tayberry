@@ -75,7 +75,7 @@ class BarRenderer extends Renderer {
                     seriesIndex: bar.seriesIndex,
                     rect: bar.rect,
                     series: this.series[bar.seriesIndex],
-                    dataPoint: this.series[bar.seriesIndex].data[bar.categoryIndex]
+                    value: Tayberry.getDataValue(this.series[bar.seriesIndex].data[bar.categoryIndex])
                 });
                 if (!isOverlaid)
                     return true;
@@ -124,7 +124,7 @@ class BarRenderer extends Renderer {
                     yRunningTotalNegative = 0;
                 let barIndex = 0;
                 for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
-                    const value = this.renderedSeries[seriesIndex].data[categoryIndex];
+                    const value = Tayberry.getDataValue(this.renderedSeries[seriesIndex].data[categoryIndex]);
                     const barWidth = Math.floor((barXEnd - barXStart) / barCount);
                     const xStart = Math.floor(barXStart + barIndex * barWidth);
                     const xEnd = Math.ceil(barXStart + (barIndex + 1) * barWidth);
@@ -145,8 +145,8 @@ class BarRenderer extends Renderer {
                         categoryIndex: categoryIndex,
                         series: this.series[seriesIndex],
                         renderedSeries: this.renderedSeries[seriesIndex],
-                        value: this.series[seriesIndex].data[categoryIndex],
-                        renderedValue: this.renderedSeries[seriesIndex].data[categoryIndex],
+                        value: Tayberry.getDataValue(this.series[seriesIndex].data[categoryIndex]),
+                        renderedValue: Tayberry.getDataValue(this.renderedSeries[seriesIndex].data[categoryIndex]),
                         rect: rect,
                         selected: this.tb.selectedItem.categoryIndex === categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.series[seriesIndex])
                     });
