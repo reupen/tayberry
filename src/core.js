@@ -25,6 +25,16 @@ Tayberry.getDataValue = function (dataPoint) {
     return ret;
 };
 
+Tayberry.getDataXValue = function (data, index) {
+    let ret;
+    if (Array.isArray(data[index])) {
+        ret = data[index][0];
+    } else {
+        ret = index;
+    }
+    return ret;
+};
+
 Tayberry.setDataValue = function (data, index, newValue) {
     if (Array.isArray(data[index])) {
         data[index][1] = newValue;
@@ -138,6 +148,12 @@ Tayberry.calculateHighlightColour = function (colour) {
     return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
 };
 
+Tayberry.calculateGlowColour = function (highlightColour) {
+    let newColour = new Colour(highlightColour);
+    newColour.a = 0.4;
+    return newColour.toString();
+};
+
 Tayberry.prototype.createRenderers = function () {
     let series, groupedSeries = {'bar': [], 'line': []};
     if (!Array.isArray(this.options.series)) {
@@ -151,6 +167,7 @@ Tayberry.prototype.createRenderers = function () {
         curSeries.index = i;
         curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
         curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
+        curSeries.glowColour = curSeries.glowColour || Tayberry.calculateGlowColour(curSeries.highlightColour);
         const plotType = curSeries.plotType || this.options.plotType;
         if (groupedSeries.hasOwnProperty(plotType)) {
             groupedSeries[plotType].push(curSeries);

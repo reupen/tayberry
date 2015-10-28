@@ -1,6 +1,6 @@
 'use strict';
 var Tayberry = require('./base').Tayberry;
-var Utils = require('./helpers/utils');
+var Rect = require('./helpers/rect').Rect;
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;
@@ -159,8 +159,7 @@ Tayberry.prototype.drawLegend = function () {
         for (let index = 0; index < this.options.series.length; index++) {
             const series = this.options.series[index];
             if (series.name) {
-                this.labelsCtx.fillStyle = series.colour;
-                this.labelsCtx.fillRect(x, y, indicatorSize, indicatorSize);
+                series.renderer.drawLegendIndicator(this.labelsCtx, series, new Rect(x, y, x + indicatorSize, y + indicatorSize));
                 this.labelsCtx.textBaseline = 'middle';
                 this.labelsCtx.fillStyle = this.options.legend.font.colour;
                 x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);

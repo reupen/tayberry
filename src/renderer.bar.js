@@ -26,42 +26,12 @@ class BarRenderer extends Renderer {
         }
     }
 
-    drawLabel(sign, text, rect) {
-        if (this.tb.options.swapAxes)
-            rect = rect.clone().swapXY();
-        let x = (rect.left + rect.right) / 2;
-        let y;
-        if (this.tb.options.labels.verticalAlignment === 'top')
-            y = rect.top;
-        else if (this.tb.options.labels.verticalAlignment === 'bottom')
-            y = rect.bottom;
-        else
-            y = (rect.top + rect.bottom) / 2;
-        let baseline = 'middle';
-        let align = 'center';
-        if (this.tb.options.swapAxes) {
-            [x, y] = [y, x];
-            if (this.tb.options.labels.verticalPosition === 'outside')
-                align = 'left';
-            else if (this.tb.options.labels.verticalPosition === 'inside')
-                align = 'right';
-        } else {
-            baseline = Tayberry.mapVerticalPosition(sign, this.tb.options.labels.verticalPosition);
-        }
-        if (this.tb.plotArea.containsPoint(x, y)) {
-            this.ctx.save();
-            this.ctx.textAlign = align;
-            this.ctx.textBaseline = baseline;
-            this.ctx.fillText(text, x, y);
-            this.ctx.restore();
-        }
-    }
-
     hitTest(x, y) {
         // TODO: Optimise
         let ret = {
             found: false,
-            plotType: 'bar'
+            plotType: 'bar',
+            isXRange: true
         };
 
         let matches = [];

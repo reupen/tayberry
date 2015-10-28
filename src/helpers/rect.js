@@ -39,6 +39,14 @@ class Rect {
         return Math.max(this.left, this.right);
     }
 
+    get xMidpoint() {
+        return (this.left + this.right)/2;
+    }
+
+    get yMidpoint() {
+        return (this.top + this.bottom)/2;
+    }
+
     containsPoint(x, y) {
         return this.containsX(x) && this.containsY(y);
     }
@@ -49,6 +57,14 @@ class Rect {
 
     containsX(x) {
         return (x >= this.left && x < this.right) || (x >= this.right && x < this.left);
+    }
+
+    inflate(val) {
+        this.left -= val;
+        this.top -= val;
+        this.right += val;
+        this.bottom += val;
+        return this;
     }
 
     clip(clipRect) {

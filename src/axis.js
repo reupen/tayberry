@@ -454,11 +454,15 @@ class LinearAxis extends Axis {
         return ret;
     }
 
-    getCategoryLabel(index, totalCategories) {
-        const start = index / totalCategories;
-        const end = (index + 1) / totalCategories;
-        const axisRange = this.max - this.min;
-        return Utils.formatString('{0} \u2264 x < {1}', [this.options.labelFormatter(this.min + start * axisRange), this.options.labelFormatter(this.min + end * axisRange)]);
+    getCategoryLabel(index, totalCategories, isRange) {
+        if (isRange) {
+            const start = index / totalCategories;
+            const end = (index + 1) / totalCategories;
+            const axisRange = this.max - this.min;
+            return Utils.formatString('{0} \u2264 x < {1}', [this.options.labelFormatter(this.min + start * axisRange), this.options.labelFormatter(this.min + end * axisRange)]);
+        } else {
+            return this.options.labelFormatter(index);
+        }
     }
 }
 

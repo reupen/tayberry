@@ -18,28 +18,28 @@ class LineRenderer extends Renderer {
         super.setSeries(series);
     }
 
-    drawMarker(type, x, y, size) {
+    drawMarker(type, x, y, size, ctx = this.ctx) {
         if (type === 'square') {
-            this.ctx.fillRect(x - size / 2, y - size / 2, size, size);
+            ctx.fillRect(x - size / 2, y - size / 2, size, size);
         } else if (type === 'diamond') {
-            this.ctx.save();
-            this.ctx.translate(x, y);
-            this.ctx.rotate(-Math.PI / 4);
-            this.ctx.fillRect(0 - size / 2, 0 - size / 2, size, size);
-            this.ctx.restore();
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(-Math.PI / 4);
+            ctx.fillRect(0 - size / 2, 0 - size / 2, size, size);
+            ctx.restore();
         } else if (type === 'circle') {
             size = Math.round(size * 1.2);
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, size / 2, 0, 2 * Math.PI);
-            this.ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, 2 * Math.PI);
+            ctx.fill();
         } else if (type === 'triangle' || (type === 'triangle-inversed' && (size = -size))) {
             size = Math.round(size * 1.2);
-            this.ctx.beginPath();
-            this.ctx.moveTo(x - size / 2, y + size / 2);
-            this.ctx.lineTo(x, y - size / 2);
-            this.ctx.lineTo(x + size / 2, y + size / 2);
-            this.ctx.closePath();
-            this.ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x - size / 2, y + size / 2);
+            ctx.lineTo(x, y - size / 2);
+            ctx.lineTo(x + size / 2, y + size / 2);
+            ctx.closePath();
+            ctx.fill();
         }
     }
 
@@ -47,7 +47,7 @@ class LineRenderer extends Renderer {
         this.ctx.save();
         this.enumeratePoints(function (pt) {
             if (pt.firstPoint) {
-                this.ctx.lineWidth = pt.seriesSelected ? 4 : 2;
+                this.ctx.lineWidth = pt.seriesSelected ? this.tb.options.linePlot.highlightedLineWidth : this.tb.options.linePlot.lineWidth;
                 this.ctx.strokeStyle = pt.seriesSelected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
                 this.ctx.beginPath();
                 this.ctx.moveTo(pt.x, pt.y);
@@ -57,39 +57,48 @@ class LineRenderer extends Renderer {
             if (pt.lastPoint) {
                 this.ctx.stroke();
             }
-            //this.ctx.fillRect(pt.x - 4, pt.y - 4, 8, 8);
         }.bind(this));
         this.enumeratePoints(function (pt) {
             if (pt.selected) {
-                this.ctx.fillStyle = pt.renderedSeries.highlightColour;
-                this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, 15);
+                this.ctx.fillStyle = pt.renderedSeries.glowColour;
+                this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
             }
             this.ctx.fillStyle = pt.renderedSeries.colour;
-            this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, 10);
+            this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
         }.bind(this));
         this.ctx.restore();
+    }
+
+    drawLegendIndicator(ctx, series, rect) {
+        ctx.save();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = series.colour;
+        this.tb.drawLine(rect.left, rect.yMidpoint, rect.right, rect.yMidpoint);
+        ctx.fillStyle = series.colour;
+        this.drawMarker(series.markerType, rect.xMidpoint, rect.yMidpoint, this.tb.options.linePlot.markerSize, ctx);
+        ctx.restore();
     }
 
     drawLabels() {
         if (this.tb.options.labels.enabled) {
             this.ctx.save();
+            this.ctx.font = this.tb.labelFont;
+            this.ctx.fillStyle = this.tb.options.labels.font.colour;
             this.enumeratePoints(function (pt) {
-                this.ctx.font = this.tb.labelFont;
-                this.ctx.fillStyle = this.tb.options.labels.font.colour;
-                this.drawLabel(pt.value, this.tb.options.yAxis.labelFormatter(pt.value), pt.x, pt.y);
+                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize/2);
+                this.drawLabel(pt.value, this.tb.options.yAxis.labelFormatter(pt.value), rect);
             }.bind(this));
             this.ctx.restore();
         }
     }
 
-    drawLabel(sign, text, x, y) {
-    }
 
     hitTest(x, y) {
         // TODO: Optimise
         let ret = {
             found: false,
-            plotType: 'line'
+            plotType: 'line',
+            isXRange: false
         };
 
         let distances = [];
@@ -121,7 +130,7 @@ class LineRenderer extends Renderer {
             distances.sort((e1, e2) => e1[0] - e2[0]);
             if (true || distances[0][0] <= 5) {
                 const pt = distances[0][1];
-                const rect = new Rect(pt.x - 5, pt.y - 5 , pt.x + 5, pt.y + 5);
+                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize/2);
                 Utils.assign(ret, [{found: true, rect: rect}, pt]);
             }
         }
@@ -130,7 +139,6 @@ class LineRenderer extends Renderer {
     }
 
     enumeratePoints(callback) {
-        //TODO: support linear x-axes
         const categoryCount = this.renderedSeries[0].data.length;
         if (categoryCount) {
             const isHorizontal = this.tb.options.swapAxes;
@@ -140,7 +148,8 @@ class LineRenderer extends Renderer {
 
             for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
                 for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-                    let x = this.tb.xAxis.getValueDisplacement(categoryIndex);
+                    const xValue = Tayberry.getDataXValue(this.renderedSeries[seriesIndex].data, categoryIndex);
+                    let x = this.tb.xAxis.getValueDisplacement(xValue);
                     const value = Tayberry.getDataValue(this.renderedSeries[seriesIndex].data[categoryIndex]);
                     if (Utils.isMissingValue(value))
                         continue;

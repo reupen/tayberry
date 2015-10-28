@@ -67,9 +67,15 @@ Tayberry.prototype.defaultOptions = function () {
         plotType: 'bar',
         barMode: 'normal', //[normal|stacked|overlaid]
         barPadding: 2,
+        categorySpacing: 0.3,
+        linePlot: {
+            lineWidth: 2,
+            highlightedLineWidth: 4,
+            markerSize: 10,
+            highlightedMarkerSize: 18
+        },
         elementSmallPadding: 5,
         elementLargePadding: 10,
-        categorySpacing: 0.3,
         presets: [],
         tooltips: {
             shared: false,
