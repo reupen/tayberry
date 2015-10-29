@@ -101,12 +101,12 @@ class LineRenderer extends Renderer {
             isXRange: false
         };
 
-        let distances = [];
+        let matches = [];
 
         //let lastPt;
         this.enumeratePoints(function (pt) {
             const distance = Math.sqrt(Math.pow(pt.x - x, 2) + Math.pow(pt.y - y, 2));
-            distances.push([distance, pt]);
+            matches.push({distance: distance, priority: 0, data: pt});
             //if (!pt.firstPoint) {
             //    if (x >= lastPt.x && x < pt.x) {
             //const alpha = Math.arctan((pt.y - lastPt.y) / (pt.x - lastPt.x));
@@ -126,12 +126,12 @@ class LineRenderer extends Renderer {
             //lastPt = pt;
 
         });
-        if (distances.length) {
-            distances.sort((e1, e2) => e1[0] - e2[0]);
-            if (true || distances[0][0] <= 5) {
-                const pt = distances[0][1];
+        if (matches.length) {
+            matches.sort((e1, e2) => e1.distance - e2.distance);
+            if (true || matches[0].distance <= 5) {
+                const pt = matches[0].data;
                 const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize/2);
-                Utils.assign(ret, [{found: true, rect: rect}, pt]);
+                Utils.assign(ret, [{found: true, rect: rect, normalisedDistance: matches[0].distance * rect.area}, pt]);
             }
         }
 

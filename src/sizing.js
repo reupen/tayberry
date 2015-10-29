@@ -1,7 +1,5 @@
 'use strict';
 var Rect = require('./helpers/rect').Rect;
-var Utils = require('./helpers/utils');
-
 var Tayberry = require('./base.js').Tayberry;
 
 Tayberry.mapVerticalPosition = function (sign, position) {
@@ -57,17 +55,18 @@ Tayberry.prototype.calculatePlotArea = function () {
 
 Tayberry.prototype.hitTest = function (x, y) {
     let ret = {
-        found: false,
-        categoryIndex: undefined,
-        seriesIndex: undefined,
-        rect: undefined
+        found: false
     };
+    let matches = [];
     for (let i = 0; i < this.renderers.length; i++) {
         const hitTestResult = this.renderers[i].hitTest(x, y);
         if (hitTestResult.found) {
-            ret = hitTestResult;
-            break;
+            matches.push(hitTestResult);
         }
+    }
+    if (matches.length) {
+        matches.sort( (a,b) => a.normalisedDistance - b.normalisedDistance);
+        ret = matches[0];
     }
     return ret;
 };

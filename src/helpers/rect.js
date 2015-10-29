@@ -40,11 +40,15 @@ class Rect {
     }
 
     get xMidpoint() {
-        return (this.left + this.right)/2;
+        return (this.left + this.right) / 2;
     }
 
     get yMidpoint() {
-        return (this.top + this.bottom)/2;
+        return (this.top + this.bottom) / 2;
+    }
+
+    get area() {
+        return this.width * this.height;
     }
 
     containsPoint(x, y) {
