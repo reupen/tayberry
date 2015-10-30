@@ -1,13 +1,13 @@
 'use strict';
 var Utils = require('./helpers/utils');
 var Rect = require('./helpers/rect').Rect;
-var Renderer = require('./renderer.base').Renderer;
+var renderer = require('./renderer.base');
 var Tayberry = require('./base').Tayberry;
 
 var autoMarkerIndex = 0;
 const markers = ['square', 'diamond', 'circle', 'triangle', 'triangle-inversed'];
 
-class LineRenderer extends Renderer {
+class LineRenderer extends renderer.Renderer {
     setSeries(series) {
         for (var i = 0; i < series.length; i++) {
             if (!series[i].markerType) {
@@ -45,7 +45,9 @@ class LineRenderer extends Renderer {
 
     drawPlot() {
         this.ctx.save();
-        this.enumeratePoints(function (pt) {
+        let pointEnumerator = new PointEnumerator(this);
+        let pt;
+        while ((pt = pointEnumerator.next())) {
             if (pt.firstPoint) {
                 this.ctx.lineWidth = pt.seriesSelected ? this.tb.options.linePlot.highlightedLineWidth : this.tb.options.linePlot.lineWidth;
                 this.ctx.strokeStyle = pt.seriesSelected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
@@ -57,15 +59,16 @@ class LineRenderer extends Renderer {
             if (pt.lastPoint) {
                 this.ctx.stroke();
             }
-        }.bind(this));
-        this.enumeratePoints(function (pt) {
+        }
+        pointEnumerator = new PointEnumerator(this);
+        while ((pt = pointEnumerator.next())) {
             if (pt.selected) {
                 this.ctx.fillStyle = pt.renderedSeries.glowColour;
                 this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
             }
             this.ctx.fillStyle = pt.renderedSeries.colour;
             this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
-        }.bind(this));
+        }
         this.ctx.restore();
     }
 
@@ -84,10 +87,12 @@ class LineRenderer extends Renderer {
             this.ctx.save();
             this.ctx.font = this.tb.labelFont;
             this.ctx.fillStyle = this.tb.options.labels.font.colour;
-            this.enumeratePoints(function (pt) {
-                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize/2);
+            let pointEnumerator = new PointEnumerator(this);
+            let pt;
+            while ((pt = pointEnumerator.next())) {
+                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
                 this.drawLabel(pt.value, this.tb.options.yAxis.labelFormatter(pt.value), rect);
-            }.bind(this));
+            }
             this.ctx.restore();
         }
     }
@@ -103,8 +108,9 @@ class LineRenderer extends Renderer {
 
         let matches = [];
 
-        //let lastPt;
-        this.enumeratePoints(function (pt) {
+        let pointEnumerator = new PointEnumerator(this);
+        let pt;
+        while ((pt = pointEnumerator.next())) {
             const distance = Math.sqrt(Math.pow(pt.x - x, 2) + Math.pow(pt.y - y, 2));
             matches.push({distance: distance, priority: 0, data: pt});
             //if (!pt.firstPoint) {
@@ -125,58 +131,56 @@ class LineRenderer extends Renderer {
             //}
             //lastPt = pt;
 
-        });
+        }
         if (matches.length) {
             matches.sort((e1, e2) => e1.distance - e2.distance);
             if (true || matches[0].distance <= 5) {
                 const pt = matches[0].data;
-                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize/2);
-                Utils.assign(ret, [{found: true, rect: rect, normalisedDistance: matches[0].distance * rect.area}, pt]);
+                const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
+                Utils.assign(ret, [{
+                    found: true,
+                    rect: rect,
+                    normalisedDistance: matches[0].distance * rect.area
+                }, pt]);
             }
         }
 
         return ret;
     }
 
-    enumeratePoints(callback) {
-        const categoryCount = this.renderedSeries[0].data.length;
-        if (categoryCount) {
-            const isHorizontal = this.tb.options.swapAxes;
-            let plotArea = this.tb.plotArea.clone();
-            if (isHorizontal)
-                plotArea.swapXY();
+}
 
-            for (let seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
-                for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-                    const xValue = Tayberry.getDataXValue(this.renderedSeries[seriesIndex].data, categoryIndex);
-                    let x = this.tb.xAxis.getValueDisplacement(xValue);
-                    const value = Tayberry.getDataValue(this.renderedSeries[seriesIndex].data[categoryIndex]);
-                    if (Utils.isMissingValue(value))
-                        continue;
-                    let y = this.tb.yAxis.getValueDisplacement(value);
+class PointEnumerator extends renderer.BySeriesEnumerator {
+    next() {
+        let ret;
 
-                    if (isHorizontal)
-                        [x, y] = [y, x];
+        if (this.seriesIndex < this.seriesCount) {
+            const value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+            const xValue = Tayberry.getDataXValue(this.renderer.renderedSeries[this.seriesIndex].data, this.categoryIndex);
+            let x = this.tb.xAxis.getValueDisplacement(xValue);
+            let y = this.tb.yAxis.getValueDisplacement(value);
 
-                    const stopEnumerating = callback({
-                        firstPoint: categoryIndex === 0,
-                        lastPoint: categoryIndex + 1 === categoryCount,
-                        seriesIndex: seriesIndex,
-                        categoryIndex: categoryIndex,
-                        series: this.series[seriesIndex],
-                        renderedSeries: this.renderedSeries[seriesIndex],
-                        value: Tayberry.getDataValue(this.series[seriesIndex].data[categoryIndex]),
-                        renderedValue: Tayberry.getDataValue(this.renderedSeries[seriesIndex].data[categoryIndex]),
-                        x: x,
-                        y: y,
-                        seriesSelected: !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.series[seriesIndex],
-                        selected: this.tb.selectedItem.categoryIndex === categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.series[seriesIndex])
-                    });
-                    if (stopEnumerating)
-                        break;
-                }
-            }
+            if (this.isHorizontal)
+                [x, y] = [y, x];
+
+            ret = {
+                firstPoint: this.categoryIndex === 0,
+                lastPoint: this.categoryIndex + 1 === this.categoryCount,
+                seriesIndex: this.seriesIndex,
+                categoryIndex: this.categoryIndex,
+                series: this.renderer.series[this.seriesIndex],
+                renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
+                value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
+                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
+                x: x,
+                y: y,
+                seriesSelected: !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],
+                selected: this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
+            };
+
+            this.nextValue();
         }
+        return ret;
     }
 }
 

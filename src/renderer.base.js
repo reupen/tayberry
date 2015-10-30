@@ -23,7 +23,7 @@ class Renderer {
             elem.data = this.renderedSeries[seriesIndex].data.slice(0);
             if (elem.data.length && Array.isArray(elem.data[0])) {
                 for (var dataIndex = 0; dataIndex < elem.data.length; dataIndex++) {
-                    elem.data[dataIndex] = elem.data[dataIndex].slice(0);                    
+                    elem.data[dataIndex] = elem.data[dataIndex].slice(0);
                 }
             }
             this.renderedSeries[seriesIndex] = elem;
@@ -89,4 +89,86 @@ class Renderer {
 
 }
 
+class Enumerator {
+    constructor(renderer, startCategoryIndex = 0) {
+        this.renderer = renderer;
+        this.tb = renderer.tb;
+
+        this.categoryCount = this.renderer.renderedSeries[0].data.length;
+        this.categoryIndex = 0;
+        this.seriesIndex = 0;
+        this.seriesCount = this.renderer.renderedSeries.length;
+        if (this.categoryCount) {
+            this.yOrigin = this.tb.yAxis.getOrigin();
+            this.isHorizontal = this.tb.options.swapAxes;
+            this.plotArea = this.tb.plotArea.clone();
+            if (this.isHorizontal)
+                this.plotArea.swapXY();
+            this.startCategoryIndex = Math.max(startCategoryIndex, 0);
+            this.startCategoryIndex = Math.min(this.startCategoryIndex, this.categoryCount - 1);
+            this.categoryIndex = startCategoryIndex;
+        }
+    }
+
+    nextValue() {
+
+        let nextValue;
+        do {
+            if (this.categoryIndex + 1 === this.categoryCount) {
+                this.categoryIndex = this.startCategoryIndex;
+                this.seriesIndex++;
+                if (this.seriesIndex >= this.seriesCount)
+                    break;
+            } else {
+                this.categoryIndex++;
+            }
+            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+        } while (Utils.isMissingValue(nextValue));
+
+    }
+}
+
+class ByCategoryEnumerator extends Enumerator {
+    onNewCategory() {}
+
+    nextValue() {
+
+        let nextValue;
+        do {
+            if (this.seriesIndex + 1 === this.seriesCount) {
+                this.seriesIndex = 0;
+                this.categoryIndex++;
+                if (this.categoryIndex >= this.categoryCount)
+                    break;
+                this.onNewCategory();
+            } else {
+                this.seriesIndex++;
+            }
+            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+        } while (Utils.isMissingValue(nextValue));
+
+    }
+}
+
+class BySeriesEnumerator extends Enumerator {
+    nextValue() {
+
+        let nextValue;
+        do {
+            if (this.categoryIndex + 1 === this.categoryCount) {
+                this.categoryIndex = this.startCategoryIndex;
+                this.seriesIndex++;
+                if (this.seriesIndex >= this.seriesCount)
+                    break;
+            } else {
+                this.categoryIndex++;
+            }
+            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+        } while (Utils.isMissingValue(nextValue));
+
+    }
+}
+
 exports.Renderer = Renderer;
+exports.ByCategoryEnumerator = ByCategoryEnumerator;
+exports.BySeriesEnumerator = BySeriesEnumerator;

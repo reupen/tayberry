@@ -1,10 +1,10 @@
 'use strict';
 var Rect = require('./helpers/rect').Rect;
 var Utils = require('./helpers/utils');
-var Renderer = require('./renderer.base').Renderer;
+var renderer = require('./renderer.base');
 var Tayberry = require('./base.js').Tayberry;
 
-class BarRenderer extends Renderer {
+class BarRenderer extends renderer.Renderer {
     drawPlot() {
         this.ctx.save();
         let barEnumerator = new BarEnumerator(this);
@@ -101,43 +101,33 @@ class BarRenderer extends Renderer {
     }
 }
 
-class BarEnumerator {
-    constructor(barRenderer, startCategoryIndex = 0) {
-        this.barRenderer = barRenderer;
-        this.tb = barRenderer.tb;
-
-        this.categoryCount = this.barRenderer.renderedSeries[0].data.length;
-        this.categoryIndex = 0;
-        this.seriesIndex = 0;
-        this.seriesCount = this.barRenderer.renderedSeries.length;
+class BarEnumerator extends renderer.ByCategoryEnumerator {
+    constructor(renderer, startCategoryIndex = 0) {
+        super(renderer, startCategoryIndex);
         if (this.categoryCount) {
             this.isStacked = this.tb.options.barMode === 'stacked';
             this.isOverlaid = this.tb.options.barMode === 'overlaid';
-            this.isHorizontal = this.tb.options.swapAxes;
-            this.plotArea = this.tb.plotArea.clone();
-            if (this.isHorizontal)
-                this.plotArea.swapXY();
             this.isNormal = !this.isStacked && !this.isOverlaid;
             this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.tb.seriesCount;
             this.categoryWidth = (this.plotArea.width / this.categoryCount);
-            this.yOrigin = this.tb.yAxis.getOrigin();
 
-            this.startCategoryIndex = Math.max(startCategoryIndex, 0);
-            this.startCategoryIndex = Math.min(this.startCategoryIndex, this.categoryCount - 1);
-
-            this.yBottomPositive = this.yOrigin;
-            this.yBottomNegative = this.yOrigin;
-            this.yRunningTotalPositive = 0;
-            this.yRunningTotalNegative = 0;
-            this.barIndex = 0;
+            this.onNewCategory();
         }
+    }
+
+    onNewCategory() {
+        this.yBottomPositive = this.yOrigin;
+        this.yBottomNegative = this.yOrigin;
+        this.yRunningTotalPositive = 0;
+        this.yRunningTotalNegative = 0;
+        this.barIndex = 0;
     }
 
     next() {
         let ret;
 
         if (this.categoryIndex < this.categoryCount) {
-            const value = Tayberry.getDataValue(this.barRenderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+            const value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
             let categoryXStart = this.plotArea.left + Math.floor(this.categoryIndex * this.categoryWidth);
             let categoryXEnd = this.plotArea.left + Math.floor((this.categoryIndex + 1) * this.categoryWidth);
             let barXStart = categoryXStart + Math.ceil(this.categoryWidth * this.tb.options.categorySpacing / 2);
@@ -160,12 +150,12 @@ class BarEnumerator {
             ret = {
                 seriesIndex: this.seriesIndex,
                 categoryIndex: this.categoryIndex,
-                series: this.barRenderer.series[this.seriesIndex],
-                renderedSeries: this.barRenderer.renderedSeries[this.seriesIndex],
-                value: Tayberry.getDataValue(this.barRenderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.barRenderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
+                series: this.renderer.series[this.seriesIndex],
+                renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
+                value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
+                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
                 rect: rect,
-                selected: this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.barRenderer.series[this.seriesIndex])
+                selected: this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };
 
             if (this.isStacked) {
@@ -181,23 +171,7 @@ class BarEnumerator {
                 this.barIndex++;
             }
 
-            let nextValue;
-            do {
-                if (this.seriesIndex + 1 === this.seriesCount) {
-                    this.seriesIndex = 0;
-                    this.categoryIndex++;
-                    if (this.categoryIndex >= this.categoryCount)
-                        break;
-                    this.yBottomPositive = this.yOrigin;
-                    this.yBottomNegative = this.yOrigin;
-                    this.yRunningTotalPositive = 0;
-                    this.yRunningTotalNegative = 0;
-                    this.barIndex = 0;
-                } else {
-                    this.seriesIndex++;
-                }
-                nextValue = Tayberry.getDataValue(this.barRenderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
-            } while (Utils.isMissingValue(nextValue));
+            this.nextValue();
 
         }
         return ret;
