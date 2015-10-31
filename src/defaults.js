@@ -73,6 +73,8 @@ Tayberry.prototype.defaultOptions = function () {
         linePlot: {
             lineWidth: 2,
             highlightedLineWidth: 4,
+            showMarkers: 'auto',
+            noMarkersThreshold: 100,
             markerSize: 10,
             highlightedMarkerSize: 18
         },

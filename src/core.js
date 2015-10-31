@@ -181,7 +181,6 @@ Tayberry.prototype.createRenderers = function () {
     }
 };
 
-
 Tayberry.prototype.getDataMinMax = function () {
     var categoryIndex, seriesIndex, min, max;
     let seriesPositiveTotals = [];
@@ -189,32 +188,48 @@ Tayberry.prototype.getDataMinMax = function () {
     const seriesMinima = [];
     const seriesMaxima = [];
     if (this.options.series[0].data.length) {
-        for (categoryIndex = 0; categoryIndex < this.options.series[0].data.length; categoryIndex++) {
-            seriesPositiveTotals[categoryIndex] = 0;
-            seriesNegativeTotals[categoryIndex] = 0;
-            for (seriesIndex = 0; seriesIndex < this.options.series.length; seriesIndex++) {
-                const value = Tayberry.getDataValue(this.options.series[seriesIndex].data[categoryIndex]);
-                if (!Utils.isMissingValue(value)) {
-                    if (value < 0) {
-                        seriesNegativeTotals[categoryIndex] += value;
-                    } else {
-                        seriesPositiveTotals[categoryIndex] += value;
+        if (this.options.barPlot.mode === 'stacked') {
+            for (categoryIndex = 0; categoryIndex < this.options.series[0].data.length; categoryIndex++) {
+                seriesPositiveTotals[categoryIndex] = 0;
+                seriesNegativeTotals[categoryIndex] = 0;
+                for (seriesIndex = 0; seriesIndex < this.options.series.length; seriesIndex++) {
+                    const value = Tayberry.getDataValue(this.options.series[seriesIndex].data[categoryIndex]);
+                    if (!Utils.isMissingValue(value)) {
+                        if (value < 0) {
+                            seriesNegativeTotals[categoryIndex] += value;
+                        } else {
+                            seriesPositiveTotals[categoryIndex] += value;
+                        }
                     }
                 }
             }
-        }
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
-            seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataValue, true));
-            seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataValue, true));
-        }
-        if (this.options.barPlot.mode === 'stacked') {
             min = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
             max = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
         } else {
+            for (let index = 0; index < this.options.series.length; index++) {
+                const series = this.options.series[index];
+                seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataValue, true));
+                seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataValue, true));
+            }
             min = Utils.reduce(seriesMinima, Math.min, undefined, true);
             max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
         }
+    }
+    return [min, max];
+};
+
+Tayberry.prototype.getDataXMinMax = function () {
+    var min, max;
+    const seriesMinima = [];
+    const seriesMaxima = [];
+    if (this.options.series[0].data.length) {
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
+            seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataXValue, true));
+            seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataXValue, true));
+        }
+        min = Utils.reduce(seriesMinima, Math.min, undefined, true);
+        max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
     }
     return [min, max];
 };

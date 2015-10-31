@@ -18,9 +18,9 @@
         } else {
             getter = getter || exports.identity;
             if (array.length) {
-                ret = getter(array[0]);
+                ret = getter(array[0], 0);
                 for (i = 1; i < array.length; i++) {
-                    const value = getter(array[i]);
+                    const value = getter(array[i], i);
                     if (!ignoreMissing || !exports.isMissingValue(value))
                         ret = func(ret, value);
                 }

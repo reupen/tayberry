@@ -3,19 +3,18 @@ var Utils = require('./helpers/utils.js');
 
 class Axis {
     static create(tayberry, options, index, axisType, xYSwapped) {
-        if (xYSwapped) {
-            axisType = axisType === 'y' ? 'x' : 'y';
-        }
+        const isHorizontal = (axisType === 'x' && !xYSwapped) || (axisType === 'y' && xYSwapped);
         if (options.type === 'linear')
-            return new LinearAxis(tayberry, index, options, axisType);
+            return new LinearAxis(tayberry, index, options, axisType, isHorizontal);
         else
-            return new CategorialAxis(tayberry, index, options, axisType);
+            return new CategorialAxis(tayberry, index, options, axisType, isHorizontal);
     }
 
-    constructor(tayberry, index, options, axisType) {
+    constructor(tayberry, index, options, axisType, isHorizontal) {
         this.tayberry = tayberry;
         this.options = options;
         this.axisType = axisType;
+        this.isHorizontal = isHorizontal;
         this.index = index;
         this.tickStep = null;
         this.min = null;
@@ -40,7 +39,7 @@ class Axis {
     setPlacement() {
         const validAndSpecificPlacements = ['left', 'right', 'top', 'bottom', 'start', 'end'];
         if (validAndSpecificPlacements.indexOf(this.options.placement) === -1) {
-            this.options.placement = this.isYAxis ^ (this.index > 0) ? 'start' : 'end';
+            this.options.placement = this.isVertical ^ (this.index > 0) ? 'start' : 'end';
         }
     }
 
@@ -52,6 +51,10 @@ class Axis {
         return this.axisType === 'y';
     }
 
+    get isVertical() {
+        return !this.isHorizontal;
+    }
+
     maxLabelSize() {
         let tb = this.tayberry;
         let ticks = this.getTicks();
@@ -59,11 +62,11 @@ class Axis {
     }
 
     mapLogicalXOrYUnit(x) {
-        return this.isYAxis ? this.tayberry.mapLogicalXUnit(x) : this.tayberry.mapLogicalYUnit(x);
+        return this.isVertical ? this.tayberry.mapLogicalXUnit(x) : this.tayberry.mapLogicalYUnit(x);
     }
 
     mapLogicalYOrXUnit(x) {
-        return !this.isYAxis ? this.tayberry.mapLogicalXUnit(x) : this.tayberry.mapLogicalYUnit(x);
+        return !this.isVertical ? this.tayberry.mapLogicalXUnit(x) : this.tayberry.mapLogicalYUnit(x);
     }
 
     adjustSize(plotArea, fixedOnly, reset) {
@@ -88,7 +91,7 @@ class Axis {
 
         if (!fixedOnly) {
             let ticks = this.getTicks(false);
-            if (this.isYAxis) {
+            if (this.isVertical) {
                 if (ticks.length) {
                     const lastTick = ticks[ticks.length - 1];
                     const lastTickYStart = lastTick.y - fontHeight / 2;
@@ -129,14 +132,14 @@ class Axis {
         }
 
         if (this.isPlacedAtStart) {
-            if (this.isYAxis) {
+            if (this.isVertical) {
                 plotArea.left += size - this.calculatedSize;
             } else {
                 plotArea.top += size - this.calculatedSize;
             }
         } else {
             size *= -1;
-            if (this.isYAxis) {
+            if (this.isVertical) {
                 plotArea.right += size - this.calculatedSize;
             } else {
                 plotArea.bottom += size - this.calculatedSize;
@@ -162,15 +165,15 @@ class Axis {
 
     drawTicksAndLabels() {
         let tb = this.tayberry;
-        const labelPaddingX = this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
-        const labelPaddingY = !this.isYAxis ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const labelPaddingX = this.isVertical ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const labelPaddingY = !this.isVertical ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
         const fontHeight = tb.getFontHeight(this.options.font);
 
         tb.labelsCtx.save();
         tb.labelsCtx.font = this.labelFont;
         tb.labelsCtx.fillStyle = this.options.font.colour;
-        tb.labelsCtx.textAlign = this.isYAxis ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
-        tb.labelsCtx.textBaseline = this.isYAxis ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
+        tb.labelsCtx.textAlign = this.isVertical ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
+        tb.labelsCtx.textBaseline = this.isVertical ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
         let lastXEnds = [], tickIndex = 0;
 
@@ -178,14 +181,14 @@ class Axis {
             let textWidth, xStart, xEnd;
             const formattedValue = this.options.labelFormatter(tick.value);
             const row = tickIndex % this.numLabelLines;
-            const rowOffset = this.isYAxis ? 0 : fontHeight * row;
-            if (!this.isYAxis) {
+            const rowOffset = this.isVertical ? 0 : fontHeight * row;
+            if (!this.isVertical) {
                 textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                 xStart = tick.x - textWidth / 2;
                 xEnd = tick.x + textWidth / 2;
             }
 
-            if (this.isYAxis || (typeof lastXEnds[row] === 'undefined' || xStart > lastXEnds[row] + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
+            if (this.isVertical || (typeof lastXEnds[row] === 'undefined' || xStart > lastXEnds[row] + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
                 tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY + rowOffset);
                 lastXEnds[row] = xEnd;
             }
@@ -198,14 +201,14 @@ class Axis {
     }
 
     get startProperty() {
-        if (this.isYAxis)
+        if (this.isVertical)
             return this.isPlacedAtStart ? 'left' : 'right';
         else
             return this.isPlacedAtStart ? 'top' : 'bottom';
     }
 
     get endProperty() {
-        if (this.isYAxis)
+        if (this.isVertical)
             return !this.isPlacedAtStart ? 'left' : 'right';
         else
             return !this.isPlacedAtStart ? 'top' : 'bottom';
@@ -220,7 +223,7 @@ class Axis {
             tb.labelsCtx.textAlign = 'center';
             tb.labelsCtx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
 
-            if (this.isYAxis) {
+            if (this.isVertical) {
                 const x = 0;
                 const y = tb.plotArea.top + (tb.plotArea.height) / 2;
                 tb.labelsCtx.translate(x, y);
@@ -257,12 +260,12 @@ class CategorialAxis extends Axis {
 
         const categoryCount = this.options.categories.length;
         let plotArea = tb.plotArea.clone();
-        if (this.isYAxis)
+        if (this.isVertical)
             plotArea.swapXY();
         const categoryWidth = (plotArea.width / tb.categoryCount);
         let factor = 0.5;
 
-        if (!this.isYAxis) {
+        if (!this.isVertical) {
             switch (this.options.labelPosition) {
                 case 'left':
                     factor = 0;
@@ -281,7 +284,7 @@ class CategorialAxis extends Axis {
             let x2 = x1;
             let x = plotArea.left + Math.floor(i * categoryWidth + categoryWidth * factor);
             let y = y1;
-            if (this.isYAxis)
+            if (this.isVertical)
                 [x1, y1, x2, y2, x, y] = [y1, x1, y2, x2, y, x];
 
             callback({
@@ -308,16 +311,16 @@ class CategorialAxis extends Axis {
     }
 
     get plotDisplacement() {
-        return this.isYAxis ? (-this.tayberry.plotArea.height) : (this.tayberry.plotArea.width);
+        return this.isVertical ? (-this.tayberry.plotArea.height) : (this.tayberry.plotArea.width);
     }
 
     getOrigin() {
-        return this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'];
+        return this.tayberry.plotArea[this.isVertical ? 'bottom' : 'left'];
     }
 
     getValueDisplacement(value) {
         let ret = this.getOrigin() + this.plotDisplacement * (value + 0.5) / this.options.categories.length;
-        ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
+        ret = this.isVertical ? Math.floor(ret) : Math.ceil(ret);
         return ret;
     }
 
@@ -346,7 +349,7 @@ class LinearAxis extends Axis {
 
         for (let yValue = this.tickStart; yValue <= this.tickEnd && this.tickStep;) {
             let y = this.getValueDisplacement(yValue);
-            if (this.isYAxis) {
+            if (this.isVertical) {
                 if (callback({
                         value: yValue,
                         x1: tb.plotArea[start],
@@ -397,17 +400,23 @@ class LinearAxis extends Axis {
         const overriddenEnd = !Utils.isMissingValue(targetEnd);
 
         if (!overriddenStart || !overriddenEnd) {
-            const [dataMin, dataMax] = this.tayberry.getDataMinMax(); //TODO: implement for x-axis
+            const [dataMin, dataMax] = this.isYAxis ? this.tayberry.getDataMinMax() : this.tayberry.getDataXMinMax(); //TODO: implement for x-axis
             const dataRange = dataMax - dataMin;
             if (!overriddenStart) {
-                targetStart = dataMin - dataRange * 0.1;
-                if (dataMin >= 0 && targetStart < 0)
-                    targetStart = 0;
+                targetStart = dataMin;
+                if (this.isYAxis) {
+                    targetStart = targetStart - dataRange * 0.1;
+                    if (dataMin >= 0 && targetStart < 0)
+                        targetStart = 0;
+                }
             }
             if (!overriddenEnd) {
-                targetEnd = dataMax + dataRange * 0.1;
-                if (dataMax <= 0 && targetStart > 0)
-                    targetEnd = 0;
+                targetEnd = dataMax;
+                if (this.isYAxis) {
+                    targetEnd = dataMax + dataRange * 0.1;
+                    if (dataMax <= 0 && targetStart > 0)
+                        targetEnd = 0;
+                }
             }
         }
 
@@ -427,14 +436,14 @@ class LinearAxis extends Axis {
         }
         this.tickStart = this.options.tickStepValue && overriddenStart ? this.min : Math.floor(this.min / this.tickStep) * this.tickStep;
         this.tickEnd = this.options.tickStepValue && overriddenEnd ? this.max : Math.ceil(this.max / this.tickStep) * this.tickStep;
-        if (!overriddenStart)
+        if (!overriddenStart && this.isYAxis)
             this.min = this.tickStart;
-        if (!overriddenEnd)
+        if (!overriddenEnd && this.isYAxis)
             this.max = this.tickEnd;
     }
 
     get plotDisplacement() {
-        return this.isYAxis ? (this.tayberry.plotArea.height - 1) : -(this.tayberry.plotArea.width - 1);
+        return this.isVertical ? (this.tayberry.plotArea.height - 1) : -(this.tayberry.plotArea.width - 1);
     }
 
     get plotLength() {
@@ -442,15 +451,15 @@ class LinearAxis extends Axis {
     }
 
     getOrigin() {
-        let ret = this.tayberry.plotArea[this.isYAxis ? 'bottom' : 'left'] - (0 - this.min) * this.plotDisplacement / (this.max - this.min);
-        if (this.isYAxis) ret--;
-        ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
+        let ret = this.tayberry.plotArea[this.isVertical ? 'bottom' : 'left'] - (0 - this.min) * this.plotDisplacement / (this.max - this.min);
+        if (this.isVertical) ret--;
+        ret = this.isVertical ? Math.floor(ret) : Math.ceil(ret);
         return ret;
     }
 
     getValueDisplacement(value) {
         let ret = this.getOrigin() - value * this.plotDisplacement / (this.max - this.min);
-        ret = this.isYAxis ? Math.floor(ret) : Math.ceil(ret);
+        ret = this.isVertical ? Math.floor(ret) : Math.ceil(ret);
         return ret;
     }
 

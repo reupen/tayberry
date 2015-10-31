@@ -204,8 +204,6 @@ Tayberry.create('chart7', {
     },
     yAxis: {},
     xAxis: {
-        min: 0,
-        max: 499,
         type: 'linear',
         title: {
             text: '123',

@@ -9,12 +9,16 @@ const markers = ['square', 'diamond', 'circle', 'triangle', 'triangle-inversed']
 
 class LineRenderer extends renderer.Renderer {
     setSeries(series) {
+        let totalPoints = 0;
         for (var i = 0; i < series.length; i++) {
             if (!series[i].markerType) {
                 series[i].markerType = markers[autoMarkerIndex % markers.length];
                 autoMarkerIndex++;
             }
+            totalPoints += series[i].data.length;
         }
+        const showMarkers = this.tb.options.linePlot.showMarkers;
+        this.showMarkers = showMarkers === 'auto' ? totalPoints < this.tb.options.linePlot.noMarkersThreshold : showMarkers;
         super.setSeries(series);
     }
 
@@ -60,14 +64,16 @@ class LineRenderer extends renderer.Renderer {
                 this.ctx.stroke();
             }
         }
-        pointEnumerator = new PointEnumerator(this);
-        while ((pt = pointEnumerator.next())) {
-            if (pt.selected) {
-                this.ctx.fillStyle = pt.renderedSeries.glowColour;
-                this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
+        if (this.showMarkers) {
+            pointEnumerator = new PointEnumerator(this);
+            while ((pt = pointEnumerator.next())) {
+                if (pt.selected) {
+                    this.ctx.fillStyle = pt.renderedSeries.glowColour;
+                    this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
+                }
+                this.ctx.fillStyle = pt.renderedSeries.colour;
+                this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
             }
-            this.ctx.fillStyle = pt.renderedSeries.colour;
-            this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
         }
         this.ctx.restore();
     }
