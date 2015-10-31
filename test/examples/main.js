@@ -44,7 +44,9 @@ Tayberry.create('chart2', {
         },
         labelFormat: 'currency'
     },
-    barMode: 'stacked',
+    barPlot: {
+        mode: 'stacked'
+    },
     tooltips: {
         shared: true
     },
@@ -177,11 +179,11 @@ Tayberry.create('chart6', {
     },
     plotType: 'line',
     series: [{
-        data: [[0,.132], [3,.290], [4,.224], [6,.180], [10,.173]],
+        data: [[0, .132], [3, .290], [4, .224], [6, .180], [10, .173]],
         name: '1961',
         colour: '#6FE87B'
     }, {
-        data: [[1,.306], [2,.341], [3,.156], [4,.129], [5,.069]],
+        data: [[1, .306], [2, .341], [3, .156], [4, .129], [5, .069]],
         name: '2011',
         colour: '#FFAB51',
         plotType: 'bar'
@@ -192,16 +194,15 @@ Tayberry.create('chart6', {
 var randomData1 = [];
 var randomData2 = [];
 for (var i = 0; i < 500; i++) {
-    randomData1.push(Math.random()*50+50);
-    randomData2.push(Math.random()*50);
+    randomData1.push(Math.random() * 50 + 50);
+    randomData2.push(Math.random() * 50);
 }
 
 Tayberry.create('chart7', {
     title: {
         text: 'Random data - 1000 points'
     },
-    yAxis: {
-    },
+    yAxis: {},
     xAxis: {
         min: 0,
         max: 499,

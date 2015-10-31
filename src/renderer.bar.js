@@ -105,8 +105,8 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
     constructor(renderer, startCategoryIndex = 0) {
         super(renderer, startCategoryIndex);
         if (this.categoryCount) {
-            this.isStacked = this.tb.options.barMode === 'stacked';
-            this.isOverlaid = this.tb.options.barMode === 'overlaid';
+            this.isStacked = this.tb.options.barPlot.mode === 'stacked';
+            this.isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
             this.isNormal = !this.isStacked && !this.isOverlaid;
             this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.tb.seriesCount;
             this.categoryWidth = (this.plotArea.width / this.categoryCount);
@@ -130,8 +130,8 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             const value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
             let categoryXStart = this.plotArea.left + Math.floor(this.categoryIndex * this.categoryWidth);
             let categoryXEnd = this.plotArea.left + Math.floor((this.categoryIndex + 1) * this.categoryWidth);
-            let barXStart = categoryXStart + Math.ceil(this.categoryWidth * this.tb.options.categorySpacing / 2);
-            let barXEnd = categoryXEnd - Math.floor(this.categoryWidth * this.tb.options.categorySpacing / 2);
+            let barXStart = categoryXStart + Math.ceil(this.categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
+            let barXEnd = categoryXEnd - Math.floor(this.categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
 
             const barWidth = Math.floor((barXEnd - barXStart) / this.barCount);
             const xStart = Math.floor(barXStart + this.barIndex * barWidth);
@@ -139,8 +139,8 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
 
             const yTop = this.tb.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
             let rect = new Rect(xStart, yTop, xEnd, value > 0 ? this.yBottomPositive : this.yBottomNegative);
-            rect.left += Math.ceil(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPadding) / 2);
-            rect.right -= Math.floor(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPadding) / 2);
+            rect.left += Math.ceil(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+            rect.right -= Math.floor(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
             if (rect.right < rect.left)
                 rect.right = rect.left;
             if (this.isHorizontal)

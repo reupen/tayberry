@@ -208,7 +208,7 @@ Tayberry.prototype.getDataMinMax = function () {
             seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataValue, true));
             seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataValue, true));
         }
-        if (this.options.barMode === 'stacked') {
+        if (this.options.barPlot.mode === 'stacked') {
             min = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
             max = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
         } else {

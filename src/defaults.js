@@ -65,9 +65,11 @@ Tayberry.prototype.defaultOptions = function () {
         series: [],
         swapAxes: false,
         plotType: 'bar',
-        barMode: 'normal', //[normal|stacked|overlaid]
-        barPadding: 2,
-        categorySpacing: 0.3,
+        barPlot: {
+            mode: 'normal', //[normal|stacked|overlaid]
+            barPadding: 2,
+            categorySpacing: 0.3
+        },
         linePlot: {
             lineWidth: 2,
             highlightedLineWidth: 4,
@@ -103,9 +105,11 @@ Tayberry.presets = {
         xAxis: {
             labelPosition: 'left'
         },
-        barMode: 'overlaid',
-        categorySpacing: 0,
-        barPadding: 1
+        barPlot: {
+            mode: 'overlaid',
+            categorySpacing: 0,
+            barPadding: 1
+        }
     }
 };
 
