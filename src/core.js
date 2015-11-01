@@ -116,6 +116,9 @@ Tayberry.prototype.updateFonts = function () {
 
 Tayberry.prototype.setOptions = function (options) {
     let optionOverrides = [this.defaultOptions()];
+    if (!options.presets) {
+        options.presets = ['default'];
+    }
     if (options.presets) {
         for (let index = 0; index < options.presets.length; index++) {
             optionOverrides.push(Tayberry.presets[options.presets[index]]);
@@ -127,10 +130,10 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.tooltips.font = Utils.deepAssign({}, [this.options.font, this.options.tooltips.font]);
     this.options.labels.font = Utils.deepAssign({}, [this.options.font, this.options.labels.font]);
     this.options.legend.font = Utils.deepAssign({}, [this.options.font, this.options.legend.font]);
-    this.options.yAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.yAxis.title.font]);
-    this.options.xAxis.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font, this.options.xAxis.title.font]);
-    this.options.xAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.xAxis.font]);
-    this.options.yAxis.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font, this.options.yAxis.font]);
+    this.options.allAxes.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font]);
+    this.options.allAxes.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font]);
+    this.options.yAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.yAxis]);
+    this.options.xAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.xAxis]);
     this.createRenderers();
     //this.setCategories(options.xAxis.categories);
 

@@ -74,23 +74,29 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
 
 Tayberry.prototype.render = function () {
     this.calculatePlotArea();
-    this.drawTitle();
-    this.xAxis.draw();
-    this.yAxis.draw();
-    this.drawLegend();
+    this.drawLabelLayer();
     this.createTooltip();
     if (this.options.animations.enabled) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
         this.animationStart = (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null;
         this.animationLength = 500;
     } else {
-        this.draw();
+        this.drawPlotLayer();
     }
 };
 
 Tayberry.prototype.clear = function (plot = true, labels = true) {
     if (plot) this.plotCtx.clearRect(0, 0, this.plotCanvas.width, this.plotCanvas.height);
     if (labels) this.labelsCtx.clearRect(0, 0, this.labelsCanvas.width, this.labelsCanvas.height);
+};
+
+Tayberry.prototype.drawBackground = function () {
+    if (this.options.plotBackgroundColour) {
+        this.labelsCtx.save();
+        this.labelsCtx.fillStyle = this.options.plotBackgroundColour;
+        this.labelsCtx.fillRect(this.plotArea.left, this.plotArea.top, this.plotArea.width, this.plotArea.height);
+        this.labelsCtx.restore();
+    }
 };
 
 Tayberry.prototype.drawTitle = function () {
@@ -107,7 +113,7 @@ Tayberry.prototype.drawTitle = function () {
     }
 };
 
-Tayberry.prototype.draw = function () {
+Tayberry.prototype.drawPlotLayer = function () {
     for (let i = 0; i < this.renderers.length; i++) {
         this.renderers[i].drawPlot();
     }
@@ -129,15 +135,20 @@ Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour, ctx = this.label
     ctx.restore();
 };
 
+Tayberry.prototype.drawLabelLayer = function () {
+    this.drawBackground();
+    this.drawTitle();
+    this.xAxis.draw();
+    this.yAxis.draw();
+    this.drawLegend();
+};
+
 Tayberry.prototype.redraw = function (plotOnly) {
     this.clear(true, !plotOnly);
     if (!plotOnly) {
-        this.drawTitle();
-        this.xAxis.draw();
-        this.yAxis.draw();
-        this.drawLegend();
+        this.drawLabelLayer();
     }
-    this.draw();
+    this.drawPlotLayer();
 };
 
 

@@ -43,9 +43,6 @@ Tayberry.prototype.defaultOptions = function () {
                 text: '',
                 font: {}
             },
-            gridLines: {
-                colour: '#ccc'
-            },
             min: undefined,
             max: undefined,
             tickStep: 40,
@@ -57,12 +54,14 @@ Tayberry.prototype.defaultOptions = function () {
             labelSuffix: undefined,
             currencySymbol: '£',
             placement: 'auto',
-            type: 'linear'
+            type: 'linear',
+            gridLines: {}
         },
         animations: {
             enabled: true
         },
         series: [],
+        backgroundColour: undefined,
         swapAxes: false,
         plotType: 'bar',
         barPlot: {
@@ -112,6 +111,21 @@ Tayberry.presets = {
             categorySpacing: 0,
             barPadding: 1
         }
+    },
+    default: {
+        yAxis: {
+            gridLines: {
+                colour: '#ccc'
+            }
+        }
+    },
+    darkGrid: {
+        allAxes: {
+            gridLines: {
+                colour: 'rgba(255, 255, 255, 0.6)'
+            }
+        },
+        plotBackgroundColour: '#E5E5E5'
     }
 };
 

@@ -57,8 +57,8 @@
                     const nextValue = currentSourceObject[nextKey];
                     const desc = Object.getOwnPropertyDescriptor(currentSourceObject, nextKey);
                     if (desc !== undefined && desc.enumerable) {
-                        if (deepAssign && typeof to[nextKey] === "object" && !Array.isArray(nextValue) && typeof nextValue === 'object')
-                            innerAssign(true, to[nextKey], nextValue);
+                        if (deepAssign && !Array.isArray(nextValue) && typeof nextValue === 'object' && nextValue !== null)
+                            to[nextKey] = innerAssign(true, {}, [to[nextKey], nextValue]);
                         else
                             to[nextKey] = nextValue;
                     }
