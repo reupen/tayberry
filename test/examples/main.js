@@ -101,7 +101,7 @@ Tayberry.create('chart4', {
             'East',
             'London',
             'South East',
-            'South West',
+            'South West'
         ]
     },
     swapAxes: true,

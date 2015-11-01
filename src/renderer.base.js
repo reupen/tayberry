@@ -111,20 +111,6 @@ class Enumerator {
     }
 
     nextValue() {
-
-        let nextValue;
-        do {
-            if (this.categoryIndex + 1 === this.categoryCount) {
-                this.categoryIndex = this.startCategoryIndex;
-                this.seriesIndex++;
-                if (this.seriesIndex >= this.seriesCount)
-                    break;
-            } else {
-                this.categoryIndex++;
-            }
-            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
-        } while (Utils.isMissingValue(nextValue));
-
     }
 }
 
@@ -133,7 +119,7 @@ class ByCategoryEnumerator extends Enumerator {
 
     nextValue() {
 
-        let nextValue;
+        let value;
         do {
             if (this.seriesIndex + 1 === this.seriesCount) {
                 this.seriesIndex = 0;
@@ -144,8 +130,8 @@ class ByCategoryEnumerator extends Enumerator {
             } else {
                 this.seriesIndex++;
             }
-            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
-        } while (Utils.isMissingValue(nextValue));
+            value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+        } while (Utils.isMissingValue(value));
 
     }
 }
@@ -153,7 +139,7 @@ class ByCategoryEnumerator extends Enumerator {
 class BySeriesEnumerator extends Enumerator {
     nextValue() {
 
-        let nextValue;
+        let value;
         do {
             if (this.categoryIndex + 1 === this.categoryCount) {
                 this.categoryIndex = this.startCategoryIndex;
@@ -163,8 +149,8 @@ class BySeriesEnumerator extends Enumerator {
             } else {
                 this.categoryIndex++;
             }
-            nextValue = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
-        } while (Utils.isMissingValue(nextValue));
+            value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+        } while (Utils.isMissingValue(value));
 
     }
 }

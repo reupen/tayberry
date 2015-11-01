@@ -23,7 +23,9 @@ var customOpts = {
     entries: './src/tayberry.js',
     standalone: 'Tayberry',
     debug: true,
-    transform: [babelify]
+    transform: [babelify.configure({
+        presets: ["es2015"]
+    })]
 };
 
 function createBundler(b, minify) {
