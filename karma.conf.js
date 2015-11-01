@@ -36,7 +36,7 @@ module.exports = function (config) {
 
         browserify: {
             debug: true,
-            transform: ['babelify']
+            transform: [['babelify', { presets: ['es2015'] }]]
         }
 
         // define reporters, port, logLevel, browsers etc.
