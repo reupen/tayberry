@@ -52,29 +52,33 @@ class BarRenderer extends renderer.Renderer {
         while ((bar = barEnumerator.next())) {
             if (bar.categoryIndex > categoryIndex)
                 break;
-            let distance, priority;
+            let sortDistance, priority, realDistance;
             if (bar.rect.containsPoint(x, y)) {
-                distance = 0;
+                sortDistance = 0;
                 priority = 0;
             }
             else if (bar.rect.containsX(x)) {
-                distance = y < bar.rect.top ? bar.rect.top - y : y - bar.rect.bottom;
+                sortDistance = y < bar.rect.top ? bar.rect.top - y : y - bar.rect.bottom;
                 priority = isHorizontal ? 2 : 1;
             }
             else if (bar.rect.containsY(y)) {
-                distance = x < bar.rect.left ? bar.rect.left - x : x - bar.rect.right;
+                sortDistance = x < bar.rect.left ? bar.rect.left - x : x - bar.rect.right;
                 priority = isHorizontal ? 1 : 2;
             }
             else {
                 const xDist = Math.min(Math.abs(x - bar.rect.left), Math.abs(x - bar.rect.right));
                 const yDist = Math.min(Math.abs(y - bar.rect.top), Math.abs(y - bar.rect.bottom));
-                // distance = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
-                distance = isHorizontal ? yDist : xDist;
+                realDistance = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+                sortDistance = isHorizontal ? yDist : xDist;
                 priority = 3;
             }
 
+            if (typeof realDistance === 'undefined')
+                realDistance = sortDistance;
+
             matches.push({
-                distance: distance,
+                sortDistance: sortDistance,
+                distance: realDistance,
                 priority: priority,
                 data: {
                     categoryIndex: bar.categoryIndex,
@@ -89,7 +93,7 @@ class BarRenderer extends renderer.Renderer {
         if (matches.length) {
             matches.sort((a, b) => {
                 let ret = a.priority - b.priority;
-                if (!ret) ret = a.distance - b.distance;
+                if (!ret) ret = a.sortDistance - b.sortDistance;
                 if (!ret) ret = a.data.rect.height - b.data.rect.height;
                 return ret;
             });
