@@ -106,7 +106,7 @@ class Enumerator {
                 this.plotArea.swapXY();
             this.startCategoryIndex = Math.max(startCategoryIndex, 0);
             this.startCategoryIndex = Math.min(this.startCategoryIndex, this.categoryCount - 1);
-            this.categoryIndex = startCategoryIndex;
+            this.categoryIndex = this.startCategoryIndex;
         }
     }
 
