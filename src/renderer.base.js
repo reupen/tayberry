@@ -35,8 +35,9 @@ class Renderer {
         scaleFactor = Math.min(Easing.inQuad(elapsedTime, totalTime), 1);
         for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
             for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-                const value = Tayberry.getDataValue(this.series[seriesIndex].data[categoryIndex]);
-                const yOrigin = this.tb.yAxis.min <= 0 && 0 <= this.tb.yAxis.max ? 0 : (this.tb.yAxis.min > 0 ? this.tb.yAxis.min : this.tb.yAxis.max);
+                const series = this.series[seriesIndex];
+                const value = Tayberry.getDataValue(series.data[categoryIndex]);
+                const yOrigin = series.yAxis.min <= 0 && 0 <= series.yAxis.max ? 0 : (series.yAxis.min > 0 ? series.yAxis.min : series.yAxis.max);
                 Tayberry.setDataValue(this.renderedSeries[seriesIndex].data, categoryIndex, yOrigin + scaleFactor * ((value - yOrigin)));
             }
         }
@@ -99,6 +100,7 @@ class Enumerator {
         this.seriesIndex = 0;
         this.seriesCount = this.renderer.renderedSeries.length;
         if (this.categoryCount) {
+            // FIXME: think about multiple series - used for stacked bar charts
             this.yOrigin = this.tb.yAxis.getOrigin();
             this.isHorizontal = this.tb.options.swapAxes;
             this.plotArea = this.tb.plotArea.clone();

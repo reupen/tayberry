@@ -24,7 +24,7 @@ class BarRenderer extends renderer.Renderer {
             while ((bar = barEnumerator.next())) {
                 this.ctx.font = this.tb.labelFont;
                 this.ctx.fillStyle = this.tb.options.labels.font.colour;
-                this.drawLabel(bar.value, this.tb.options.yAxis.labelFormatter(bar.value), bar.rect);
+                this.drawLabel(bar.value, bar.series.yAxis.options.labelFormatter(bar.value), bar.rect);
             }
             this.ctx.restore();
         }
@@ -131,7 +131,8 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
         let ret;
 
         if (this.categoryIndex < this.categoryCount) {
-            const value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+            const series = this.renderer.renderedSeries[this.seriesIndex];
+            const value = Tayberry.getDataValue(series.data[this.categoryIndex]);
             let categoryXStart = this.plotArea.left + Math.floor(this.categoryIndex * this.categoryWidth);
             let categoryXEnd = this.plotArea.left + Math.floor((this.categoryIndex + 1) * this.categoryWidth);
             let barXStart = categoryXStart + Math.ceil(this.categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
@@ -141,10 +142,10 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             const xStart = Math.floor(barXStart + this.barIndex * barWidth);
             const xEnd = Math.ceil(barXStart + (this.barIndex + 1) * barWidth);
 
-            const yTop = this.tb.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
+            const yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
             let rect = new Rect(xStart, yTop, xEnd, value > 0 ? this.yBottomPositive : this.yBottomNegative);
-            rect.left += Math.ceil(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-            rect.right -= Math.floor(this.tb.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+            rect.left += Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+            rect.right -= Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
             if (rect.right < rect.left)
                 rect.right = rect.left;
             if (this.isHorizontal)

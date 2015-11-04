@@ -134,11 +134,11 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.allAxes.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font]);
     this.options.yAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.yAxis]);
     this.options.xAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.xAxis]);
-    this.createRenderers();
     //this.setCategories(options.xAxis.categories);
 
     this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
     this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
+    this.createRenderers();
     this.updateFonts();
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
@@ -171,6 +171,9 @@ Tayberry.prototype.createRenderers = function () {
         curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
         curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
         curSeries.glowColour = curSeries.glowColour || Tayberry.calculateGlowColour(curSeries.highlightColour);
+        // TODO: Look up correct axis
+        curSeries.xAxis = this.xAxis;
+        curSeries.yAxis = this.yAxis;
         const plotType = curSeries.plotType || this.options.plotType;
         if (groupedSeries.hasOwnProperty(plotType)) {
             groupedSeries[plotType].push(curSeries);

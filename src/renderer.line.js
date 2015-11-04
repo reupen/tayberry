@@ -97,7 +97,7 @@ class LineRenderer extends renderer.Renderer {
             let pt;
             while ((pt = pointEnumerator.next())) {
                 const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
-                this.drawLabel(pt.value, this.tb.options.yAxis.labelFormatter(pt.value), rect);
+                this.drawLabel(pt.value, pt.series.yAxis.options.labelFormatter(pt.value), rect);
             }
             this.ctx.restore();
         }
@@ -161,10 +161,11 @@ class PointEnumerator extends renderer.BySeriesEnumerator {
         let ret;
 
         if (this.seriesIndex < this.seriesCount) {
-            const value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
-            const xValue = Tayberry.getDataXValue(this.renderer.renderedSeries[this.seriesIndex].data, this.categoryIndex);
-            let x = this.tb.xAxis.getValueDisplacement(xValue);
-            let y = this.tb.yAxis.getValueDisplacement(value);
+            const series = this.renderer.renderedSeries[this.seriesIndex];
+            const value = Tayberry.getDataValue(series.data[this.categoryIndex]);
+            const xValue = Tayberry.getDataXValue(series.data, this.categoryIndex);
+            let x = series.xAxis.getValueDisplacement(xValue);
+            let y = series.yAxis.getValueDisplacement(value);
 
             if (this.isHorizontal)
                 [x, y] = [y, x];
