@@ -45,7 +45,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
                     const series = this.options.series[index];
                     const value = Tayberry.getDataValue(series.data[hitTestResult.categoryIndex]);
                     tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
-                        value: this.options.yAxis.labelFormatter(value),
+                        value: series.yAxis.options.labelFormatter(value),
                         name: series.name,
                         colour: series.colour
                     }, true);
@@ -54,7 +54,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
                 const series = hitTestResult.series;
                 const value = hitTestResult.value;
                 tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
-                    value: this.options.yAxis.labelFormatter(value),
+                    value: series.yAxis.options.labelFormatter(value),
                     name: series.name,
                     colour: series.colour
                 }, true);

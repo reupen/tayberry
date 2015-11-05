@@ -22,41 +22,8 @@ Tayberry.prototype.defaultOptions = function () {
                 font: {}
             }
         },
-        xAxis: {
-            title: {
-                text: '',
-                font: {}
-            },
-            type: 'categorial',
-            min: null,
-            max: null,
-            tickStep: 40,
-            tickStepValue: null,
-            font: {},
-            categories: [],
-            labelPosition: 'middle', //left|middle|right
-            placement: 'auto',
-            gridLines: {}
-        },
-        yAxis: {
-            title: {
-                text: '',
-                font: {}
-            },
-            min: undefined,
-            max: undefined,
-            tickStep: 40,
-            tickStepValue: null,
-            font: {},
-            labelFormat: 'number', //[number|percentage|currency],
-            labelFormatter: undefined,
-            labelPrefix: undefined,
-            labelSuffix: undefined,
-            currencySymbol: '£',
-            placement: 'auto',
-            type: 'linear',
-            gridLines: {}
-        },
+        xAxis: [],
+        yAxis: [],
         animations: {
             enabled: true
         },
@@ -101,22 +68,51 @@ Tayberry.prototype.defaultOptions = function () {
     }
 };
 
+Tayberry.defaultXAxis = {
+            title: {
+                text: '',
+                font: {}
+            },
+            type: 'categorial',
+            min: null,
+            max: null,
+            tickStep: 40,
+            tickStepValue: null,
+            font: {},
+            categories: [],
+            labelPosition: 'middle', //left|middle|right
+            placement: 'auto',
+            gridLines: {}
+        };
+
+Tayberry.defaultYAxis = {
+            title: {
+                text: '',
+                font: {}
+            },
+            min: undefined,
+            max: undefined,
+            tickStep: 40,
+            tickStepValue: null,
+            font: {},
+            labelFormat: 'number', //[number|percentage|currency],
+            labelFormatter: undefined,
+            labelPrefix: undefined,
+            labelSuffix: undefined,
+            currencySymbol: '£',
+            placement: 'auto',
+            type: 'linear',
+            gridLines: {
+                colour: '#ccc'
+            }
+        };
+
 Tayberry.presets = {
     histogram: {
-        xAxis: {
-            labelPosition: 'left'
-        },
         barPlot: {
             mode: 'overlaid',
             categorySpacing: 0,
             barPadding: 1
-        }
-    },
-    default: {
-        yAxis: {
-            gridLines: {
-                colour: '#ccc'
-            }
         }
     },
     darkGrid: {

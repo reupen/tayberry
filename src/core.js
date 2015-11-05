@@ -132,12 +132,19 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.legend.font = Utils.deepAssign({}, [this.options.font, this.options.legend.font]);
     this.options.allAxes.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font]);
     this.options.allAxes.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font]);
-    this.options.yAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.yAxis]);
-    this.options.xAxis = Utils.deepAssign({}, [this.options.allAxes, this.options.xAxis]);
-    //this.setCategories(options.xAxis.categories);
+    if (!Array.isArray(this.options.yAxis))
+        this.options.yAxis = [this.options.yAxis];
+    if (!Array.isArray(this.options.xAxis))
+        this.options.xAxis = [this.options.xAxis];
+    for (let i = 0; i < this.options.yAxis.length; i++) {
+        this.options.yAxis[i] = Utils.deepAssign({}, [Tayberry.defaultYAxis, this.options.allAxes, this.options.yAxis[i]]);
+    }
+    for (let i = 0; i < this.options.xAxis.length; i++) {
+        this.options.xAxis[i] = Utils.deepAssign({}, [Tayberry.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
+    }
 
-    this.yAxis = Axis.create(this, this.options.yAxis, 0, 'y', this.options.swapAxes);
-    this.xAxis = Axis.create(this, this.options.xAxis, 0, 'x', this.options.swapAxes);
+    this.yAxis = Axis.create(this, this.options.yAxis[0], 0, 'y', this.options.swapAxes);
+    this.xAxis = Axis.create(this, this.options.xAxis[0], 0, 'x', this.options.swapAxes);
     this.createRenderers();
     this.updateFonts();
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
