@@ -160,9 +160,11 @@ Tayberry.create('chart6', {
     title: {
         text: 'UK household sizes'
     },
-    yAxis: {
+    yAxis: [{
         labelFormat: 'percentage'
-    },
+    },{
+        labelFormat: 'percentage'
+    }],
     xAxis: {
         min: 0,
         max: 10,
@@ -186,7 +188,8 @@ Tayberry.create('chart6', {
         data: [[1, .306], [2, .341], [3, .156], [4, .129], [5, .069]],
         name: '2011',
         colour: '#FFAB51',
-        plotType: 'bar'
+        plotType: 'bar',
+        yAxisIndex: 1
     }]
 
 });

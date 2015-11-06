@@ -1,6 +1,7 @@
 'use strict';
 var Rect = require('./helpers/rect').Rect;
 var Tayberry = require('./base.js').Tayberry;
+var Utils = require('./helpers/utils');
 
 Tayberry.mapVerticalPosition = function (sign, position) {
     switch (position) {
@@ -36,15 +37,15 @@ Tayberry.prototype.calculatePlotArea = function () {
     if (this.options.legend.enabled)
         this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
 
-    this.yAxis.adjustSize(this.plotArea, true, true);
-    this.xAxis.adjustSize(this.plotArea, true, true);
+    this.yAxes.map(e => e.adjustSize(this.plotArea, true, true));
+    this.xAxes.map(e => e.adjustSize(this.plotArea, true, true));
 
     for (let i = 0; i < MAX_AXIS_CALC_SIZE_ATTEMPTS; i++) {
-        this.yAxis.calculateExtent();
-        this.xAxis.calculateExtent();
-        this.yAxis.updateFormatter();
-        this.xAxis.updateFormatter();
-        if (!this.yAxis.adjustSize(this.plotArea) && !this.xAxis.adjustSize(this.plotArea))
+        this.yAxes.map(e => e.calculateExtent());
+        this.xAxes.map(e => e.calculateExtent());
+        this.yAxes.map(e => e.updateFormatter());
+        this.xAxes.map(e => e.updateFormatter());
+        if (Utils.none(this.yAxes.map(e => e.adjustSize(this.plotArea))) && Utils.none(this.xAxes.map(e => e.adjustSize(this.plotArea))))
             break;
     }
     this.plotArea.left = Math.ceil(this.plotArea.left);
@@ -65,7 +66,7 @@ Tayberry.prototype.hitTest = function (x, y) {
         }
     }
     if (matches.length) {
-        matches.sort( (a,b) => a.normalisedDistance - b.normalisedDistance);
+        matches.sort((a, b) => a.normalisedDistance - b.normalisedDistance);
         ret = matches[0];
     }
     return ret;

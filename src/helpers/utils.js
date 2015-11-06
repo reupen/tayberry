@@ -68,6 +68,10 @@
         }
     };
 
+    exports.none = function(array) {
+        return array.every(elem => !elem);
+    };
+
     exports.assign = function (targetObject, sourceObjects) {
         return innerAssign(false, targetObject, sourceObjects);
     };

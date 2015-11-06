@@ -36,11 +36,12 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
 
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
+            let tooltipHtml = '';
             const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-            const category = this.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
             this.tooltipElement.style.display = 'block';
-            let tooltipHtml = Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
             if (this.options.tooltips.shared) {
+                const category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
+                tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
                 for (let index = 0; index < this.seriesCount; index++) {
                     const series = this.options.series[index];
                     const value = Tayberry.getDataValue(series.data[hitTestResult.categoryIndex]);
@@ -53,6 +54,8 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             } else {
                 const series = hitTestResult.series;
                 const value = hitTestResult.value;
+                const category = series.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
+                tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
                 tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                     value: series.yAxis.options.labelFormatter(value),
                     name: series.name,

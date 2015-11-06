@@ -66,8 +66,8 @@ Tayberry.prototype.create = function (containerElement) {
     this.plotCtx = this.plotCanvas.getContext('2d');
     this.renderedSeries = null;
     this.options = {};
-    this.yAxis = null;
-    this.xAxis = null;
+    this.yAxes = null;
+    this.xAxes = null;
     this.initialise();
 };
 
@@ -110,8 +110,8 @@ Tayberry.prototype.updateFonts = function () {
     this.titleFont = this.createFontString(this.options.title.font);
     this.labelFont = this.createFontString(this.options.labels.font);
     this.legendFont = this.createFontString(this.options.legend.font);
-    this.yAxis.updateFonts();
-    this.xAxis.updateFonts();
+    this.yAxes.map(e => e.updateFonts());
+    this.xAxes.map(e => e.updateFonts());
 };
 
 Tayberry.prototype.setOptions = function (options) {
@@ -133,9 +133,9 @@ Tayberry.prototype.setOptions = function (options) {
     this.options.allAxes.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.font]);
     this.options.allAxes.title.font = Utils.deepAssign({}, [this.options.font, this.options.allAxes.title.font]);
     if (!Array.isArray(this.options.yAxis))
-        this.options.yAxis = [this.options.yAxis];
+        this.options.yAxis = [this.options.yAxis || {}];
     if (!Array.isArray(this.options.xAxis))
-        this.options.xAxis = [this.options.xAxis];
+        this.options.xAxis = [this.options.xAxis || {}];
     for (let i = 0; i < this.options.yAxis.length; i++) {
         this.options.yAxis[i] = Utils.deepAssign({}, [Tayberry.defaultYAxis, this.options.allAxes, this.options.yAxis[i]]);
     }
@@ -143,8 +143,14 @@ Tayberry.prototype.setOptions = function (options) {
         this.options.xAxis[i] = Utils.deepAssign({}, [Tayberry.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
     }
 
-    this.yAxis = Axis.create(this, this.options.yAxis[0], 0, 'y', this.options.swapAxes);
-    this.xAxis = Axis.create(this, this.options.xAxis[0], 0, 'x', this.options.swapAxes);
+    this.yAxes = [];
+    this.xAxes = [];
+    for (let i = 0; i < this.options.xAxis.length; i++) {
+        this.xAxes.push(Axis.create(this, this.options.xAxis[i], i, 'x', this.options.swapAxes));
+    }
+    for (let i = 0; i < this.options.yAxis.length; i++) {
+        this.yAxes.push(Axis.create(this, this.options.yAxis[i], i, 'y', this.options.swapAxes));
+    }
     this.createRenderers();
     this.updateFonts();
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
@@ -178,9 +184,8 @@ Tayberry.prototype.createRenderers = function () {
         curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
         curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
         curSeries.glowColour = curSeries.glowColour || Tayberry.calculateGlowColour(curSeries.highlightColour);
-        // TODO: Look up correct axis
-        curSeries.xAxis = this.xAxis;
-        curSeries.yAxis = this.yAxis;
+        curSeries.xAxis = this.xAxes[curSeries.xAxisIndex || 0];
+        curSeries.yAxis = this.yAxes[curSeries.yAxisIndex || 0];
         const plotType = curSeries.plotType || this.options.plotType;
         if (groupedSeries.hasOwnProperty(plotType)) {
             groupedSeries[plotType].push(curSeries);

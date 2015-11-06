@@ -1,6 +1,7 @@
 'use strict';
 var Tayberry = require('./base').Tayberry;
 var Rect = require('./helpers/rect').Rect;
+var Utils = require('./helpers/utils');
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;
@@ -138,8 +139,8 @@ Tayberry.prototype.drawLine = function (x1, y1, x2, y2, colour, ctx = this.label
 Tayberry.prototype.drawLabelLayer = function () {
     this.drawBackground();
     this.drawTitle();
-    this.xAxis.draw();
-    this.yAxis.draw();
+    this.xAxes.map(e => e.draw());
+    this.yAxes.map(e => e.draw());
     this.drawLegend();
 };
 
