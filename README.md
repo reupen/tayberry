@@ -27,9 +27,9 @@ Creating a chart is as simple as:
 
 ```javascript
 Tayberry.create('chart-id', {
-    xAxis: {
+    xAxis: [{
         categories: ['1', '2', '3', '4', '5+']
-    },
+    }],
     series: [{
         data: [.306, .341, .156, .129, .069],
         name: '2011'
