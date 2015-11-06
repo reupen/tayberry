@@ -60,6 +60,7 @@ Available attributes on the option object are (full details still to be complete
 | allAxes.font.\*               | \-              | Overrides font.\* values for axis labels |
 | allAxes.title.font.\*         | \-              | Overrides font.\* values for axis titles |
 | animations.enabled            | boolean             | Enable animations        |
+| backgroundColour              | HTML colour code     |                   |
 | barPlot.mode                  | `normal`\|`stacked`\|`overlaid`                |      |
 | barPlot.barPadding            | logical pixels          | Padding between bars in the same category |
 | barPlot.categorySpacing       | percentage in [0, 1)                | Spacing between categories |
