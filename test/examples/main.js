@@ -162,10 +162,10 @@ Tayberry.create('chart6', {
     },
     yAxis: [{
         labelFormat: 'percentage'
-    },{
+    }, {
         labelFormat: 'percentage'
     }],
-    xAxis: {
+    xAxis: [{
         min: 0,
         max: 10,
         type: 'linear',
@@ -175,7 +175,7 @@ Tayberry.create('chart6', {
                 style: 'italic bold'
             }
         }
-    },
+    }],
     labels: {
         enabled: true
     },

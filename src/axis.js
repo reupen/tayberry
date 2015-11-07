@@ -158,16 +158,19 @@ class Axis {
     getCategoryLabel() {
     }
 
-    draw() {
-        this.drawTicksAndLabels();
-        this.drawTitle();
+    draw(offsetRect) {
+        this.drawTicksAndLabels(offsetRect);
+        this.drawTitle(offsetRect);
     }
 
-    drawTicksAndLabels() {
+    drawTicksAndLabels(offsetRect) {
         let tb = this.tayberry;
-        const labelPaddingX = this.isVertical ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
-        const labelPaddingY = !this.isVertical ? this.mapLogicalXOrYUnit(tb.options.elementSmallPadding) * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const labelPadding = this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
+        const labelPaddingX = this.isVertical ? labelPadding * (this.isPlacedAtStart ? -1 : 1) : 0;
+        const labelPaddingY = !this.isVertical ? labelPadding * (this.isPlacedAtStart ? -1 : 1) : 0;
         const fontHeight = tb.getFontHeight(this.options.font);
+        const xOffset = this.isVertical ? offsetRect[this.startProperty] : 0;
+        const yOffset = !this.isVertical ? offsetRect[this.startProperty] : 0;
 
         tb.labelsCtx.save();
         tb.labelsCtx.font = this.labelFont;
@@ -175,29 +178,38 @@ class Axis {
         tb.labelsCtx.textAlign = this.isVertical ? (this.isPlacedAtStart ? 'right' : 'left') : 'center';
         tb.labelsCtx.textBaseline = this.isVertical ? 'middle' : this.isPlacedAtStart ? 'bottom' : 'top';
 
-        let lastXEnds = [], tickIndex = 0;
+        let lastXEnds = [],
+            tickIndex = 0,
+            maxWidth = 0;
 
-        this.enumerateTicks(function (tick) {
-            let textWidth, xStart, xEnd;
+        this.enumerateTicks((tick) => {
+            let xStart, xEnd;
             const formattedValue = this.options.labelFormatter(tick.value);
             const row = tickIndex % this.numLabelLines;
             const rowOffset = this.isVertical ? 0 : fontHeight * row;
+            const textWidth = tb.getTextWidth(formattedValue, this.labelFont);
             if (!this.isVertical) {
-                textWidth = tb.getTextWidth(formattedValue, this.labelFont);
                 xStart = tick.x - textWidth / 2;
                 xEnd = tick.x + textWidth / 2;
             }
 
             if (this.isVertical || (typeof lastXEnds[row] === 'undefined' || xStart > lastXEnds[row] + 1) && xStart >= 0 && xEnd < tb.labelsCanvas.width) {
-                tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX, tick.y + labelPaddingY + rowOffset);
+                maxWidth = Math.max(maxWidth, textWidth);
+                tb.labelsCtx.fillText(formattedValue, tick.x + labelPaddingX + xOffset, tick.y + labelPaddingY + rowOffset + yOffset);
                 lastXEnds[row] = xEnd;
             }
             if (this.options.gridLines.colour)
                 tb.drawLine(tick.x1, tick.y1, tick.x2, tick.y2, this.options.gridLines.colour);
             tickIndex++;
-        }.bind(this));
+        });
+
+        this.adjustOffsetRect(offsetRect, this.isVertical ? maxWidth + labelPadding : fontHeight + labelPadding);
 
         tb.labelsCtx.restore();
+    }
+
+    adjustOffsetRect(offsetRect, displacement) {
+        offsetRect[this.startProperty] += this.isPlacedAtStart ? -displacement : displacement;
     }
 
     get startProperty() {
@@ -214,27 +226,34 @@ class Axis {
             return !this.isPlacedAtStart ? 'top' : 'bottom';
     }
 
-    drawTitle() {
+    drawTitle(offsetRect) {
         if (this.options.title.text) {
             let tb = this.tayberry;
             tb.labelsCtx.save();
             tb.labelsCtx.font = this.titleFont;
             tb.labelsCtx.fillStyle = this.options.title.font.colour;
             tb.labelsCtx.textAlign = 'center';
-            tb.labelsCtx.textBaseline = !this.isPlacedAtStart ? 'bottom' : 'top';
+            tb.labelsCtx.textBaseline = this.isPlacedAtStart ? 'bottom' : 'top';
+
+            const labelPaddingSize = this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
+            const labelPadding = labelPaddingSize * (this.isPlacedAtStart ? -1 : 1);
+            const xOffset = this.isVertical ? offsetRect[this.startProperty] : 0;
+            const yOffset = !this.isVertical ? offsetRect[this.startProperty] : 0;
+            const fontHeight = tb.getFontHeight(this.options.title.font);
 
             if (this.isVertical) {
-                const x = 0;
-                const y = tb.plotArea.top + (tb.plotArea.height) / 2;
+                const x = tb.plotArea.left + xOffset + labelPadding;
+                const y = tb.plotArea.yMidpoint + yOffset;
                 tb.labelsCtx.translate(x, y);
                 tb.labelsCtx.rotate(-Math.PI / 2);
                 tb.labelsCtx.fillText(this.options.title.text, 0, 0);
             } else {
-                const x = tb.plotArea.left + tb.plotArea.width / 2;
-                const y = tb.plotArea[this.startProperty] - this.calculatedSize;
+                const x = tb.plotArea.xMidpoint + xOffset;
+                const y = tb.plotArea[this.startProperty] + labelPadding + yOffset;
                 //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
                 tb.labelsCtx.fillText(this.options.title.text, x, y);
             }
+            this.adjustOffsetRect(offsetRect, fontHeight + labelPaddingSize);
             tb.labelsCtx.restore();
         }
     }

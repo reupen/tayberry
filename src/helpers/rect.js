@@ -1,12 +1,19 @@
 class Rect {
     constructor() {
-        var rect;
         if (arguments.length === 1) {
-            rect = arguments[0];
-            this.left = rect.left;
-            this.top = rect.top;
-            this.right = rect.right;
-            this.bottom = rect.bottom;
+            if (typeof arguments[0] === 'object') {
+                const rect = arguments[0];
+                this.left = rect.left;
+                this.top = rect.top;
+                this.right = rect.right;
+                this.bottom = rect.bottom;
+            } else {
+                const val = arguments[0];
+                this.left = val;
+                this.top = val;
+                this.right = val;
+                this.bottom = val;
+            }
         } else if (arguments.length === 4) {
             this.left = arguments[0];
             this.top = arguments[1];
