@@ -114,6 +114,8 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             this.isNormal = !this.isStacked && !this.isOverlaid;
             this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.tb.seriesCount;
             this.categoryWidth = (this.plotArea.width / this.categoryCount);
+            // used for stacked bar charts - must be on single y-axis
+            this.yOrigin = this.renderer.series[0].yAxis.getOrigin();
 
             this.onNewCategory();
         }
@@ -143,7 +145,7 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             const xEnd = Math.ceil(barXStart + (this.barIndex + 1) * barWidth);
 
             const yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
-            let rect = new Rect(xStart, yTop, xEnd, value > 0 ? this.yBottomPositive : this.yBottomNegative);
+            let rect = new Rect(xStart, yTop, xEnd, this.isStacked ? (value > 0 ? this.yBottomPositive : this.yBottomNegative) : series.yAxis.getOrigin());
             rect.left += Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
             rect.right -= Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
             if (rect.right < rect.left)

@@ -100,8 +100,6 @@ class Enumerator {
         this.seriesIndex = 0;
         this.seriesCount = this.renderer.renderedSeries.length;
         if (this.categoryCount) {
-            // FIXME: think about multiple series - used for stacked bar charts
-            this.yOrigin = this.tb.yAxes[0].getOrigin();
             this.isHorizontal = this.tb.options.swapAxes;
             this.plotArea = this.tb.plotArea.clone();
             if (this.isHorizontal)
