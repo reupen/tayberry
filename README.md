@@ -10,7 +10,7 @@ TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featu
 
 ## What's good about it?
 
-### Built on HTML5 canvas. 
+### Built on HTML5 canvas
 
 That means a couple of DOM elements, not the 10s or even 100s you would face with SVG.
 
@@ -85,7 +85,12 @@ Available attributes on the option object are (full details still to be complete
 | linePlot.markerSize           | logical pixels                  |  |
 | linePlot.highlightedMarkerSize | logical pixels                  |  |
 | presets                       | array of strings    | Use this to override some of the default settings using a preset. Currently two presets: `histogram` and `darkGrid`|
-| series                        | array of objects | Each object represents a series with mandatory property `data` and optional properties `name`, `colour`, `yAxisIndex` and `xAxisIndex`. |
+| series[n].colour              | HTML colour code |  |
+| series[n].data                | array  |  |
+| series[n].markerType          | `square`\|`diamond`\|`triangle`\|`triangle-down`\|`circle`  |  |
+| series[n].name                | string |  |
+| series[n].xAxisIndex          | number |  |
+| series[n].yAxisIndex          | number |  |
 | swapAxes                      | boolean |   Swap the displayed positions of the x- and y-axes; set to true for a horizontal bar chart |
 | title.font.\*                  | \-               | Overrides font.\* values for the chart title |
 | title.text                    | string          | Title for the chart
