@@ -88,7 +88,7 @@ Available attributes on the option object are (full details still to be complete
 | presets                       | array of strings    | Use this to override some of the default settings using a preset. Currently two presets: `histogram` and `darkGrid`|
 | series[n].colour              | HTML colour code |  |
 | series[n].data                | array  |  |
-| series[n].markerType          | `square`\|`diamond`\|`triangle`\|`triangle-down`\|`circle`  |  |
+| series[n].markerType          | `square` \| `diamond` \| `triangle` \| `triangle-down` \| `circle`  |  |
 | series[n].name                | string |  |
 | series[n].plotType            | string    | Plot type for this series; currently can be `line` or `bar` |
 | series[n].xAxisIndex          | number |  |
