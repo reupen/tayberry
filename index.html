@@ -48,14 +48,14 @@
     </p>
 
     <p>
-    At the moment, only bar charts are implemented. More chart types will come soon.
+    So far, bar and line charts are implemented. More chart types will come soon.
     </p>
 
     <a name="download"></a>
 
     <h1>Download</h1>
 
-    <p>The latest version is 0.2.2, available from <a href="https://github.com/reupen/tayberry/releases">GitHub</a>.</p>
+    <p>The latest version is 0.3, available from <a href="https://github.com/reupen/tayberry/releases">GitHub</a>.</p>
 
     <a name="docs"></a>
 
@@ -129,6 +129,65 @@ Tayberry.create('chart1', {
             <div class="card-block">
                 <div class="row">
                     <div class="col-sm-4">
+                        <p class="lead">Combo line and bar chart</p>
+
+                        <p>Line and bar series can be combined on a single chart.</p>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="chart" id="chart-cpi" style="width: 100%; height: 350px"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#code-cpi" aria-expanded="false" aria-controls="collapseExample">
+                    Show code
+                </a>
+            </div>
+            <div class="collapse card-block" id="code-cpi">
+                        <pre>
+Tayberry.create('chart-cpi', {
+    title: {
+        text: 'Consumer Prices Index'
+    },
+    xAxis: {
+        categories: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept'],
+        title: {
+            text: 'Month'
+        }
+    },
+    yAxis: [{
+        title: {
+            text: 'Index'
+        }
+    }, {
+        title: {
+            text: 'Inflation'
+        },
+        labelFormat: 'percentage'
+    }],
+    tooltips: {
+        shared: true
+    },
+    series: [{
+        data: [128.5, 128.2, 128.2, 127.1, 127.4, 127.6, 128.0, 128.2, 128.2, 128.0, 128.4, 128.2],
+        name: 'CPI',
+        plotType: 'bar'
+    }, {
+        data: [0.013, 0.01, 0.005, 0.003, 0, 0, -0.001, 0.001, 0, 0.001, 0, -0.001],
+        name: 'CPI inflation',
+        plotType: 'line',
+        yAxisIndex: 1
+    }]
+});
+</pre>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-block">
+                <div class="row">
+                    <div class="col-sm-4">
                         <p class="lead">Stacked bar chart with negative values</p>
 
                         <p>Also using shared tooltips, which display values for all series rather than just the one under the pointer.</p>
@@ -161,7 +220,9 @@ Tayberry.create('chart2', {
         },
         labelFormat: 'currency'
     },
-    barMode: 'stacked',
+    barPlot: {
+        mode: 'stacked'
+    },
     tooltips: {
         shared: true
     },
