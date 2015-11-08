@@ -1,5 +1,6 @@
 'use strict';
 var Tayberry = require('./base.js').Tayberry;
+var Utils = require('./helpers/utils');
 
 Tayberry.prototype.defaultOptions = function () {
     return {
@@ -102,10 +103,17 @@ Tayberry.defaultYAxis = {
     currencySymbol: '£',
     placement: 'auto',
     type: 'linear',
+    gridLines: {}
+
+};
+
+Tayberry.defaultPrimaryYAxis = Utils.deepAssign({}, [Tayberry.defaultYAxis, {
     gridLines: {
         colour: '#ccc'
     }
-};
+}]);
+
+Tayberry.defaultSecondaryYAxis = Tayberry.defaultYAxis;
 
 Tayberry.presets = {
     histogram: {

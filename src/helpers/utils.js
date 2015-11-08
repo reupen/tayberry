@@ -16,13 +16,13 @@
                 return func(a, b);
             });
         } else {
+            let retInitialised = false;
             getter = getter || exports.identity;
-            if (array.length) {
-                ret = getter(array[0], 0);
-                for (i = 1; i < array.length; i++) {
-                    const value = getter(array[i], i);
-                    if (!ignoreMissing || !exports.isMissingValue(value))
-                        ret = func(ret, value);
+            for (i = 0; i < array.length; i++) {
+                const value = getter(array[i], i);
+                if (!ignoreMissing || !exports.isMissingValue(value)) {
+                    ret = retInitialised ? func(ret, value) : value;
+                    retInitialised = true;
                 }
             }
         }
@@ -109,7 +109,7 @@
 
     exports.createPercentageFormatter = function (scale, prefix = '', suffix = '%', precision = 2) {
         let decimalPlaces = exports.locateDecimalPoint(scale * 100);
-        decimalPlaces = decimalPlaces < 0 ? -decimalPlaces + precision - 1 : 0;
+        decimalPlaces = decimalPlaces < precision ? -decimalPlaces + precision - 1 : 0;
         return x => prefix + exports.formatNumberThousands(x * 100, decimalPlaces) + suffix;
     };
 

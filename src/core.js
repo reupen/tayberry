@@ -137,7 +137,7 @@ Tayberry.prototype.setOptions = function (options) {
     if (!Array.isArray(this.options.xAxis))
         this.options.xAxis = [this.options.xAxis || {}];
     for (let i = 0; i < this.options.yAxis.length; i++) {
-        this.options.yAxis[i] = Utils.deepAssign({}, [Tayberry.defaultYAxis, this.options.allAxes, this.options.yAxis[i]]);
+        this.options.yAxis[i] = Utils.deepAssign({}, [i === 0 ? Tayberry.defaultPrimaryYAxis : Tayberry.defaultSecondaryYAxis, this.options.allAxes, this.options.yAxis[i]]);
     }
     for (let i = 0; i < this.options.xAxis.length; i++) {
         this.options.xAxis[i] = Utils.deepAssign({}, [Tayberry.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
@@ -186,9 +186,9 @@ Tayberry.prototype.createRenderers = function () {
         curSeries.glowColour = curSeries.glowColour || Tayberry.calculateGlowColour(curSeries.highlightColour);
         curSeries.xAxis = this.xAxes[curSeries.xAxisIndex || 0];
         curSeries.yAxis = this.yAxes[curSeries.yAxisIndex || 0];
-        const plotType = curSeries.plotType || this.options.plotType;
-        if (groupedSeries.hasOwnProperty(plotType)) {
-            groupedSeries[plotType].push(curSeries);
+        curSeries.plotType = curSeries.plotType || this.options.plotType;
+        if (groupedSeries.hasOwnProperty(curSeries.plotType)) {
+            groupedSeries[curSeries.plotType].push(curSeries);
         }
     }
     if (groupedSeries['bar'].length) {
@@ -199,19 +199,18 @@ Tayberry.prototype.createRenderers = function () {
     }
 };
 
-Tayberry.prototype.getDataMinMax = function () {
-    var categoryIndex, seriesIndex, min, max;
-    let seriesPositiveTotals = [];
-    let seriesNegativeTotals = [];
-    const seriesMinima = [];
-    const seriesMaxima = [];
-    if (this.options.series[0].data.length) {
-        if (this.options.barPlot.mode === 'stacked') {
-            for (categoryIndex = 0; categoryIndex < this.options.series[0].data.length; categoryIndex++) {
+Tayberry.prototype.getDataMinMax = function (axis) {
+    var minNormal, maxNormal, minStacked, maxStacked;
+    if (this.options.barPlot.mode === 'stacked') {
+        let seriesPositiveTotals = [];
+        let seriesNegativeTotals = [];
+        const barSeries = this.options.series.filter(series => series.plotType === 'bar' && series.yAxis === axis);
+        if (barSeries.length) {
+            for (let categoryIndex = 0; categoryIndex < barSeries[0].data.length; categoryIndex++) {
                 seriesPositiveTotals[categoryIndex] = 0;
                 seriesNegativeTotals[categoryIndex] = 0;
-                for (seriesIndex = 0; seriesIndex < this.options.series.length; seriesIndex++) {
-                    const value = Tayberry.getDataValue(this.options.series[seriesIndex].data[categoryIndex]);
+                for (let seriesIndex = 0; seriesIndex < barSeries.length; seriesIndex++) {
+                    const value = Tayberry.getDataValue(barSeries[seriesIndex].data[categoryIndex]);
                     if (!Utils.isMissingValue(value)) {
                         if (value < 0) {
                             seriesNegativeTotals[categoryIndex] += value;
@@ -221,34 +220,41 @@ Tayberry.prototype.getDataMinMax = function () {
                     }
                 }
             }
-            min = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
-            max = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
-        } else {
-            for (let index = 0; index < this.options.series.length; index++) {
-                const series = this.options.series[index];
+        }
+        minStacked = Math.min(0, Utils.reduce(seriesNegativeTotals, Math.min, undefined, true));
+        maxStacked = Math.max(Utils.reduce(seriesPositiveTotals, Math.max, undefined, true), 0);
+    }
+    {
+        let seriesMinima = [];
+        let seriesMaxima = [];
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
+            if (series.yAxis === axis && (series.plotType !== 'bar' || this.options.barPlot.mode !== 'stacked')) {
                 seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataValue, true));
                 seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataValue, true));
             }
-            min = Utils.reduce(seriesMinima, Math.min, undefined, true);
-            max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
         }
+        minNormal = Utils.reduce(seriesMinima, Math.min, undefined, true);
+        maxNormal = Utils.reduce(seriesMaxima, Math.max, undefined, true);
     }
+    const min = Utils.reduce([minNormal, minStacked], Math.min, undefined, true);
+    const max = Utils.reduce([maxNormal, maxStacked], Math.max, undefined, true);
     return [min, max];
 };
 
-Tayberry.prototype.getDataXMinMax = function () {
+Tayberry.prototype.getDataXMinMax = function (axis) {
     var min, max;
     const seriesMinima = [];
     const seriesMaxima = [];
-    if (this.options.series[0].data.length) {
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
+    for (let index = 0; index < this.options.series.length; index++) {
+        const series = this.options.series[index];
+        if (series.xAxis === axis) {
             seriesMinima.push(Utils.reduce(series.data, Math.min, Tayberry.getDataXValue, true));
             seriesMaxima.push(Utils.reduce(series.data, Math.max, Tayberry.getDataXValue, true));
         }
-        min = Utils.reduce(seriesMinima, Math.min, undefined, true);
-        max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
     }
+    min = Utils.reduce(seriesMinima, Math.min, undefined, true);
+    max = Utils.reduce(seriesMaxima, Math.max, undefined, true);
     return [min, max];
 };
 

@@ -98,7 +98,7 @@ class BarRenderer extends renderer.Renderer {
                 return ret;
             });
             ret.found = true;
-            ret.normalisedDistance = matches[0].distance * matches[0].data.rect.area;
+            ret.normalisedDistance = matches[0].distance + Math.sqrt(matches[0].data.rect.area);
             ret = Utils.assign(ret, matches[0].data);
         }
         return ret;
@@ -112,7 +112,7 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             this.isStacked = this.tb.options.barPlot.mode === 'stacked';
             this.isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
             this.isNormal = !this.isStacked && !this.isOverlaid;
-            this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.tb.seriesCount;
+            this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.seriesCount;
             this.categoryWidth = (this.plotArea.width / this.categoryCount);
             // used for stacked bar charts - must be on single y-axis
             this.yOrigin = this.renderer.series[0].yAxis.getOrigin();

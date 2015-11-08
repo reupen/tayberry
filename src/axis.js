@@ -233,7 +233,6 @@ class Axis {
             tb.labelsCtx.font = this.titleFont;
             tb.labelsCtx.fillStyle = this.options.title.font.colour;
             tb.labelsCtx.textAlign = 'center';
-            tb.labelsCtx.textBaseline = this.isPlacedAtStart ? 'bottom' : 'top';
 
             const labelPaddingSize = this.mapLogicalXOrYUnit(tb.options.elementSmallPadding);
             const labelPadding = labelPaddingSize * (this.isPlacedAtStart ? -1 : 1);
@@ -242,12 +241,14 @@ class Axis {
             const fontHeight = tb.getFontHeight(this.options.title.font);
 
             if (this.isVertical) {
-                const x = tb.plotArea.left + xOffset + labelPadding;
+                tb.labelsCtx.textBaseline = 'bottom';
+                const x = tb.plotArea[this.startProperty] + xOffset + labelPadding;
                 const y = tb.plotArea.yMidpoint + yOffset;
                 tb.labelsCtx.translate(x, y);
-                tb.labelsCtx.rotate(-Math.PI / 2);
+                tb.labelsCtx.rotate((this.isPlacedAtStart ? -1 : 1)*Math.PI / 2);
                 tb.labelsCtx.fillText(this.options.title.text, 0, 0);
             } else {
+                tb.labelsCtx.textBaseline = this.isPlacedAtStart ? 'bottom' : 'top';
                 const x = tb.plotArea.xMidpoint + xOffset;
                 const y = tb.plotArea[this.startProperty] + labelPadding + yOffset;
                 //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
@@ -419,7 +420,7 @@ class LinearAxis extends Axis {
         const overriddenEnd = !Utils.isMissingValue(targetEnd);
 
         if (!overriddenStart || !overriddenEnd) {
-            const [dataMin, dataMax] = this.isYAxis ? this.tayberry.getDataMinMax() : this.tayberry.getDataXMinMax(); //TODO: implement for x-axis
+            const [dataMin, dataMax] = this.isYAxis ? this.tayberry.getDataMinMax(this) : this.tayberry.getDataXMinMax(this);
             const dataRange = dataMax - dataMin;
             if (!overriddenStart) {
                 targetStart = dataMin;

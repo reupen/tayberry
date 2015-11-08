@@ -118,7 +118,8 @@ class LineRenderer extends renderer.Renderer {
         let pt;
         while ((pt = pointEnumerator.next())) {
             const distance = Math.sqrt(Math.pow(pt.x - x, 2) + Math.pow(pt.y - y, 2));
-            matches.push({distance: distance, priority: 0, data: pt});
+            const horizontalDistance = Math.abs(this.tb.options.swapAxes ? pt.y - y : pt.x - x);
+            matches.push({distance: distance, horizontalDistance: horizontalDistance, priority: 0, data: pt});
             //if (!pt.firstPoint) {
             //    if (x >= lastPt.x && x < pt.x) {
             //const alpha = Math.arctan((pt.y - lastPt.y) / (pt.x - lastPt.x));
@@ -139,14 +140,16 @@ class LineRenderer extends renderer.Renderer {
 
         }
         if (matches.length) {
-            matches.sort((e1, e2) => e1.distance - e2.distance);
+            matches.sort((e1, e2) => {
+                return (e1.horizontalDistance - e2.horizontalDistance) || (e1.distance - e2.distance);
+            });
             if (true || matches[0].distance <= 5) {
-                const pt = matches[0].data;
+                pt = matches[0].data;
                 const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
                 Utils.assign(ret, [{
                     found: true,
                     rect: rect,
-                    normalisedDistance: matches[0].distance * rect.area
+                    normalisedDistance: matches[0].distance + Math.sqrt(rect.area)
                 }, pt]);
             }
         }
