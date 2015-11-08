@@ -84,11 +84,13 @@ Available attributes on the option object are (full details still to be complete
 | linePlot.noMarkersThreshold   | number                  |  |
 | linePlot.markerSize           | logical pixels                  |  |
 | linePlot.highlightedMarkerSize | logical pixels                  |  |
+| plotType                      | string    | Default plot type for series; currently can be `line` or `bar` |
 | presets                       | array of strings    | Use this to override some of the default settings using a preset. Currently two presets: `histogram` and `darkGrid`|
 | series[n].colour              | HTML colour code |  |
 | series[n].data                | array  |  |
 | series[n].markerType          | `square`\|`diamond`\|`triangle`\|`triangle-down`\|`circle`  |  |
 | series[n].name                | string |  |
+| series[n].plotType            | string    | Plot type for this series; currently can be `line` or `bar` |
 | series[n].xAxisIndex          | number |  |
 | series[n].yAxisIndex          | number |  |
 | swapAxes                      | boolean |   Swap the displayed positions of the x- and y-axes; set to true for a horizontal bar chart |
@@ -131,5 +133,7 @@ TayberryJS is at an early alpha stage. There will be some bugs, but please do op
 
 ## Roadmap
 
-Some upcoming features planned are:
+Some upcoming planned features are:
 * dynamic chart updates
+* interactive legend
+* date/time axes
