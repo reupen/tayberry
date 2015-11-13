@@ -14,6 +14,10 @@ class Tayberry {
         this.labelFont = null;
         this.legendFont = null;
         this.renderers = [];
+        this.callbacks = {
+            onResize: [],
+            onInit: []
+        }
     }
 
     get seriesCount() {

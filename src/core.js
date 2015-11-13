@@ -151,8 +151,10 @@ Tayberry.prototype.setOptions = function (options) {
     for (let i = 0; i < this.options.yAxis.length; i++) {
         this.yAxes.push(Axis.create(this, this.options.yAxis[i], i, 'y', this.options.swapAxes));
     }
-    this.createRenderers();
     this.updateFonts();
+    this.createRenderers();
+    this.calculatePlotArea();
+    this.callbacks['onInit'].forEach(func => func());
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     //this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));

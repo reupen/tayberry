@@ -4,6 +4,10 @@ var Utils = require('./helpers/utils');
 
 var Tayberry = require('./base').Tayberry;
 
+Tayberry.prototype.registerCallback = function(eventName, func) {
+    this.callbacks[eventName].push(func);
+};
+
 Tayberry.prototype.onAnimate = function (timestamp) {
     var elapsed;
     if (this.animationStart === null) {
@@ -111,5 +115,6 @@ Tayberry.prototype.onWindowResize = function () {
     this.updateFonts();
     this.calculatePlotArea();
     this.createTooltip();
+    this.callbacks['onResize'].forEach(func => func());
     this.redraw();
 };

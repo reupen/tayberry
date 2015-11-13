@@ -74,7 +74,6 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
 };
 
 Tayberry.prototype.render = function () {
-    this.calculatePlotArea();
     this.drawLabelLayer();
     this.createTooltip();
     if (this.options.animations.enabled) {
