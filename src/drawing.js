@@ -152,7 +152,50 @@ Tayberry.prototype.redraw = function (plotOnly) {
     this.drawPlotLayer();
 };
 
+Tayberry.prototype.getLegendMeasurements = function () {
+    let ret = {
+        rect: new Rect(0),
+        series: []
+    };
+    if (this.options.legend.enabled) {
+        const smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
+        const largePadding = this.mapLogicalXUnit(this.options.elementLargePadding);
+        let totalWidth = 0;
+        const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
+            let textWidth = 0;
+            if (series.name) {
+                textWidth = this.getTextWidth(series.name, this.legendFont) + indicatorSize + smallPadding + largePadding;
+                totalWidth += textWidth;
+            }
+            ret.series.push({textWidth: textWidth});
+        }
+        let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
+            y = this.labelsCanvas.height - indicatorSize;
 
+        ret.rect.left = x;
+        ret.rect.right = x + totalWidth;
+        ret.rect.top = y;
+        ret.rect.bottom = y + indicatorSize;
+
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
+            let seriesMetrics = ret.series[index];
+            if (series.name) {
+                seriesMetrics.rect = new Rect(x, ret.rect.top, x + indicatorSize + smallPadding + ret.series[index].textWidth, ret.rect.bottom);
+                seriesMetrics.indicatorRect = new Rect(x, ret.rect.top, x + indicatorSize, ret.rect.bottom);
+                seriesMetrics.textX = x;
+                seriesMetrics.textY = y + indicatorSize / 2;
+
+                x += indicatorSize + smallPadding;
+                x += ret.series[index].textWidth + largePadding;
+            }
+        }
+    }
+};
+
+//TODO: use new getLegendMeasurements function
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
         this.labelsCtx.save();

@@ -14,31 +14,50 @@ class BarRenderer extends renderer.Renderer {
         this.tb.registerCallback('onInit', this.updateBarWidths.bind(this));
     }
 
-    updateBarWidths() {
+    updateBarWidths(animationOptions = {}, animationStage = undefined) {
         const categoryCount = this.renderedSeries[0].data.length;
         const isStacked = this.tb.options.barPlot.mode === 'stacked';
         const isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
         const isNormal = !isStacked && !isOverlaid;
         const seriesCount = this.renderedSeries.length;
-        const barsPerCategory = (isStacked || isOverlaid) ? 1 : this.renderedSeries.length;
         const plotArea = this.tb.options.swapAxes ? this.tb.plotArea.clone().swapXY() : this.tb.plotArea;
         const categoryWidth = (plotArea.width / categoryCount);
+        let seriesStandardWidthCount = seriesCount;
+        let aniBarMultiplier;
+        let standardBarsPerCategory = (isStacked || isOverlaid) ? 1 : seriesCount;
+
+        //TODO: animations for stacked and overlaid bar charts
+        if (animationOptions.type === 'showSeries') {
+            if (isNormal)
+                aniBarMultiplier = animationStage;
+        } else if (animationOptions.type === 'hideSeries') {
+            if (isNormal)
+                aniBarMultiplier = 1 - animationStage;
+        }
+
+        if (typeof aniBarMultiplier !== 'undefined') {
+            seriesStandardWidthCount -= 1 - aniBarMultiplier;
+            standardBarsPerCategory -= 1;
+        }
+        const totalBarsPerCategory = (isStacked || isOverlaid) ? 1 : seriesStandardWidthCount;
 
         this.barPositions = [];
 
-        for (let categoryIndex = 0; categoryIndex<categoryCount; categoryIndex++) {
+        for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
             const categoryXStart = plotArea.left + Math.floor(categoryIndex * categoryWidth);
             const categoryXEnd = plotArea.left + Math.floor((categoryIndex + 1) * categoryWidth);
             // FIXME: Need to map this.tb.options.barPlot.categorySpacing
             const barXStart = categoryXStart + Math.ceil(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
             const barXEnd = categoryXEnd - Math.floor(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
-            const barWidth = Math.floor((barXEnd - barXStart) / barsPerCategory);
+            const standardBarWidth = Math.floor((barXEnd - barXStart) / totalBarsPerCategory);
+            const overridenBarWidth = Math.floor((barXEnd - barXStart) - standardBarWidth * standardBarsPerCategory);
 
             let categoryPositions = [];
             let barIndex = 0;
 
-            for (let seriesIndex = 0; seriesIndex<seriesCount; seriesIndex++) {
+            for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
                 const series = this.renderedSeries[seriesIndex];
+                const barWidth = seriesIndex === animationOptions.seriesIndex && typeof aniBarMultiplier !== 'undefined' ? overridenBarWidth : standardBarWidth;
                 const xStart = Math.floor(barXStart + barIndex * barWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
                 const xEnd = Math.ceil(barXStart + (barIndex + 1) * barWidth) - Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
                 categoryPositions.push([xStart, xEnd]);
