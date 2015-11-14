@@ -21,13 +21,14 @@ class BarRenderer extends renderer.Renderer {
         const isNormal = !isStacked && !isOverlaid;
         const seriesCount = this.renderedSeries.length;
         const barsPerCategory = (isStacked || isOverlaid) ? 1 : this.renderedSeries.length;
-        const categoryWidth = (this.tb.plotArea.width / this.categoryCount);
+        const plotArea = this.tb.options.swapAxes ? this.tb.plotArea.clone().swapXY() : this.tb.plotArea;
+        const categoryWidth = (plotArea.width / categoryCount);
 
         this.barPositions = [];
 
         for (let categoryIndex = 0; categoryIndex<categoryCount; categoryIndex++) {
-            const categoryXStart = this.tb.plotArea.left + Math.floor(categoryIndex * categoryWidth);
-            const categoryXEnd = this.tb.plotArea.left + Math.floor((categoryIndex + 1) * categoryWidth);
+            const categoryXStart = plotArea.left + Math.floor(categoryIndex * categoryWidth);
+            const categoryXEnd = plotArea.left + Math.floor((categoryIndex + 1) * categoryWidth);
             // FIXME: Need to map this.tb.options.barPlot.categorySpacing
             const barXStart = categoryXStart + Math.ceil(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
             const barXEnd = categoryXEnd - Math.floor(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
@@ -156,8 +157,6 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
             this.isStacked = this.tb.options.barPlot.mode === 'stacked';
             this.isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
             this.isNormal = !this.isStacked && !this.isOverlaid;
-            this.barCount = (this.isStacked || this.isOverlaid) ? 1 : this.seriesCount;
-            this.categoryWidth = (this.plotArea.width / this.categoryCount);
             // used for stacked bar charts - must be on single y-axis
             this.yOrigin = this.renderer.series[0].yAxis.getOrigin();
 
@@ -179,19 +178,12 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
         if (this.categoryIndex < this.categoryCount) {
             const series = this.renderer.renderedSeries[this.seriesIndex];
             const value = Tayberry.getDataValue(series.data[this.categoryIndex]);
-            let categoryXStart = this.plotArea.left + Math.floor(this.categoryIndex * this.categoryWidth);
-            let categoryXEnd = this.plotArea.left + Math.floor((this.categoryIndex + 1) * this.categoryWidth);
-            let barXStart = categoryXStart + Math.ceil(this.categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
-            let barXEnd = categoryXEnd - Math.floor(this.categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
 
-            const barWidth = Math.floor((barXEnd - barXStart) / this.barCount);
-            const xStart = Math.floor(barXStart + this.barIndex * barWidth);
-            const xEnd = Math.ceil(barXStart + (this.barIndex + 1) * barWidth);
+            const [xStart, xEnd] = this.renderer.barPositions[this.categoryIndex][this.seriesIndex];
 
             const yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
             let rect = new Rect(xStart, yTop, xEnd, this.isStacked ? (value > 0 ? this.yBottomPositive : this.yBottomNegative) : series.yAxis.getOrigin());
-            rect.left += Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-            rect.right -= Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+
             if (rect.right < rect.left)
                 rect.right = rect.left;
             if (this.isHorizontal)
