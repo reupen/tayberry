@@ -155,7 +155,7 @@ Tayberry.prototype.redraw = function (plotOnly) {
 Tayberry.prototype.getLegendMeasurements = function () {
     let ret = {
         rect: new Rect(0),
-        series: []
+        items: []
     };
     if (this.options.legend.enabled) {
         const smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
@@ -168,8 +168,8 @@ Tayberry.prototype.getLegendMeasurements = function () {
             if (series.name) {
                 textWidth = this.getTextWidth(series.name, this.legendFont) + indicatorSize + smallPadding + largePadding;
                 totalWidth += textWidth;
+                ret.items.push({textWidth: textWidth, series: series});
             }
-            ret.series.push({textWidth: textWidth});
         }
         let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
             y = this.labelsCanvas.height - indicatorSize;
@@ -179,48 +179,34 @@ Tayberry.prototype.getLegendMeasurements = function () {
         ret.rect.top = y;
         ret.rect.bottom = y + indicatorSize;
 
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
-            let seriesMetrics = ret.series[index];
-            if (series.name) {
-                seriesMetrics.rect = new Rect(x, ret.rect.top, x + indicatorSize + smallPadding + ret.series[index].textWidth, ret.rect.bottom);
-                seriesMetrics.indicatorRect = new Rect(x, ret.rect.top, x + indicatorSize, ret.rect.bottom);
-                seriesMetrics.textX = x;
-                seriesMetrics.textY = y + indicatorSize / 2;
+        for (let index = 0; index < ret.items.length; index++) {
+            let item = ret.items[index];
+            const series = item.series;
+            item.rect = new Rect(x, ret.rect.top, x + indicatorSize + smallPadding + item.textWidth, ret.rect.bottom);
+            item.indicatorRect = new Rect(x, ret.rect.top, x + indicatorSize, ret.rect.bottom);
+            item.textX = x;
+            item.textY = y + indicatorSize / 2;
 
-                x += indicatorSize + smallPadding;
-                x += ret.series[index].textWidth + largePadding;
-            }
+            x += indicatorSize + smallPadding;
+            x += ret.items[index].textWidth + largePadding;
         }
     }
+    return ret;
 };
 
-//TODO: use new getLegendMeasurements function
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
+        let legendItems = this.getLegendMeasurements();
         this.labelsCtx.save();
         this.labelsCtx.font = this.legendFont;
-        let totalWidth = 0;
-        const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
-            if (series.name) {
-                totalWidth += this.getTextWidth(series.name, this.legendFont) + indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding + this.options.elementLargePadding);
-            }
-        }
-        let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
-            y = this.labelsCanvas.height - indicatorSize;
 
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
-            if (series.name) {
-                series.renderer.drawLegendIndicator(this.labelsCtx, series, new Rect(x, y, x + indicatorSize, y + indicatorSize));
-                this.labelsCtx.textBaseline = 'middle';
-                this.labelsCtx.fillStyle = this.options.legend.font.colour;
-                x += indicatorSize + this.mapLogicalXUnit(this.options.elementSmallPadding);
-                this.labelsCtx.fillText(series.name, x, y + indicatorSize / 2);
-                x += this.getTextWidth(series.name, this.legendFont) + this.mapLogicalXUnit(this.options.elementLargePadding);
-            }
+        for (let index = 0; index < legendItems.length; index++) {
+            const item = legendItems[index];
+            const series = item.series;
+            series.renderer.drawLegendIndicator(this.labelsCtx, series, item.indicatorRect);
+            this.labelsCtx.textBaseline = 'middle';
+            this.labelsCtx.fillStyle = this.options.legend.font.colour;
+            this.labelsCtx.fillText(series.name, item.textX, item.textY);
         }
         this.labelsCtx.restore();
     }
