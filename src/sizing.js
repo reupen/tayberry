@@ -65,9 +65,11 @@ Tayberry.prototype.hitTest = function (x, y) {
             matches.push(hitTestResult);
         }
     }
+    matches.push(this.hitTestLegend(x, y));
     if (matches.length) {
-        matches.sort((a, b) => a.normalisedDistance - b.normalisedDistance);
+        matches.sort((a, b) => !a.found - !b.found || a.normalisedDistance - b.normalisedDistance);
         ret = matches[0];
     }
     return ret;
 };
+

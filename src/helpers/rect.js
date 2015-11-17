@@ -55,7 +55,7 @@ class Rect {
     }
 
     get area() {
-        return this.width * this.height;
+        return Math.abs(this.width) * Math.abs(this.height);
     }
 
     containsPoint(x, y) {

@@ -43,8 +43,8 @@ class Renderer {
         }
     }
 
-    drawLegendIndicator(ctx, series, rect) {
-        ctx.fillStyle = series.colour;
+    drawLegendIndicator(ctx, series, rect, highlighted) {
+        ctx.fillStyle = highlighted ? series.highlightColour : series.colour;
         ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
     }
 

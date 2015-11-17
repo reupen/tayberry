@@ -4,7 +4,7 @@ var Utils = require('./helpers/utils');
 
 var Tayberry = require('./base').Tayberry;
 
-Tayberry.prototype.registerCallback = function(eventName, func) {
+Tayberry.prototype.registerCallback = function (eventName, func) {
     this.callbacks[eventName].push(func);
 };
 
@@ -40,42 +40,48 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
 
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
-            let tooltipHtml = '';
-            const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-            this.tooltipElement.style.display = 'block';
-            if (this.options.tooltips.shared) {
-                const category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
-                tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
-                for (let index = 0; index < this.seriesCount; index++) {
-                    const series = this.options.series[index];
-                    const value = Tayberry.getDataValue(series.data[hitTestResult.categoryIndex]);
+            if (hitTestResult.type === 'legend') {
+                this.selectedItem = hitTestResult;
+                ret = true;
+                //FIXME: need to hide tooltip somewhere
+            } else if (hitTestResult.type === 'plotItem') {
+                let tooltipHtml = '';
+                const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
+                this.tooltipElement.style.display = 'block';
+                if (this.options.tooltips.shared) {
+                    const category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
+                    tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
+                    for (let index = 0; index < this.seriesCount; index++) {
+                        const series = this.options.series[index];
+                        const value = Tayberry.getDataValue(series.data[hitTestResult.categoryIndex]);
+                        tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
+                            value: series.yAxis.options.labelFormatter(value),
+                            name: series.name,
+                            colour: series.colour
+                        }, true);
+                    }
+                } else {
+                    const series = hitTestResult.series;
+                    const value = hitTestResult.value;
+                    const category = series.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
+                    tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
                     tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
                         value: series.yAxis.options.labelFormatter(value),
                         name: series.name,
                         colour: series.colour
                     }, true);
                 }
-            } else {
-                const series = hitTestResult.series;
-                const value = hitTestResult.value;
-                const category = series.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
-                tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
-                tooltipHtml += Utils.formatString(this.options.tooltips.valueTemplate, {
-                    value: series.yAxis.options.labelFormatter(value),
-                    name: series.name,
-                    colour: series.colour
-                }, true);
+                tooltipHtml += this.options.tooltips.footerTemplate;
+                this.tooltipElement.innerHTML = tooltipHtml;
+                let tooltipRect = this.tooltipElement.getBoundingClientRect();
+                if (!this.options.tooltips.shared) {
+                    this.tooltipElement.style.borderColor = hitTestResult.series.colour;
+                }
+                this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
+                this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
+                this.selectedItem = hitTestResult;
+                ret = true;
             }
-            tooltipHtml += this.options.tooltips.footerTemplate;
-            this.tooltipElement.innerHTML = tooltipHtml;
-            let tooltipRect = this.tooltipElement.getBoundingClientRect();
-            if (!this.options.tooltips.shared) {
-                this.tooltipElement.style.borderColor = hitTestResult.series.colour;
-            }
-            this.tooltipElement.style.left = window.pageXOffset + boundingRect.left + this.mapScreenUnit(hitTestResult.rect.width) / 2 + hitTestResult.rect.left / this.scaleFactor - tooltipRect.width / 2 + 'px';
-            this.tooltipElement.style.top = window.pageYOffset + boundingRect.top + this.mapScreenUnit(hitTestResult.rect.top) - tooltipRect.height * (aboveZero ? 1 : 0) - this.options.elementSmallPadding * (aboveZero ? 1 : -1) + 'px';
-            this.selectedItem = hitTestResult;
-            ret = true;
         }
     }
     return ret;
@@ -100,7 +106,9 @@ Tayberry.prototype.onMouseMove = function (event) {
         this.selectedItem = {};
     }
 
-    if (oldSelectedItem.categoryIndex !== this.selectedItem.categoryIndex || oldSelectedItem.series !== this.selectedItem.series) {
+    if (oldSelectedItem.type !== this.selectedItem.type ||
+        oldSelectedItem.categoryIndex !== this.selectedItem.categoryIndex ||
+        oldSelectedItem.series !== this.selectedItem.series) {
         this.redraw();
     }
 };

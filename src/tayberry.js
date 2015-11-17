@@ -1,12 +1,16 @@
 (function () {
     'use strict';
-    var Tayberry = require('./base.js').Tayberry;
-    require('./axis.js');
-    require('./core.js');
-    require('./drawing.js');
-    require('./events.js');
-    require('./defaults.js');
-    require('./sizing.js');
+    let Tayberry = require('./base').Tayberry;
+    require('./axis');
+    require('./core');
+    require('./drawing');
+    require('./events');
+    require('./defaults');
+    require('./sizing');
+    require('./legend');
+    require('./renderer.base');
+    require('./renderer.bar');
+    require('./renderer.line');
 
     module.exports = {
         /**
@@ -16,7 +20,7 @@
          * @param options   Options object
          */
         create: function (element, options) {
-            var chart = new Tayberry();
+            let chart = new Tayberry();
             chart.create(element);
             chart.setOptions(options);
             chart.render();

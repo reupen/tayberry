@@ -78,12 +78,13 @@ class LineRenderer extends renderer.Renderer {
         this.ctx.restore();
     }
 
-    drawLegendIndicator(ctx, series, rect) {
+    drawLegendIndicator(ctx, series, rect, highlighted) {
+        const colour = highlighted ? series.highlightColour : series.colour;;
         ctx.save();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = series.colour;
+        ctx.strokeStyle = colour;
         this.tb.drawLine(rect.left, rect.yMidpoint, rect.right, rect.yMidpoint);
-        ctx.fillStyle = series.colour;
+        ctx.fillStyle = colour;
         this.drawMarker(series.markerType, rect.xMidpoint, rect.yMidpoint, this.tb.options.linePlot.markerSize, ctx);
         ctx.restore();
     }
@@ -109,6 +110,7 @@ class LineRenderer extends renderer.Renderer {
         let ret = {
             found: false,
             plotType: 'line',
+            type: 'plotItem',
             isXRange: false
         };
 
@@ -184,8 +186,8 @@ class PointEnumerator extends renderer.BySeriesEnumerator {
                 renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
                 x: x,
                 y: y,
-                seriesSelected: !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],
-                selected: this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
+                seriesSelected: this.tb.selectedItem.type === 'plotItem' && !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],
+                selected: this.tb.selectedItem.type === 'plotItem' && this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };
 
             this.nextValue();
