@@ -18,6 +18,7 @@ class Tayberry {
         this.onMouseLeaveReal = null;
         this.onMouseMoveReal = null;
         this.onWindowResizeReal = null;
+        this.pendingAnimations = [];
         this.callbacks = {
             onResize: [],
             onInit: []

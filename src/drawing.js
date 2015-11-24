@@ -77,9 +77,12 @@ Tayberry.prototype.render = function () {
     this.drawLabelLayer();
     this.createTooltip();
     if (this.options.animations.enabled) {
+        this.pendingAnimations.push({
+            type: 'grow',
+            length: 500,
+            startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
+        });
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-        this.animationStart = (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null;
-        this.animationLength = 500;
     } else {
         this.drawPlotLayer();
     }

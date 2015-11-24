@@ -10,15 +10,21 @@ Tayberry.prototype.registerCallback = function (eventName, func) {
 
 Tayberry.prototype.onAnimate = function (timestamp) {
     var elapsed;
-    if (this.animationStart === null) {
-        this.animationStart = timestamp;
-    }
-    elapsed = timestamp - this.animationStart;
-    for (let i = 0; i < this.renderers.length; i++) {
-        this.renderers[i].onAnimationFrame(elapsed, this.animationLength);
+    for (let index = this.pendingAnimations.length - 1; index >= 0; index--) {
+        let animation = this.pendingAnimations[index];
+        if (animation.startTime === null) {
+            animation.startTime = timestamp;
+        }
+        elapsed = timestamp - animation.startTime;
+        for (let i = 0; i < this.renderers.length; i++) {
+            this.renderers[i].onAnimationFrame(elapsed, animation.length);
+        }
+        if (elapsed >= animation.length) {
+            this.pendingAnimations.splice(index, 1);
+        }
     }
     this.redraw(true);
-    if (elapsed < this.animationLength) {
+    if (this.pendingAnimations.length) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     }
 };
