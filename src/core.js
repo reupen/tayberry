@@ -75,6 +75,7 @@ Tayberry.prototype.destroy = function () {
     this.labelsCanvas.parentNode.removeChild(this.labelsCanvas);
     this.tooltipElement.parentNode.removeChild(this.tooltipElement);
     this.options = {};
+    this.plotCanvas.removeEventListener('click', this.onClickReal);
     this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
     this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
     // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
@@ -155,6 +156,7 @@ Tayberry.prototype.setOptions = function (options) {
     this.createRenderers();
     this.calculatePlotArea();
     this.callbacks['onInit'].forEach(func => func());
+    this.plotCanvas.addEventListener('click', this.onClickReal = this.onClick.bind(this));
     this.plotCanvas.addEventListener('mousemove', this.onMouseMoveReal = this.onMouseMove.bind(this));
     this.plotCanvas.addEventListener('mouseleave', this.onMouseLeaveReal = this.onMouseLeave.bind(this));
     //this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));

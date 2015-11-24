@@ -100,6 +100,20 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
 //    }
 //};
 
+Tayberry.prototype.onClick = function (event) {
+    let boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
+    // Why is event.buttons always 0?
+    if ((event.button === 0) && boundingRect.containsPoint(event.clientX, event.clientY)) {
+        let x = event.clientX - boundingRect.left;
+        let y = event.clientY - boundingRect.top;
+        let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
+        if (hitTestResult.found) {
+            if (hitTestResult.type === 'legend') {
+                //TODO: Implement
+            }
+        }
+    }
+};
 
 Tayberry.prototype.onMouseMove = function (event) {
     let oldSelectedItem = Utils.assign({}, this.selectedItem);

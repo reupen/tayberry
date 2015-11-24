@@ -14,6 +14,10 @@ class Tayberry {
         this.labelFont = null;
         this.legendFont = null;
         this.renderers = [];
+        this.onClickReal = null;
+        this.onMouseLeaveReal = null;
+        this.onMouseMoveReal = null;
+        this.onWindowResizeReal = null;
         this.callbacks = {
             onResize: [],
             onInit: []
