@@ -34,6 +34,7 @@ Tayberry.prototype.onMouseLeave = function (event) {
 Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
     let boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
     let ret = false;
+    let tooltipDisplayStyle = 'none';
     if (boundingRect.containsPoint(clientX, clientY)) {
         let x = clientX - boundingRect.left;
         let y = clientY - boundingRect.top;
@@ -43,11 +44,10 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             if (hitTestResult.type === 'legend') {
                 this.selectedItem = hitTestResult;
                 ret = true;
-                //FIXME: need to hide tooltip somewhere
             } else if (hitTestResult.type === 'plotItem') {
                 let tooltipHtml = '';
                 const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-                this.tooltipElement.style.display = 'block';
+                tooltipDisplayStyle = 'block';
                 if (this.options.tooltips.shared) {
                     const category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
                     tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
@@ -84,6 +84,7 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             }
         }
     }
+    this.tooltipElement.style.display = tooltipDisplayStyle;
     return ret;
 };
 
