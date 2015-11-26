@@ -17,7 +17,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         }
         elapsed = timestamp - animation.startTime;
         for (let i = 0; i < this.renderers.length; i++) {
-            this.renderers[i].onAnimationFrame(elapsed, animation.length);
+            this.renderers[i].onAnimationFrame(elapsed, animation);
         }
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
@@ -26,6 +26,8 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     this.redraw(true);
     if (this.pendingAnimations.length) {
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
+    } else {
+        this.animator = null;
     }
 };
 
@@ -115,7 +117,10 @@ Tayberry.prototype.onClick = function (event) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
-                //TODO: Implement
+                this.startAnimation({
+                    type: 'hideSeries',
+                    series: hitTestResult.series
+                })
             }
         }
     }

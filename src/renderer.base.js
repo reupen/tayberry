@@ -30,9 +30,12 @@ class Renderer {
         }
     }
 
-    onAnimationFrame(elapsedTime, totalTime) {
-        var scaleFactor;
-        scaleFactor = Math.min(Easing.inQuad(elapsedTime, totalTime), 1);
+    onToggleSeriesAnimationFrame(elapsedTime, animation) {
+    }
+
+    onGrowAnimationFrame(elapsedTime, animation) {
+        let scaleFactor;
+        scaleFactor = Math.min(Easing.inQuad(elapsedTime, animation.length), 1);
         for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
             for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
                 const series = this.series[seriesIndex];
@@ -40,6 +43,18 @@ class Renderer {
                 const yOrigin = series.yAxis.min <= 0 && 0 <= series.yAxis.max ? 0 : (series.yAxis.min > 0 ? series.yAxis.min : series.yAxis.max);
                 Tayberry.setDataValue(this.renderedSeries[seriesIndex].data, categoryIndex, yOrigin + scaleFactor * ((value - yOrigin)));
             }
+        }
+    }
+
+    onAnimationFrame(elapsedTime, animation) {
+        switch (animation.type) {
+            case 'grow':
+                this.onGrowAnimationFrame(elapsedTime, animation);
+                break;
+            case 'hideSeries':
+            case 'showSeries':
+                this.onToggleSeriesAnimationFrame(elapsedTime, animation);
+                break;
         }
     }
 
@@ -115,7 +130,8 @@ class Enumerator {
 }
 
 class ByCategoryEnumerator extends Enumerator {
-    onNewCategory() {}
+    onNewCategory() {
+    }
 
     nextValue() {
 

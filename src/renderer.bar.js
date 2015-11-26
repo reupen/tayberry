@@ -14,7 +14,7 @@ class BarRenderer extends renderer.Renderer {
         this.tb.registerCallback('onInit', this.updateBarWidths.bind(this));
     }
 
-    updateBarWidths(animationOptions = {}, animationStage = undefined) {
+    updateBarWidths(animationOptions = {series: {}}, animationStage = undefined) {
         const categoryCount = this.renderedSeries[0].data.length;
         const isStacked = this.tb.options.barPlot.mode === 'stacked';
         const isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
@@ -50,23 +50,32 @@ class BarRenderer extends renderer.Renderer {
             const barXStart = categoryXStart + Math.ceil(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
             const barXEnd = categoryXEnd - Math.floor(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
             const standardBarWidth = Math.floor((barXEnd - barXStart) / totalBarsPerCategory);
-            const overridenBarWidth = Math.floor((barXEnd - barXStart) - standardBarWidth * standardBarsPerCategory);
+            const overriddenBarWidth = Math.floor((barXEnd - barXStart) - standardBarWidth * standardBarsPerCategory);
 
             let categoryPositions = [];
             let barIndex = 0;
 
+            let runningBarWidth = 0;
+
             for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
                 const series = this.renderedSeries[seriesIndex];
-                const barWidth = seriesIndex === animationOptions.seriesIndex && typeof aniBarMultiplier !== 'undefined' ? overridenBarWidth : standardBarWidth;
-                const xStart = Math.floor(barXStart + barIndex * barWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const barWidth = series.index === animationOptions.series.index && typeof aniBarMultiplier !== 'undefined' ? overriddenBarWidth : standardBarWidth;
+                const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
                 const xEnd = Math.ceil(barXStart + (barIndex + 1) * barWidth) - Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
                 categoryPositions.push([xStart, xEnd]);
 
-                if (isNormal) barIndex++;
+                if (isNormal) {
+                    barIndex++;
+                    runningBarWidth += barWidth;
+                }
             }
 
             this.barPositions.push(categoryPositions);
         }
+    }
+
+    onToggleSeriesAnimationFrame(elapsedTime, animation) {
+        this.updateBarWidths(animation, elapsedTime/animation.length);
     }
 
     drawPlot() {

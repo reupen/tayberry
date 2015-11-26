@@ -73,16 +73,25 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
     }
 };
 
+// TODO: add completion callback
+Tayberry.prototype.startAnimation = function (animation) {
+    this.pendingAnimations.push(Utils.assign({}, [{
+        length: 500,
+        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null},
+        animation
+    ]));
+    if (!this.animator)
+        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
+};
+
+
 Tayberry.prototype.render = function () {
     this.drawLabelLayer();
     this.createTooltip();
     if (this.options.animations.enabled) {
-        this.pendingAnimations.push({
-            type: 'grow',
-            length: 500,
-            startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
+        this.startAnimation({
+            type: 'grow'
         });
-        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
     } else {
         this.drawPlotLayer();
     }
