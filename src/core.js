@@ -143,6 +143,9 @@ Tayberry.prototype.setOptions = function (options) {
     for (let i = 0; i < this.options.xAxis.length; i++) {
         this.options.xAxis[i] = Utils.deepAssign({}, [Tayberry.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
     }
+    for (let i = 0; i < this.options.series.length; i++) {
+        this.options.series[i] = Utils.deepAssign({}, [Tayberry.defaultSeries, this.options.series[i]]);
+    }
 
     this.yAxes = [];
     this.xAxes = [];

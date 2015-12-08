@@ -69,6 +69,10 @@ Tayberry.prototype.defaultOptions = function () {
     }
 };
 
+Tayberry.defaultSeries = {
+    visible: true
+};
+
 Tayberry.defaultXAxis = {
     title: {
         text: '',

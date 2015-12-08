@@ -73,17 +73,17 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
     }
 };
 
-// TODO: add completion callback
-Tayberry.prototype.startAnimation = function (animation) {
+Tayberry.prototype.startAnimation = function (animation, completionCallback) {
     this.pendingAnimations.push(Utils.assign({}, [{
         length: 500,
-        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null},
+        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null,
+        completionCallback: completionCallback
+    },
         animation
     ]));
     if (!this.animator)
         this.animator = requestAnimationFrame(this.onAnimate.bind(this));
 };
-
 
 Tayberry.prototype.render = function () {
     this.drawLabelLayer();

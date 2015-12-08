@@ -21,6 +21,9 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         }
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
+            if (animation.completionCallback) {
+                animation.completionCallback();
+            }
         }
     }
     this.redraw(true);
@@ -118,8 +121,9 @@ Tayberry.prototype.onClick = function (event) {
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
                 this.startAnimation({
-                    type: 'hideSeries',
-                    series: hitTestResult.series
+                    type: hitTestResult.series.visible ? 'hideSeries' : 'showSeries',
+                    series: hitTestResult.series,
+                    completionCallback: () => hitTestResult.series.visible = !hitTestResult.series.visible
                 })
             }
         }
