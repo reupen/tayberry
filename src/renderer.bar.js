@@ -14,7 +14,7 @@ class BarRenderer extends renderer.Renderer {
         this.tb.registerCallback('onInit', this.updateBarWidths.bind(this));
     }
 
-    updateBarWidths(animationOptions = {series: {}}, animationStage = undefined) {
+    updateBarWidths() {
         const categoryCount = this.renderedSeries[0].data.length;
         const isStacked = this.tb.options.barPlot.mode === 'stacked';
         const isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
@@ -22,24 +22,37 @@ class BarRenderer extends renderer.Renderer {
         const seriesCount = this.renderedSeries.length;
         const plotArea = this.tb.options.swapAxes ? this.tb.plotArea.clone().swapXY() : this.tb.plotArea;
         const categoryWidth = (plotArea.width / categoryCount);
-        let seriesStandardWidthCount = seriesCount;
-        let aniBarMultiplier;
-        let standardBarsPerCategory = (isStacked || isOverlaid) ? 1 : seriesCount;
+        let animatingSeriesCount = 0;
+        let totalMultiplier = 0;
 
         //TODO: animations for stacked and overlaid bar charts
-        if (animationOptions.type === 'showSeries') {
-            if (isNormal)
-                aniBarMultiplier = animationStage;
-        } else if (animationOptions.type === 'hideSeries') {
-            if (isNormal)
-                aniBarMultiplier = 1 - animationStage;
+        for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+            const rSeries = this.renderedSeries[seriesIndex];
+            const series = this.series[seriesIndex];
+            if (series.animationState) {
+                if (series.animationState.type === 'show') {
+                    if (isNormal) {
+                        rSeries.multiplier = series.animationState.stage;
+                    } else {
+                        rSeries.multiplier = 1;
+                    }
+                } else {
+                    if (isNormal) {
+                        rSeries.multiplier = 1 - series.animationState.stage;
+                    } else {
+                        rSeries.multiplier = 1;
+                    }
+                }
+                ++animatingSeriesCount;
+            } else if (series.visible) {
+                rSeries.multiplier = 1;
+            } else {
+                rSeries.multiplier = 0;
+            }
+            totalMultiplier += rSeries.multiplier;
         }
 
-        if (typeof aniBarMultiplier !== 'undefined') {
-            seriesStandardWidthCount -= 1 - aniBarMultiplier;
-            standardBarsPerCategory -= 1;
-        }
-        const totalBarsPerCategory = (isStacked || isOverlaid) ? 1 : seriesStandardWidthCount;
+        const totalBarsPerCategory = (isStacked || isOverlaid) ? 1 : totalMultiplier;
 
         this.barPositions = [];
 
@@ -49,8 +62,6 @@ class BarRenderer extends renderer.Renderer {
             // FIXME: Need to map this.tb.options.barPlot.categorySpacing
             const barXStart = categoryXStart + Math.ceil(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
             const barXEnd = categoryXEnd - Math.floor(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
-            const standardBarWidth = Math.floor((barXEnd - barXStart) / totalBarsPerCategory);
-            const overriddenBarWidth = Math.floor((barXEnd - barXStart) - standardBarWidth * standardBarsPerCategory);
 
             let categoryPositions = [];
             let barIndex = 0;
@@ -58,10 +69,13 @@ class BarRenderer extends renderer.Renderer {
             let runningBarWidth = 0;
 
             for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                const series = this.renderedSeries[seriesIndex];
-                const barWidth = series.index === animationOptions.series.index && typeof aniBarMultiplier !== 'undefined' ? overriddenBarWidth : standardBarWidth;
-                const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-                const xEnd = Math.ceil(barXStart + (barIndex + 1) * barWidth) - Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const series = this.series[seriesIndex];
+                const rSeries = this.renderedSeries[seriesIndex];
+                let barWidth = Math.floor(rSeries.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
+
+                const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+
                 categoryPositions.push([xStart, xEnd]);
 
                 if (isNormal) {
@@ -75,7 +89,7 @@ class BarRenderer extends renderer.Renderer {
     }
 
     onToggleSeriesAnimationFrame(elapsedTime, animation) {
-        this.updateBarWidths(animation, elapsedTime/animation.length);
+        this.updateBarWidths();
     }
 
     drawPlot() {
@@ -150,18 +164,21 @@ class BarRenderer extends renderer.Renderer {
             if (typeof realDistance === 'undefined')
                 realDistance = sortDistance;
 
-            matches.push({
-                sortDistance: sortDistance,
-                distance: realDistance,
-                priority: priority,
-                data: {
-                    categoryIndex: bar.categoryIndex,
-                    seriesIndex: bar.seriesIndex,
-                    rect: bar.rect,
-                    series: this.series[bar.seriesIndex],
-                    value: Tayberry.getDataValue(this.series[bar.seriesIndex].data[bar.categoryIndex])
-                }
-            });
+            if (!Utils.isMissingValue(realDistance)) {
+                matches.push({
+                    sortDistance: sortDistance,
+                    distance: realDistance,
+                    priority: priority,
+                    data: {
+                        categoryIndex: bar.categoryIndex,
+                        seriesIndex: bar.seriesIndex,
+                        rect: bar.rect,
+                        series: bar.series,
+                        renderedSeries: bar.renderedSeries,
+                        value: Tayberry.getDataValue(this.series[bar.seriesIndex].data[bar.categoryIndex])
+                    }
+                });
+            }
         }
 
         if (matches.length) {
@@ -173,6 +190,9 @@ class BarRenderer extends renderer.Renderer {
             });
             ret.found = true;
             ret.normalisedDistance = matches[0].distance + Math.sqrt(matches[0].data.rect.area);
+            if (ret.normalisedDistance < 0) {
+                ret.normalisedDistance = 0;
+            }
             ret = Utils.assign(ret, matches[0].data);
         }
         return ret;

@@ -32,7 +32,7 @@ Tayberry.prototype.hitTestLegend = function (x, y) {
         for (let index = 0; index < legendMetrics.items.length; index++) {
             const item = legendMetrics.items[index];
             if (item.rect.containsPoint(x, y)) {
-                Utils.assign(ret, [{found: true, normalisedDistance: -5}, item]);
+                Utils.assign(ret, [{found: true, normalisedDistance: -5, data: item}]);
                 break;
             }
         }

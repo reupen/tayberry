@@ -17,12 +17,15 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         }
         elapsed = timestamp - animation.startTime;
         for (let i = 0; i < this.renderers.length; i++) {
+            if (animation.onFrame) {
+                animation.onFrame(Math.min(elapsed/animation.length, 1));
+            }
             this.renderers[i].onAnimationFrame(elapsed, animation);
         }
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
-            if (animation.completionCallback) {
-                animation.completionCallback();
+            if (animation.onCompletion) {
+                animation.onCompletion();
             }
         }
     }
@@ -120,10 +123,18 @@ Tayberry.prototype.onClick = function (event) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
+                hitTestResult.data.series.animationState = {
+                    type: hitTestResult.data.series.visible ? 'hide' : 'show',
+                    stage: 0
+                };
                 this.startAnimation({
-                    type: hitTestResult.series.visible ? 'hideSeries' : 'showSeries',
-                    series: hitTestResult.series,
-                    completionCallback: () => hitTestResult.series.visible = !hitTestResult.series.visible
+                    type: hitTestResult.data.series.visible ? 'hideSeries' : 'showSeries',
+                    series: hitTestResult.data.series,
+                    onFrame: (stage) => hitTestResult.data.series.animationState.stage = stage,
+                    onCompletion: () => {
+                        hitTestResult.data.series.visible = !hitTestResult.data.series.visible;
+                        delete hitTestResult.data.series.animationState;
+                    }
                 })
             }
         }

@@ -121,7 +121,12 @@ class LineRenderer extends renderer.Renderer {
         while ((pt = pointEnumerator.next())) {
             const distance = Math.sqrt(Math.pow(pt.x - x, 2) + Math.pow(pt.y - y, 2));
             const horizontalDistance = Math.abs(this.tb.options.swapAxes ? pt.y - y : pt.x - x);
-            matches.push({distance: distance, horizontalDistance: horizontalDistance, priority: 0, data: pt});
+            matches.push({
+                distance: distance,
+                horizontalDistance: horizontalDistance,
+                priority: 0,
+                data: pt
+            });
             //if (!pt.firstPoint) {
             //    if (x >= lastPt.x && x < pt.x) {
             //const alpha = Math.arctan((pt.y - lastPt.y) / (pt.x - lastPt.x));

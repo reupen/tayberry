@@ -73,11 +73,10 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
     }
 };
 
-Tayberry.prototype.startAnimation = function (animation, completionCallback) {
+Tayberry.prototype.startAnimation = function (animation) {
     this.pendingAnimations.push(Utils.assign({}, [{
         length: 500,
-        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null,
-        completionCallback: completionCallback
+        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
     },
         animation
     ]));
