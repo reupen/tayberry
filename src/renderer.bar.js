@@ -2,6 +2,7 @@
 var Rect = require('./helpers/rect').Rect;
 var Utils = require('./helpers/utils');
 var renderer = require('./renderer.base');
+var constants = require('./constants');
 var Tayberry = require('./base.js').Tayberry;
 
 class BarRenderer extends renderer.Renderer {
@@ -44,7 +45,7 @@ class BarRenderer extends renderer.Renderer {
                     }
                 }
                 ++animatingSeriesCount;
-            } else if (series.visible) {
+            } else if (series.visible & constants.visibilityState.visible) {
                 rSeries.multiplier = 1;
             } else {
                 rSeries.multiplier = 0;
@@ -97,8 +98,10 @@ class BarRenderer extends renderer.Renderer {
         let barEnumerator = new BarEnumerator(this);
         let bar;
         while ((bar = barEnumerator.next())) {
-            this.ctx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
-            this.ctx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
+            if (bar.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)) {
+                this.ctx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
+                this.ctx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
+            }
         }
         this.ctx.restore();
     }
@@ -109,9 +112,11 @@ class BarRenderer extends renderer.Renderer {
             let barEnumerator = new BarEnumerator(this);
             let bar;
             while ((bar = barEnumerator.next())) {
-                this.ctx.font = this.tb.labelFont;
-                this.ctx.fillStyle = this.tb.options.labels.font.colour;
-                this.drawLabel(bar.value, bar.series.yAxis.options.labelFormatter(bar.value), bar.rect);
+                if ((bar.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)) === constants.visibilityState.visible) {
+                    this.ctx.font = this.tb.labelFont;
+                    this.ctx.fillStyle = this.tb.options.labels.font.colour;
+                    this.drawLabel(bar.value, bar.series.yAxis.options.labelFormatter(bar.value), bar.rect);
+                }
             }
             this.ctx.restore();
         }

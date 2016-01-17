@@ -1,6 +1,7 @@
 'use strict';
 var Tayberry = require('./base.js').Tayberry;
 var Utils = require('./helpers/utils');
+var constants = require('./constants');
 
 Tayberry.prototype.defaultOptions = function () {
     return {
@@ -70,7 +71,7 @@ Tayberry.prototype.defaultOptions = function () {
 };
 
 Tayberry.defaultSeries = {
-    visible: true
+    visible: constants.visibilityState.visible
 };
 
 Tayberry.defaultXAxis = {

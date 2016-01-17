@@ -1,6 +1,7 @@
 'use strict';
 var Rect = require('./helpers/rect').Rect;
 var Utils = require('./helpers/utils');
+var constants = require('./constants');
 
 var Tayberry = require('./base').Tayberry;
 
@@ -123,16 +124,19 @@ Tayberry.prototype.onClick = function (event) {
         let hitTestResult = this.hitTest(this.mapLogicalXUnit(x), this.mapLogicalYUnit(y));
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
-                hitTestResult.data.series.animationState = {
-                    type: hitTestResult.data.series.visible ? 'hide' : 'show',
+                const series = hitTestResult.data.series;
+                series.animationState = {
+                    type: (series.visible & constants.visibilityState.visible) ? 'hide' : 'show',
                     stage: 0
                 };
+                series.visible = (series.visible & constants.visibilityState.visible) ? constants.visibilityState.hidden : constants.visibilityState.visible;
+                series.visible |= constants.visibilityState.transitioning;
                 this.startAnimation({
-                    type: hitTestResult.data.series.visible ? 'hideSeries' : 'showSeries',
+                    type: (series.visible & constants.visibilityState.visible) ? 'hideSeries' : 'showSeries',
                     series: hitTestResult.data.series,
                     onFrame: (stage) => hitTestResult.data.series.animationState.stage = stage,
                     onCompletion: () => {
-                        hitTestResult.data.series.visible = !hitTestResult.data.series.visible;
+                        series.visible = (series.visible & ~constants.visibilityState.transitioning);
                         delete hitTestResult.data.series.animationState;
                     }
                 })
