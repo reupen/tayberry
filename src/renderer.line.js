@@ -79,7 +79,7 @@ class LineRenderer extends renderer.Renderer {
     }
 
     drawLegendIndicator(ctx, series, rect, highlighted) {
-        const colour = highlighted ? series.highlightColour : series.colour;;
+        const colour = highlighted ? series.highlightColour : series.colour;
         ctx.save();
         ctx.lineWidth = 2;
         ctx.strokeStyle = colour;

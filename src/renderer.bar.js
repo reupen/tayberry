@@ -70,7 +70,6 @@ class BarRenderer extends renderer.Renderer {
             let runningBarWidth = 0;
 
             for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                const series = this.series[seriesIndex];
                 const rSeries = this.renderedSeries[seriesIndex];
                 let barWidth = Math.floor(rSeries.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
 
@@ -89,7 +88,7 @@ class BarRenderer extends renderer.Renderer {
         }
     }
 
-    onToggleSeriesAnimationFrame(elapsedTime, animation) {
+    onToggleSeriesAnimationFrame() {
         this.updateBarWidths();
     }
 

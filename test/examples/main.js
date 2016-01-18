@@ -1,3 +1,5 @@
+/* global Tayberry */
+
 Tayberry.create('chart1', {
     title: {
         text: 'Forecast errors'

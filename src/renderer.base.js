@@ -30,7 +30,7 @@ class Renderer {
         }
     }
 
-    onToggleSeriesAnimationFrame(elapsedTime, animation) {
+    onToggleSeriesAnimationFrame() {
     }
 
     onGrowAnimationFrame(elapsedTime, animation) {
