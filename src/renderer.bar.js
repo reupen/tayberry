@@ -1,6 +1,7 @@
 'use strict';
 var Rect = require('./helpers/rect').Rect;
 var Utils = require('./helpers/utils');
+var Colour = require('./helpers/colour').Colour;
 var renderer = require('./renderer.base');
 var constants = require('./constants');
 var Tayberry = require('./base.js').Tayberry;
@@ -35,12 +36,20 @@ class BarRenderer extends renderer.Renderer {
                     if (isNormal) {
                         rSeries.multiplier = series.animationState.stage;
                     } else {
+                        let transColour = new Colour(series.colour);
+                        transColour.a = 0;
+                        rSeries.colour = Colour.createFromBlend(transColour, new Colour(series.colour), series.animationState.stage).toString();
+
                         rSeries.multiplier = 1;
                     }
                 } else {
                     if (isNormal) {
                         rSeries.multiplier = 1 - series.animationState.stage;
                     } else {
+                        let transColour = new Colour(series.colour);
+                        transColour.a = 0;
+                        rSeries.colour = Colour.createFromBlend(new Colour(series.colour), transColour, series.animationState.stage).toString();
+
                         rSeries.multiplier = 1;
                     }
                 }

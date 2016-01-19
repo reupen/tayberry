@@ -9,6 +9,14 @@
         return n === null || typeof n === 'undefined' || (isNaN(n) && typeof n === 'number');
     };
 
+    exports.coalesce = function(...vals) {
+        for (let i = 0; i<vals.length; i++) {
+            if (!exports.isMissingValue(vals[i])) {
+                return vals[i];
+            }
+        }
+    };
+
     exports.reduce = function (array, func, getter, ignoreMissing = false) {
         var ret, i;
         if (array.reduce && !getter && !ignoreMissing) {

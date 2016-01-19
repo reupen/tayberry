@@ -107,6 +107,16 @@ class Colour {
         return ret;
     }
 
+    static createFromBlend(colour1, colour2, blendPosition) {
+        const blender = (c1, c2) => (c1 + blendPosition*(c2 - c1));
+        return new Colour({
+            r: blender(colour1.r, colour2.r),
+            g: blender(colour1.g, colour2.g),
+            b: blender(colour1.b, colour2.b),
+            a: blender(Utils.coalesce(colour1.a, 1), Utils.coalesce(colour2.a, 1))
+        }).clip();
+    }
+
 }
 
 exports.Colour = Colour;
