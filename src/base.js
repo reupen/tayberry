@@ -1,4 +1,4 @@
-class Tayberry {
+export class Tayberry {
     constructor() {
         this.selectedItem = {};
         this.containerElement = null;
@@ -33,7 +33,5 @@ class Tayberry {
         return this.options.series.length ? this.options.series[0].data.length : 0;
     }
 }
-
-exports.Tayberry = Tayberry;
 
 

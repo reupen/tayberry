@@ -1,6 +1,6 @@
 /*eslint-env jasmine */
 
-var Rect = require('../../src/helpers/rect').Rect;
+import {Rect} from '../../src/helpers/rect';
 
 describe('rect', () => {
     beforeEach(() => {

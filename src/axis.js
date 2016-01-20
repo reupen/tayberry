@@ -1,7 +1,7 @@
 'use strict';
-var Utils = require('./helpers/utils.js');
+import * as Utils from './helpers/utils.js';
 
-class Axis {
+export class Axis {
     static create(tayberry, options, index, axisType, xYSwapped) {
         const isHorizontal = (axisType === 'x' && !xYSwapped) || (axisType === 'y' && xYSwapped);
         if (options.type === 'linear')
@@ -494,5 +494,3 @@ class LinearAxis extends Axis {
         }
     }
 }
-
-exports.Axis = Axis;

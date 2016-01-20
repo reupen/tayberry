@@ -1,7 +1,7 @@
 'use strict';
-var Tayberry = require('./base').Tayberry;
-var Rect = require('./helpers/rect').Rect;
-var Utils = require('./helpers/utils');
+import {Tayberry} from './base';
+import {Rect} from './helpers/rect';
+import * as Utils from './helpers/utils.js';
 
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {

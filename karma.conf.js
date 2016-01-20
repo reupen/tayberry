@@ -7,7 +7,7 @@ module.exports = function (config) {
             exitOnResourceError: true
         },
         basePath: '',
-        frameworks: ['browserify', 'jasmine'],
+        frameworks: ['jasmine'],
 
         files: [
             'test/unit/**/*.js'
@@ -16,15 +16,21 @@ module.exports = function (config) {
         exclude: [],
 
         preprocessors: {
-            'src/**/*.js': ['browserify'],
-            'test/**/*.js': ['browserify']
+            'src/**/*.js': ['babel'],
+            'test/**/*.js': ['babel']
         },
-
-        browserify: {
-            debug: true,
-            transform: [['babelify', { presets: ['es2015'] }]]
+        babelPreprocessor: {
+            options: {
+                presets: ['es2015'],
+                sourceMap: 'inline'
+            },
+            filename: function (file) {
+                return file.originalPath.replace(/\.js$/, '.es5.js');
+            },
+            sourceFileName: function (file) {
+                return file.originalPath;
+            }
         }
-
         // define reporters, port, logLevel, browsers etc.
     });
 };

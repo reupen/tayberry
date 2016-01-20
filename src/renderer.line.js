@@ -1,13 +1,13 @@
 'use strict';
-var Utils = require('./helpers/utils');
-var Rect = require('./helpers/rect').Rect;
-var renderer = require('./renderer.base');
-var Tayberry = require('./base').Tayberry;
+import * as Utils from './helpers/utils.js';
+import {Rect} from './helpers/rect';
+import * as renderer from './renderer.base';
+import {Tayberry} from './base';
 
 var autoMarkerIndex = 0;
 const markers = ['square', 'diamond', 'circle', 'triangle', 'triangle-inversed'];
 
-class LineRenderer extends renderer.Renderer {
+export class LineRenderer extends renderer.Renderer {
     setSeries(series) {
         let totalPoints = 0;
         for (var i = 0; i < series.length; i++) {
@@ -166,7 +166,7 @@ class LineRenderer extends renderer.Renderer {
 
 }
 
-class PointEnumerator extends renderer.BySeriesEnumerator {
+export class PointEnumerator extends renderer.BySeriesEnumerator {
     next() {
         let ret;
 
@@ -200,5 +200,3 @@ class PointEnumerator extends renderer.BySeriesEnumerator {
         return ret;
     }
 }
-
-exports.LineRenderer = LineRenderer;

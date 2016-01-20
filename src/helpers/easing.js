@@ -1,17 +1,15 @@
-exports.linear = function (time, duration) {
-    return (time / duration);
-};
+'use strict';
 
-exports.linear = function (time, duration) {
+export function linear(time, duration) {
     return (time / duration);
-};
+}
 
-exports.inQuad = function (time, duration) {
+export function inQuad(time, duration) {
     var factor = time / duration;
     return factor * factor;
-};
+}
 
-exports.outQuad = function (time, duration) {
+export function outQuad(time, duration) {
     var factor = time / duration;
     return factor * (2 - factor);
-};
+}

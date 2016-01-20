@@ -1,12 +1,12 @@
 'use strict';
-var Rect = require('./helpers/rect').Rect;
-var Utils = require('./helpers/utils');
-var Colour = require('./helpers/colour').Colour;
-var renderer = require('./renderer.base');
-var constants = require('./constants');
-var Tayberry = require('./base.js').Tayberry;
+import {Rect} from './helpers/rect';
+import * as Utils from './helpers/utils.js';
+import {Colour} from './helpers/colour';
+import * as renderer from './renderer.base';
+import * as constants from './constants';
+import {Tayberry} from './base';
 
-class BarRenderer extends renderer.Renderer {
+export class BarRenderer extends renderer.Renderer {
     constructor(ctx, tayberry, series) {
         super(ctx, tayberry, series);
 
@@ -212,7 +212,7 @@ class BarRenderer extends renderer.Renderer {
     }
 }
 
-class BarEnumerator extends renderer.ByCategoryEnumerator {
+export class BarEnumerator extends renderer.ByCategoryEnumerator {
     constructor(renderer, startCategoryIndex = 0) {
         super(renderer, startCategoryIndex);
         if (this.categoryCount) {
@@ -283,4 +283,3 @@ class BarEnumerator extends renderer.ByCategoryEnumerator {
     }
 }
 
-exports.BarRenderer = BarRenderer;

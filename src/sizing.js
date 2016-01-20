@@ -1,7 +1,7 @@
 'use strict';
-var Rect = require('./helpers/rect').Rect;
-var Tayberry = require('./base.js').Tayberry;
-var Utils = require('./helpers/utils');
+import {Rect} from './helpers/rect';
+import {Tayberry} from './base';
+import * as Utils from './helpers/utils.js';
 
 Tayberry.mapVerticalPosition = function (sign, position) {
     switch (position) {

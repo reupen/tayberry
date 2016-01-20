@@ -1,30 +1,29 @@
-(function () {
-    'use strict';
-    let Tayberry = require('./base').Tayberry;
-    require('./axis');
-    require('./core');
-    require('./drawing');
-    require('./events');
-    require('./defaults');
-    require('./sizing');
-    require('./legend');
-    require('./renderer.base');
-    require('./renderer.bar');
-    require('./renderer.line');
+import {Tayberry as TayberryBase} from './base';
+import './axis';
+import './core';
+import './drawing';
+import './events';
+import './defaults';
+import './sizing';
+import './legend';
+import './renderer.base';
+import './renderer.bar';
+import './renderer.line';
 
-    module.exports = {
-        /**
-         * Creates a Tayberry chart
-         *
-         * @param element   ID of container div, or HTMLElement
-         * @param options   Options object
-         */
-        create: function (element, options) {
-            let chart = new Tayberry();
-            chart.create(element);
-            chart.setOptions(options);
-            chart.render();
-        }
-    };
 
-})();
+let Tayberry = {
+    /**
+     * Creates a Tayberry chart
+     *
+     * @param element   ID of container div, or HTMLElement
+     * @param options   Options object
+     */
+    create: function (element, options) {
+        let chart = new TayberryBase();
+        chart.create(element);
+        chart.setOptions(options);
+        chart.render();
+    }
+};
+
+export default Tayberry;

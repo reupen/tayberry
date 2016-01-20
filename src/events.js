@@ -1,9 +1,9 @@
 'use strict';
-var Rect = require('./helpers/rect').Rect;
-var Utils = require('./helpers/utils');
-var constants = require('./constants');
+import {Rect} from './helpers/rect';
+import * as Utils from './helpers/utils.js';
+import * as constants from './constants';
 
-var Tayberry = require('./base').Tayberry;
+import {Tayberry} from './base';
 
 Tayberry.prototype.registerCallback = function (eventName, func) {
     this.callbacks[eventName].push(func);

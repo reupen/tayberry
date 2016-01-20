@@ -1,9 +1,9 @@
 'use strict';
-var Utils = require('./helpers/utils');
-var Easing = require('./helpers/easing');
-var Tayberry = require('./base').Tayberry;
+import * as Utils from './helpers/utils.js';
+import * as Easing from './helpers/easing';
+import {Tayberry} from './base';
 
-class Renderer {
+export class Renderer {
     constructor(ctx, tayberry, series) {
         this.ctx = ctx;
         this.tb = tayberry;
@@ -105,7 +105,7 @@ class Renderer {
 
 }
 
-class Enumerator {
+export class Enumerator {
     constructor(renderer, startCategoryIndex = 0) {
         this.renderer = renderer;
         this.tb = renderer.tb;
@@ -129,7 +129,7 @@ class Enumerator {
     }
 }
 
-class ByCategoryEnumerator extends Enumerator {
+export class ByCategoryEnumerator extends Enumerator {
     onNewCategory() {
     }
 
@@ -152,7 +152,7 @@ class ByCategoryEnumerator extends Enumerator {
     }
 }
 
-class BySeriesEnumerator extends Enumerator {
+export class BySeriesEnumerator extends Enumerator {
     nextValue() {
 
         let value;
@@ -170,7 +170,3 @@ class BySeriesEnumerator extends Enumerator {
 
     }
 }
-
-exports.Renderer = Renderer;
-exports.ByCategoryEnumerator = ByCategoryEnumerator;
-exports.BySeriesEnumerator = BySeriesEnumerator;

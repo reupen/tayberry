@@ -1,7 +1,7 @@
 'use strict';
-var Tayberry = require('./base.js').Tayberry;
-var Utils = require('./helpers/utils');
-var constants = require('./constants');
+import {Tayberry} from './base';
+import * as Utils from './helpers/utils.js';
+import * as constants from './constants';
 
 Tayberry.prototype.defaultOptions = function () {
     return {

@@ -1,5 +1,8 @@
-var Utils = require('./utils');
-class Colour {
+'use strict';
+
+import * as Utils from './utils';
+
+export class Colour {
     /**
      * Constructs a Colour object.
      *
@@ -108,7 +111,7 @@ class Colour {
     }
 
     static createFromBlend(colour1, colour2, blendPosition) {
-        const blender = (c1, c2) => (c1 + blendPosition*(c2 - c1));
+        const blender = (c1, c2) => (c1 + blendPosition * (c2 - c1));
         return new Colour({
             r: blender(colour1.r, colour2.r),
             g: blender(colour1.g, colour2.g),
@@ -118,5 +121,3 @@ class Colour {
     }
 
 }
-
-exports.Colour = Colour;

@@ -1,6 +1,6 @@
 /*eslint-env jasmine */
 
-var Colour = require('../../src/helpers/colour').Colour;
+import {Colour} from '../../src/helpers/colour';
 
 describe('colours', () => {
     beforeEach(() => {

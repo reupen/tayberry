@@ -1,4 +1,6 @@
-class Rect {
+'use strict';
+
+export class Rect {
     constructor() {
         if (arguments.length === 1) {
             if (typeof arguments[0] === 'object') {
@@ -109,5 +111,3 @@ class Rect {
         return this;
     }
 }
-
-exports.Rect = Rect;
