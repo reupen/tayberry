@@ -32,7 +32,7 @@
     "karma-jasmine": "^0.3.6",
     "karma-phantomjs-launcher": "^0.2.3",
     "phantomjs": "^1.9.18",
-    "rollup": "^0.25.0",
+    "rollup": "^0.25.1",
     "rollup-plugin-babel": "^2.3.9"
   },
   "scripts": {

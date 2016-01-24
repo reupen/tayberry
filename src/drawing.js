@@ -73,6 +73,18 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
     }
 };
 
+Tayberry.prototype.revokeAnimation = function (series) {
+    if (series.animationState) {
+        delete series.animationState;
+
+        for (let index = this.pendingAnimations.length; index; index--) {
+            if (this.pendingAnimations[index-1].series === series) {
+                this.pendingAnimations.splice(index-1, 1);
+            }
+        }
+    }
+};
+
 Tayberry.prototype.startAnimation = function (animation) {
     this.pendingAnimations.push(Utils.assign({}, [{
         length: 500,

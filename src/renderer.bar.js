@@ -32,41 +32,57 @@ export class BarRenderer extends renderer.Renderer {
             const rSeries = this.renderedSeries[seriesIndex];
             const series = this.series[seriesIndex];
             if (series.animationState) {
-                if (series.animationState.type === 'show') {
-                    if (isNormal) {
-                        rSeries.multiplier = series.animationState.stage;
+                if (!series.animationState.subtype) {
+                    const visibleSeriesCount = this.getVisibleSeriesCount(seriesIndex);
+                    if (isNormal && visibleSeriesCount > 0) {
+                        series.animationState.subtype = 'width';
+                    } else if (isStacked  && visibleSeriesCount > 0) {
+                        series.animationState.subtype = 'height';
                     } else {
-                        let transColour = new Colour(series.colour);
-                        transColour.a = 0;
-                        rSeries.colour = Colour.createFromBlend(transColour, new Colour(series.colour), series.animationState.stage).toString();
-
-                        rSeries.multiplier = 1;
+                        series.animationState.subtype = 'fade';
                     }
+                }
+
+                const isShow = series.animationState.type === 'show';
+                if (series.animationState.subtype === 'width') {
+                    rSeries.multiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rSeries.yMultiplier = 1;
+                } else if (series.animationState.subtype === 'height') {
+                    rSeries.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rSeries.multiplier = 1;
                 } else {
-                    if (isNormal) {
-                        rSeries.multiplier = 1 - series.animationState.stage;
-                    } else {
-                        let transColour = new Colour(series.colour);
-                        transColour.a = 0;
+                    let transColour = new Colour(series.colour);
+                    transColour.a = 0;
+                    if (isShow)
+                        rSeries.colour = Colour.createFromBlend(transColour, new Colour(series.colour), series.animationState.stage).toString();
+                    else
                         rSeries.colour = Colour.createFromBlend(new Colour(series.colour), transColour, series.animationState.stage).toString();
 
-                        rSeries.multiplier = 1;
-                    }
+                    rSeries.yMultiplier = 1;
+                    rSeries.multiplier = 1;
                 }
                 ++animatingSeriesCount;
             } else if (series.visible & constants.visibilityState.visible) {
                 rSeries.multiplier = 1;
+                rSeries.yMultiplier = 1;
             } else {
                 rSeries.multiplier = 0;
+                rSeries.yMultiplier = 0;
             }
             totalMultiplier += rSeries.multiplier;
         }
 
         const totalBarsPerCategory = (isStacked || isOverlaid) ? 1 : totalMultiplier;
+        const yOrigin = this.series[0].yAxis.getOrigin();
 
         this.barPositions = [];
 
         for (let categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+            let yBottomPositive = yOrigin;
+            let yBottomNegative = yOrigin;
+            let yRunningTotalPositive = 0;
+            let yRunningTotalNegative = 0;
+
             const categoryXStart = plotArea.left + Math.floor(categoryIndex * categoryWidth);
             const categoryXEnd = plotArea.left + Math.floor((categoryIndex + 1) * categoryWidth);
             // FIXME: Need to map this.tb.options.barPlot.categorySpacing
@@ -80,17 +96,30 @@ export class BarRenderer extends renderer.Renderer {
 
             for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
                 const rSeries = this.renderedSeries[seriesIndex];
+                const value = Tayberry.getDataValue(rSeries.data[categoryIndex])*rSeries.yMultiplier;
+
                 let barWidth = Math.floor(rSeries.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
 
                 const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
                 const xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const yTop = rSeries.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
+                const yBottom = isStacked ? (value > 0 ? yBottomPositive : yBottomNegative) : yOrigin;
 
-                categoryPositions.push([xStart, xEnd]);
+                categoryPositions.push([xStart, yTop, xEnd, yBottom]);
 
-                if (isNormal) {
+                if (isStacked) {
+                    if (value > 0) {
+                        yRunningTotalPositive += value;
+                        yBottomPositive = yTop;
+                    } else {
+                        yRunningTotalNegative += value;
+                        yBottomNegative = yTop;
+                    }
+                } else if (isNormal) {
                     barIndex++;
                     runningBarWidth += barWidth;
                 }
+
             }
 
             this.barPositions.push(categoryPositions);
@@ -102,6 +131,7 @@ export class BarRenderer extends renderer.Renderer {
     }
 
     drawPlot() {
+        this.updateBarWidths(); // FIXME: temp hack
         this.ctx.save();
         let barEnumerator = new BarEnumerator(this);
         let bar;
@@ -213,38 +243,13 @@ export class BarRenderer extends renderer.Renderer {
 }
 
 export class BarEnumerator extends renderer.ByCategoryEnumerator {
-    constructor(renderer, startCategoryIndex = 0) {
-        super(renderer, startCategoryIndex);
-        if (this.categoryCount) {
-            this.isStacked = this.tb.options.barPlot.mode === 'stacked';
-            this.isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
-            this.isNormal = !this.isStacked && !this.isOverlaid;
-            // used for stacked bar charts - must be on single y-axis
-            this.yOrigin = this.renderer.series[0].yAxis.getOrigin();
-
-            this.onNewCategory();
-        }
-    }
-
-    onNewCategory() {
-        this.yBottomPositive = this.yOrigin;
-        this.yBottomNegative = this.yOrigin;
-        this.yRunningTotalPositive = 0;
-        this.yRunningTotalNegative = 0;
-        this.barIndex = 0;
-    }
-
     next() {
         let ret;
 
         if (this.categoryIndex < this.categoryCount) {
-            const series = this.renderer.renderedSeries[this.seriesIndex];
-            const value = Tayberry.getDataValue(series.data[this.categoryIndex]);
+            const [xStart, yTop, xEnd, yBottom] = this.renderer.barPositions[this.categoryIndex][this.seriesIndex];
 
-            const [xStart, xEnd] = this.renderer.barPositions[this.categoryIndex][this.seriesIndex];
-
-            const yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? this.yRunningTotalPositive : this.yRunningTotalNegative));
-            let rect = new Rect(xStart, yTop, xEnd, this.isStacked ? (value > 0 ? this.yBottomPositive : this.yBottomNegative) : series.yAxis.getOrigin());
+            let rect = new Rect(xStart, yTop, xEnd, yBottom);
 
             if (rect.right < rect.left)
                 rect.right = rect.left;
@@ -262,19 +267,6 @@ export class BarEnumerator extends renderer.ByCategoryEnumerator {
                 rect: rect,
                 selected: this.tb.selectedItem.type === 'plotItem' && this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };
-
-            if (this.isStacked) {
-                if (value > 0) {
-                    this.yRunningTotalPositive += value;
-                    this.yBottomPositive = yTop;
-                }
-                else {
-                    this.yRunningTotalNegative += value;
-                    this.yBottomNegative = yTop;
-                }
-            } else if (this.isNormal) {
-                this.barIndex++;
-            }
 
             this.nextValue();
 

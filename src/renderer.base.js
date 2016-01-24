@@ -1,6 +1,7 @@
 'use strict';
 import * as Utils from './helpers/utils.js';
 import * as Easing from './helpers/easing';
+import * as constants from './constants';
 import {Tayberry} from './base';
 
 export class Renderer {
@@ -28,6 +29,18 @@ export class Renderer {
             }
             this.renderedSeries[seriesIndex] = elem;
         }
+    }
+
+    getVisibleSeriesCount(excludeSeries) {
+        let ret = 0;
+        for (let index=0; index<this.series.length; index++) {
+            if (index !== excludeSeries) {
+                const series = this.series[index];
+                if (series.visible & (constants.visibilityState.visible))
+                    ret++;
+            }
+        }
+        return ret;
     }
 
     onToggleSeriesAnimationFrame() {
@@ -130,9 +143,6 @@ export class Enumerator {
 }
 
 export class ByCategoryEnumerator extends Enumerator {
-    onNewCategory() {
-    }
-
     nextValue() {
 
         let value;
@@ -142,7 +152,6 @@ export class ByCategoryEnumerator extends Enumerator {
                 this.categoryIndex++;
                 if (this.categoryIndex >= this.categoryCount)
                     break;
-                this.onNewCategory();
             } else {
                 this.seriesIndex++;
             }

@@ -125,6 +125,7 @@ Tayberry.prototype.onClick = function (event) {
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
                 const series = hitTestResult.data.series;
+                this.revokeAnimation(series);
                 series.animationState = {
                     type: (series.visible & constants.visibilityState.visible) ? 'hide' : 'show',
                     stage: 0
