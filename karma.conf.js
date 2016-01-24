@@ -22,7 +22,14 @@ module.exports = function (config) {
 
         browserify: {
             debug: true,
-            transform: [['babelify', { presets: ['es2015'] }]]
+            transform: [['babelify', {presets: ['es2015']}]]
+        },
+
+        customLaunchers: {
+            ChromeNoSandbox: {
+                base: 'Chrome',
+                flags: ['--no-sandbox']
+            }
         }
 
         // define reporters, port, logLevel, browsers etc.

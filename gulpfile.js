@@ -26,6 +26,14 @@ gulp.task('test', function (done) {
     }, done).start();
 });
 
+gulp.task('test:ci', function (done) {
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true,
+        browsers: ['PhantomJS', 'Firefox', 'ChromeNoSandbox']
+    }, done).start();
+});
+
 gulp.task('build', function () {
     gulp.src('./src/tayberry.js', {read: false})
         .pipe(rollup({
@@ -49,6 +57,8 @@ gulp.task('build', function () {
 });
 
 gulp.task('default', ['lint', 'build', 'test']);
+
+gulp.task('ci', ['lint', 'build', 'test:ci']);
 
 gulp.task('watch', ['default'], function () {
     gulp.watch('src/*', ['lint', 'build']);
