@@ -48,7 +48,7 @@ gulp.task('build', function () {
         .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('default', ['lint', 'build']);
+gulp.task('default', ['lint', 'build', 'test']);
 
 gulp.task('watch', ['default'], function () {
     gulp.watch('src/*', ['lint', 'build']);
