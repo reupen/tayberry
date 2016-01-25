@@ -12,7 +12,7 @@ Tayberry.prototype.drawLegend = function () {
         for (let index = 0; index < legendMetrics.items.length; index++) {
             const item = legendMetrics.items[index];
             const series = item.series;
-            const highlighted = this.selectedItem.type === 'legend' && this.selectedItem.series === series;
+            const highlighted = this.selectedItem.type === 'legend' && this.selectedItem.data.series === series;
             series.renderer.drawLegendIndicator(this.labelsCtx, series, item.indicatorRect, highlighted);
             this.labelsCtx.textBaseline = 'middle';
             this.labelsCtx.fillStyle = this.options.legend.font.colour;
