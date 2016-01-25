@@ -53,7 +53,7 @@ export class Renderer {
             for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
                 const series = this.series[seriesIndex];
                 const value = Tayberry.getDataValue(series.data[categoryIndex]);
-                const yOrigin = series.yAxis.min <= 0 && 0 <= series.yAxis.max ? 0 : (series.yAxis.min > 0 ? series.yAxis.min : series.yAxis.max);
+                const yOrigin = series.yAxis.valueOrigin;
                 Tayberry.setDataValue(this.renderedSeries[seriesIndex].data, categoryIndex, yOrigin + scaleFactor * ((value - yOrigin)));
             }
         }

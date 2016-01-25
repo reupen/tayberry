@@ -263,7 +263,7 @@ export class BarEnumerator extends renderer.ByCategoryEnumerator {
                 series: this.renderer.series[this.seriesIndex],
                 renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
+                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 rect: rect,
                 selected: this.tb.selectedItem.type === 'plotItem' && this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };

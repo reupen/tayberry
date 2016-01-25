@@ -2,12 +2,72 @@
 import * as Utils from './helpers/utils.js';
 import {Rect} from './helpers/rect';
 import * as renderer from './renderer.base';
+import * as constants from './constants';
 import {Tayberry} from './base';
 
 var autoMarkerIndex = 0;
 const markers = ['square', 'diamond', 'circle', 'triangle', 'triangle-inversed'];
 
 export class LineRenderer extends renderer.Renderer {
+    constructor(ctx, tayberry, series) {
+        super(ctx, tayberry, series);
+
+        this.pointPositions = null;
+
+        this.tb.registerCallback('onResize', this.updatPointPositions.bind(this));
+        this.tb.registerCallback('onInit', this.updatPointPositions.bind(this));
+    }
+
+    updatPointPositions() {
+        const seriesCount = this.renderedSeries.length;
+
+        this.pointPositions = [];
+
+        for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+            const rSeries = this.renderedSeries[seriesIndex];
+            const series = this.series[seriesIndex];
+            if (series.animationState) {
+                if (!series.animationState.subtype) {
+                    series.animationState.subtype = 'height';
+                }
+
+                const isShow = series.animationState.type === 'show';
+                if (series.animationState.subtype === 'height') {
+                    rSeries.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rSeries.xMultiplier = 1;
+                }
+
+            } else if (series.visible & constants.visibilityState.visible) {
+                rSeries.xMultiplier = 1;
+                rSeries.yMultiplier = 1;
+            } else {
+                rSeries.xMultiplier = 1;
+                rSeries.yMultiplier = 0;
+            }
+        }
+
+        for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+            const rSeries = this.renderedSeries[seriesIndex];
+            const series = this.renderedSeries[seriesIndex];
+            const valueCount = rSeries.data.length;
+            const yOrigin = series.yAxis.valueOrigin;
+            let seriesPositions = [];
+
+            for (let valueIndex = 0; valueIndex < valueCount; valueIndex++) {
+                const value = Tayberry.getDataValue(series.data[valueIndex]);
+                const xValue = Tayberry.getDataXValue(series.data, valueIndex);
+
+                const rValue = yOrigin + (rSeries.yMultiplier)*(value-yOrigin);
+                let x = series.xAxis.getValueDisplacement(xValue)*rSeries.xMultiplier;
+                let y = series.yAxis.getValueDisplacement(rValue);
+
+                seriesPositions.push([x, y]);
+            }
+
+            this.pointPositions.push(seriesPositions);
+        }
+    }
+
     setSeries(series) {
         let totalPoints = 0;
         for (var i = 0; i < series.length; i++) {
@@ -47,11 +107,19 @@ export class LineRenderer extends renderer.Renderer {
         }
     }
 
+    onToggleSeriesAnimationFrame() {
+        this.updatPointPositions();
+    }
+
     drawPlot() {
+        this.updatPointPositions(); //FIXME
         this.ctx.save();
         let pointEnumerator = new PointEnumerator(this);
         let pt;
         while ((pt = pointEnumerator.next())) {
+            if (!(pt.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)))
+                continue;
+
             if (pt.firstPoint) {
                 this.ctx.lineWidth = pt.seriesSelected ? this.tb.options.linePlot.highlightedLineWidth : this.tb.options.linePlot.lineWidth;
                 this.ctx.strokeStyle = pt.seriesSelected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
@@ -67,6 +135,9 @@ export class LineRenderer extends renderer.Renderer {
         if (this.showMarkers) {
             pointEnumerator = new PointEnumerator(this);
             while ((pt = pointEnumerator.next())) {
+                if (!(pt.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)))
+                    continue;
+
                 if (pt.selected) {
                     this.ctx.fillStyle = pt.renderedSeries.glowColour;
                     this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
@@ -97,6 +168,9 @@ export class LineRenderer extends renderer.Renderer {
             let pointEnumerator = new PointEnumerator(this);
             let pt;
             while ((pt = pointEnumerator.next())) {
+                if (!(pt.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)))
+                    continue;
+
                 const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
                 this.drawLabel(pt.value, pt.series.yAxis.options.labelFormatter(pt.value), rect);
             }
@@ -171,11 +245,7 @@ export class PointEnumerator extends renderer.BySeriesEnumerator {
         let ret;
 
         if (this.seriesIndex < this.seriesCount) {
-            const series = this.renderer.renderedSeries[this.seriesIndex];
-            const value = Tayberry.getDataValue(series.data[this.categoryIndex]);
-            const xValue = Tayberry.getDataXValue(series.data, this.categoryIndex);
-            let x = series.xAxis.getValueDisplacement(xValue);
-            let y = series.yAxis.getValueDisplacement(value);
+            let [x, y] = this.renderer.pointPositions[this.seriesIndex][this.categoryIndex];
 
             if (this.isHorizontal)
                 [x, y] = [y, x];
@@ -188,7 +258,7 @@ export class PointEnumerator extends renderer.BySeriesEnumerator {
                 series: this.renderer.series[this.seriesIndex],
                 renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]),
+                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 x: x,
                 y: y,
                 seriesSelected: this.tb.selectedItem.type === 'plotItem' && !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],

@@ -272,6 +272,10 @@ export class Axis {
 
     updateFormatter() {
     }
+
+    get valueOrigin() {
+        return this.min <= 0 && 0 <= this.max ? 0 : (this.min > 0 ? this.min : this.max)
+    }
 }
 
 class CategorialAxis extends Axis {
