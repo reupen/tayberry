@@ -9,35 +9,6 @@ Tayberry.prototype.registerCallback = function (eventName, func) {
     this.callbacks[eventName].push(func);
 };
 
-Tayberry.prototype.onAnimate = function (timestamp) {
-    var elapsed;
-    for (let index = this.pendingAnimations.length - 1; index >= 0; index--) {
-        let animation = this.pendingAnimations[index];
-        if (animation.startTime === null) {
-            animation.startTime = timestamp;
-        }
-        elapsed = timestamp - animation.startTime;
-        for (let i = 0; i < this.renderers.length; i++) {
-            if (animation.onFrame) {
-                animation.onFrame(animation.initialStage + Math.min(elapsed / animation.length, 1) * (1 - animation.initialStage));
-            }
-            this.renderers[i].onAnimationFrame(elapsed, animation);
-        }
-        if (elapsed >= animation.length) {
-            this.pendingAnimations.splice(index, 1);
-            if (animation.onCompletion) {
-                animation.onCompletion();
-            }
-        }
-    }
-    this.redraw(true);
-    if (this.pendingAnimations.length) {
-        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-    } else {
-        this.animator = null;
-    }
-};
-
 Tayberry.prototype.onMouseLeave = function (event) {
     if ((event.currentTarget == this.plotCanvas && event.relatedTarget !== this.tooltipElement) || (event.currentTarget == this.tooltipElement && event.relatedTarget !== this.plotCanvas)) {
         this.selectedItem = {};

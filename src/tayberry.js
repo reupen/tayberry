@@ -6,6 +6,7 @@ import './events';
 import './defaults';
 import './sizing';
 import './legend';
+import './animation';
 import './renderer.base';
 import './renderer.bar';
 import './renderer.line';

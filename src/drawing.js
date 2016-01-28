@@ -73,28 +73,6 @@ Tayberry.prototype.drawTextMultiline = function (lineHeight, x, y, maxWidth, tex
     }
 };
 
-Tayberry.prototype.revokeAnimation = function (series) {
-    for (let index = this.pendingAnimations.length; index; index--) {
-        if (this.pendingAnimations[index-1].series === series) {
-            this.pendingAnimations.splice(index-1, 1);
-        }
-    }
-};
-
-Tayberry.prototype.startAnimation = function (animation) {
-    animation.initialStage = animation.initialStage || 0;
-    var newAnimation = Utils.assign({}, [{
-        length: 500*(1-animation.initialStage),
-        startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
-    },
-        animation
-    ]);
-    this.pendingAnimations.push(newAnimation);
-    if (!this.animator)
-        this.animator = requestAnimationFrame(this.onAnimate.bind(this));
-    return newAnimation;
-};
-
 Tayberry.prototype.render = function () {
     this.drawLabelLayer();
     this.createTooltip();
