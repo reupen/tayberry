@@ -1,6 +1,5 @@
 'use strict';
 import * as Utils from './helpers/utils.js';
-import * as Easing from './helpers/easing';
 import * as constants from './constants';
 import {Tayberry} from './base';
 
