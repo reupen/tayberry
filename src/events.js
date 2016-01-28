@@ -19,7 +19,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         elapsed = timestamp - animation.startTime;
         for (let i = 0; i < this.renderers.length; i++) {
             if (animation.onFrame) {
-                animation.onFrame(Math.min(elapsed/animation.length, 1));
+                animation.onFrame(animation.initialStage + Math.min(elapsed / animation.length, 1) * (1 - animation.initialStage));
             }
             this.renderers[i].onAnimationFrame(elapsed, animation);
         }
@@ -125,22 +125,32 @@ Tayberry.prototype.onClick = function (event) {
         if (hitTestResult.found) {
             if (hitTestResult.type === 'legend') {
                 const series = hitTestResult.data.series;
-                this.revokeAnimation(series);
-                series.animationState = {
-                    type: (series.visible & constants.visibilityState.visible) ? 'hide' : 'show',
-                    stage: 0
-                };
+
                 series.visible = (series.visible & constants.visibilityState.visible) ? constants.visibilityState.hidden : constants.visibilityState.visible;
                 series.visible |= constants.visibilityState.transitioning;
-                this.startAnimation({
+
+                if (series.animationState) {
+                    series.animationState.type = series.animationState.type === 'show' ? 'hide' : 'show';
+                    series.animationState.stage = 1 - series.animationState.stage;
+
+                    series.animationState.animator.type = (series.visible & constants.visibilityState.visible) ? 'hideSeries' : 'showSeries';
+                    this.revokeAnimation(series);
+                } else {
+                    series.animationState = {
+                        type: (series.visible & constants.visibilityState.visible) ? 'show' : 'hide',
+                        stage: 0
+                    };
+                }
+                series.animationState.animator = this.startAnimation({
                     type: (series.visible & constants.visibilityState.visible) ? 'hideSeries' : 'showSeries',
                     series: hitTestResult.data.series,
+                    initialStage: series.animationState.stage,
                     onFrame: (stage) => hitTestResult.data.series.animationState.stage = stage,
                     onCompletion: () => {
                         series.visible = (series.visible & ~constants.visibilityState.transitioning);
                         delete hitTestResult.data.series.animationState;
                     }
-                })
+                });
             }
         }
     }
