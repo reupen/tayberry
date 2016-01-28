@@ -1,7 +1,7 @@
 'use strict';
 import {Tayberry} from './base';
-import {Rect} from './helpers/rect';
 import * as Utils from './helpers/utils.js';
+import * as constants from './constants';
 
 Tayberry.prototype.revokeAnimation = function (series) {
     for (let index = this.pendingAnimations.length; index; index--) {
@@ -33,11 +33,8 @@ Tayberry.prototype.onAnimate = function (timestamp) {
             animation.startTime = timestamp;
         }
         elapsed = timestamp - animation.startTime;
-        for (let i = 0; i < this.renderers.length; i++) {
-            if (animation.onFrame) {
-                animation.onFrame(animation.initialStage + Math.min(elapsed / animation.length, 1) * (1 - animation.initialStage));
-            }
-            this.renderers[i].onAnimationFrame(elapsed, animation);
+        if (animation.onFrame) {
+            animation.onFrame(animation.initialStage + Math.min(elapsed / animation.length, 1) * (1 - animation.initialStage));
         }
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
@@ -45,6 +42,9 @@ Tayberry.prototype.onAnimate = function (timestamp) {
                 animation.onCompletion();
             }
         }
+    }
+    for (let i = 0; i < this.renderers.length; i++) {
+        this.renderers[i].onAnimationFrame();
     }
     this.redraw(true);
     if (this.pendingAnimations.length) {
@@ -54,3 +54,40 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     }
 };
 
+Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype) {
+    series.visible = visible ? constants.visibilityState.visible : constants.visibilityState.hidden;
+    series.visible |= constants.visibilityState.transitioning;
+
+    if (series.animationState) {
+        const newType = visible ? 'show' : 'hide';
+        if (series.animationState.type !== newType) {
+            series.animationState.type = newType;
+            series.animationState.stage = 1 - series.animationState.stage;
+
+            delete series.animationState.animator;
+            this.revokeAnimation(series);
+        }
+    } else {
+        series.animationState = {
+            type: (series.visible & constants.visibilityState.visible) ? 'show' : 'hide',
+            subtype: subtype,
+            stage: 0
+        };
+    }
+    if (!series.animationState.animator) {
+        series.animationState.animator = this.startAnimation({
+            type: visible ? 'showSeries' : 'hideSeries',
+            series: series,
+            initialStage: series.animationState.stage,
+            onFrame: (stage) => series.animationState.stage = stage,
+            onCompletion: () => {
+                series.visible = (series.visible & ~constants.visibilityState.transitioning);
+                delete series.animationState;
+            }
+        });
+    }
+};
+
+Tayberry.prototype.toggleSeriesVisibility = function(series) {
+    this.setSeriesVisibility(series, !(series.visible & constants.visibilityState.visible))
+};

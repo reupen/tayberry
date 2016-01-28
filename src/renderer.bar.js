@@ -27,7 +27,6 @@ export class BarRenderer extends renderer.Renderer {
         let animatingSeriesCount = 0;
         let totalMultiplier = 0;
 
-        //TODO: animations for stacked and overlaid bar charts
         for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
             const rSeries = this.renderedSeries[seriesIndex];
             const series = this.series[seriesIndex];
@@ -131,7 +130,6 @@ export class BarRenderer extends renderer.Renderer {
     }
 
     drawPlot() {
-        this.updateBarWidths(); // FIXME: temp hack
         this.ctx.save();
         let barEnumerator = new BarEnumerator(this);
         let bar;

@@ -46,29 +46,8 @@ export class Renderer {
     onToggleSeriesAnimationFrame() {
     }
 
-    onGrowAnimationFrame(elapsedTime, animation) {
-        let scaleFactor;
-        scaleFactor = Math.min(Easing.inQuad(elapsedTime, animation.length), 1);
-        for (let categoryIndex = 0; categoryIndex < this.series[0].data.length; categoryIndex++) {
-            for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-                const series = this.series[seriesIndex];
-                const value = Tayberry.getDataValue(series.data[categoryIndex]);
-                const yOrigin = series.yAxis.valueOrigin;
-                Tayberry.setDataValue(this.renderedSeries[seriesIndex].data, categoryIndex, yOrigin + scaleFactor * ((value - yOrigin)));
-            }
-        }
-    }
-
-    onAnimationFrame(elapsedTime, animation) {
-        switch (animation.type) {
-            case 'grow':
-                this.onGrowAnimationFrame(elapsedTime, animation);
-                break;
-            case 'hideSeries':
-            case 'showSeries':
-                this.onToggleSeriesAnimationFrame(elapsedTime, animation);
-                break;
-        }
+    onAnimationFrame() {
+        this.onToggleSeriesAnimationFrame();
     }
 
     drawLegendIndicator(ctx, series, rect, highlighted) {

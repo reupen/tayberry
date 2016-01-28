@@ -112,7 +112,6 @@ export class LineRenderer extends renderer.Renderer {
     }
 
     drawPlot() {
-        this.updatPointPositions(); //FIXME
         this.ctx.save();
         let pointEnumerator = new PointEnumerator(this);
         let pt;

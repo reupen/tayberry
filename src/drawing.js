@@ -1,7 +1,6 @@
 'use strict';
 import {Tayberry} from './base';
 import {Rect} from './helpers/rect';
-import * as Utils from './helpers/utils.js';
 
 Tayberry.prototype.getTextWidth = function (text, fontString) {
     let ret;
@@ -77,9 +76,10 @@ Tayberry.prototype.render = function () {
     this.drawLabelLayer();
     this.createTooltip();
     if (this.options.animations.enabled) {
-        this.startAnimation({
-            type: 'grow'
-        });
+        for (let index = 0; index < this.options.series.length; index++) {
+            const series = this.options.series[index];
+            this.setSeriesVisibility(series, true, 'height');
+        }
     } else {
         this.drawPlotLayer();
     }
