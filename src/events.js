@@ -97,6 +97,8 @@ Tayberry.prototype.onClick = function (event) {
                 const series = hitTestResult.data.series;
 
                 this.toggleSeriesVisibility(series);
+                this.clear(false, true);
+                this.drawLabelLayer();
             }
         }
     }

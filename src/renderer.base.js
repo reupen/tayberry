@@ -1,6 +1,7 @@
 'use strict';
 import * as Utils from './helpers/utils.js';
 import * as constants from './constants';
+import {Colour} from './helpers/colour';
 import {Tayberry} from './base';
 
 export class Renderer {
@@ -51,6 +52,8 @@ export class Renderer {
 
     drawLegendIndicator(ctx, series, rect, highlighted) {
         ctx.fillStyle = highlighted ? series.highlightColour : series.colour;
+        if (!(series.visible & constants.visibilityState.visible))
+            ctx.fillStyle = (new Colour(ctx.fillStyle)).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
         ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
     }
 

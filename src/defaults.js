@@ -59,7 +59,8 @@ Tayberry.prototype.defaultOptions = function () {
         legend: {
             enabled: true,
             indicatorSize: 15,
-            font: {}
+            font: {},
+            hiddenAlphaMultiplier: 0.5
         },
         labels: {
             enabled: false,

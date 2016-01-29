@@ -41,13 +41,13 @@ export class Colour {
             this.r = groupsHex[1] ? parseInt(groupsHex[1], 16) : parseHex(groupsHex[4]);
             this.g = groupsHex[2] ? parseInt(groupsHex[2], 16) : parseHex(groupsHex[5]);
             this.b = groupsHex[3] ? parseInt(groupsHex[3], 16) : parseHex(groupsHex[6]);
-            this.a = null;
+            this.a = 1.0;
         }
         else if (groupsInt) {
             this.r = parseInt(groupsInt[1]);
             this.g = parseInt(groupsInt[2]);
             this.b = parseInt(groupsInt[3]);
-            this.a = groupsInt[5] ? parseFloat(groupsInt[5]) : null;
+            this.a = groupsInt[5] ? parseFloat(groupsInt[5]) : 1.0;
         } else {
             throw new RangeError(str + " is not a valid HTML colour");
         }
@@ -92,6 +92,11 @@ export class Colour {
         return this;
     }
 
+    multiplyAlpha(multiplier) {
+        this.a *= multiplier;
+        return this;
+    }
+
     get sum() {
         return this.r + this.g + this.b;
     }
@@ -102,7 +107,7 @@ export class Colour {
      */
     toString() {
         var ret;
-        if (this.a) {
+        if (!Utils.isMissingValue(this.a) && this.a !== 1.0) {
             ret = Utils.formatString('rgba({r},{g},{b},{a})', this);
         } else {
             ret = Utils.formatString('rgb({r},{g},{b})', this);

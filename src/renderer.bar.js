@@ -40,6 +40,8 @@ export class BarRenderer extends renderer.Renderer {
                     } else {
                         series.animationState.subtype = 'fade';
                     }
+
+                    rSeries.colour = series.colour;
                 }
 
                 const isShow = series.animationState.type === 'show';

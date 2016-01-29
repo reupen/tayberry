@@ -2,6 +2,8 @@
 import {Tayberry} from './base';
 import {Rect} from './helpers/rect';
 import * as Utils from './helpers/utils.js';
+import * as constants from './constants';
+import {Colour} from './helpers/colour';
 
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
@@ -16,6 +18,8 @@ Tayberry.prototype.drawLegend = function () {
             series.renderer.drawLegendIndicator(this.labelsCtx, series, item.indicatorRect, highlighted);
             this.labelsCtx.textBaseline = 'middle';
             this.labelsCtx.fillStyle = this.options.legend.font.colour;
+            if (!(series.visible & constants.visibilityState.visible))
+                this.labelsCtx.fillStyle = (new Colour(this.labelsCtx.fillStyle)).multiplyAlpha(this.options.legend.hiddenAlphaMultiplier).toString();
             this.labelsCtx.fillText(series.name, item.textX, item.textY);
         }
         this.labelsCtx.restore();

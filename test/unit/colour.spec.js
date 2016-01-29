@@ -12,7 +12,7 @@ describe('colours', () => {
         expect(colour.r).toBe(0x11);
         expect(colour.g).toBe(0x11);
         expect(colour.b).toBe(0x11);
-        expect(colour.a).toBeNull();
+        expect(colour.a).toBe(1.0);
     });
 
     it('parses a 6 char hex html colour correctly', () => {
@@ -20,7 +20,7 @@ describe('colours', () => {
         expect(colour.r).toBe(0x11);
         expect(colour.g).toBe(0x11);
         expect(colour.b).toBe(0x11);
-        expect(colour.a).toBeNull();
+        expect(colour.a).toBe(1.0);
     });
 
     it('parses an rgb html colour correctly', () => {
@@ -28,7 +28,7 @@ describe('colours', () => {
         expect(colour.r).toBe(1);
         expect(colour.g).toBe(12);
         expect(colour.b).toBe(123);
-        expect(colour.a).toBeNull();
+        expect(colour.a).toBe(1.0);
     });
 
     it('parses an rgba html colour correctly', () => {
