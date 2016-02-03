@@ -64,7 +64,6 @@ Tayberry.prototype.create = function (containerElement) {
     this.labelsCtx = this.labelsCanvas.getContext('2d');
     this.plotCanvas = this.createCanvas();
     this.plotCtx = this.plotCanvas.getContext('2d');
-    this.renderedSeries = null;
     this.options = {};
     this.yAxes = null;
     this.xAxes = null;
@@ -191,6 +190,11 @@ Tayberry.prototype.createRenderers = function () {
         curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
         curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
         curSeries.glowColour = curSeries.glowColour || Tayberry.calculateGlowColour(curSeries.highlightColour);
+        curSeries.rState = {
+            colour: curSeries.colour,
+            highlightColour: curSeries.highlightColour,
+            glowColour: curSeries.glowColour
+        };
         curSeries.xAxis = this.xAxes[curSeries.xAxisIndex || 0];
         curSeries.yAxis = this.yAxes[curSeries.yAxisIndex || 0];
         curSeries.plotType = curSeries.plotType || this.options.plotType;

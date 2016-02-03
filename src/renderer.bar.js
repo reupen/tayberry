@@ -17,19 +17,19 @@ export class BarRenderer extends renderer.Renderer {
     }
 
     updateBarWidths() {
-        const categoryCount = this.renderedSeries[0].data.length;
+        const categoryCount = this.series[0].data.length;
         const isStacked = this.tb.options.barPlot.mode === 'stacked';
         const isOverlaid = this.tb.options.barPlot.mode === 'overlaid';
         const isNormal = !isStacked && !isOverlaid;
-        const seriesCount = this.renderedSeries.length;
+        const seriesCount = this.series.length;
         const plotArea = this.tb.options.swapAxes ? this.tb.plotArea.clone().swapXY() : this.tb.plotArea;
         const categoryWidth = (plotArea.width / categoryCount);
         let animatingSeriesCount = 0;
         let totalMultiplier = 0;
 
         for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-            const rSeries = this.renderedSeries[seriesIndex];
             const series = this.series[seriesIndex];
+            const rState = series.rState;
             if (series.animationState) {
                 if (!series.animationState.subtype) {
                     const visibleSeriesCount = this.getVisibleSeriesCount(seriesIndex);
@@ -41,36 +41,36 @@ export class BarRenderer extends renderer.Renderer {
                         series.animationState.subtype = 'fade';
                     }
 
-                    rSeries.colour = series.colour;
+                    rState.colour = series.colour;
                 }
 
                 const isShow = series.animationState.type === 'show';
                 if (series.animationState.subtype === 'width') {
-                    rSeries.multiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
-                    rSeries.yMultiplier = 1;
+                    rState.multiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rState.yMultiplier = 1;
                 } else if (series.animationState.subtype === 'height') {
-                    rSeries.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
-                    rSeries.multiplier = 1;
+                    rState.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rState.multiplier = 1;
                 } else {
                     let transColour = new Colour(series.colour);
                     transColour.a = 0;
                     if (isShow)
-                        rSeries.colour = Colour.createFromBlend(transColour, new Colour(series.colour), series.animationState.stage).toString();
+                        rState.colour = Colour.createFromBlend(transColour, new Colour(series.colour), series.animationState.stage).toString();
                     else
-                        rSeries.colour = Colour.createFromBlend(new Colour(series.colour), transColour, series.animationState.stage).toString();
+                        rState.colour = Colour.createFromBlend(new Colour(series.colour), transColour, series.animationState.stage).toString();
 
-                    rSeries.yMultiplier = 1;
-                    rSeries.multiplier = 1;
+                    rState.yMultiplier = 1;
+                    rState.multiplier = 1;
                 }
                 ++animatingSeriesCount;
             } else if (series.visible & constants.visibilityState.visible) {
-                rSeries.multiplier = 1;
-                rSeries.yMultiplier = 1;
+                rState.multiplier = 1;
+                rState.yMultiplier = 1;
             } else {
-                rSeries.multiplier = 0;
-                rSeries.yMultiplier = 0;
+                rState.multiplier = 0;
+                rState.yMultiplier = 0;
             }
-            totalMultiplier += rSeries.multiplier;
+            totalMultiplier += rState.multiplier;
         }
 
         const totalBarsPerCategory = (isStacked || isOverlaid) ? 1 : totalMultiplier;
@@ -96,14 +96,15 @@ export class BarRenderer extends renderer.Renderer {
             let runningBarWidth = 0;
 
             for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                const rSeries = this.renderedSeries[seriesIndex];
-                const value = Tayberry.getDataValue(rSeries.data[categoryIndex])*rSeries.yMultiplier;
+                const series = this.series[seriesIndex];
+                const rState = series.rState;
+                const value = Tayberry.getDataValue(series.data[categoryIndex])*rState.yMultiplier;
 
-                let barWidth = Math.floor(rSeries.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
+                let barWidth = Math.floor(rState.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
 
-                const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-                const xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(rSeries.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-                const yTop = rSeries.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
+                const xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                const yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                 const yBottom = isStacked ? (value > 0 ? yBottomPositive : yBottomNegative) : yOrigin;
 
                 categoryPositions.push([xStart, yTop, xEnd, yBottom]);
@@ -137,7 +138,7 @@ export class BarRenderer extends renderer.Renderer {
         let bar;
         while ((bar = barEnumerator.next())) {
             if (bar.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)) {
-                this.ctx.fillStyle = bar.selected ? bar.renderedSeries.highlightColour : bar.renderedSeries.colour;
+                this.ctx.fillStyle = bar.selected ? bar.series.rState.highlightColour : bar.series.rState.colour;
                 this.ctx.fillRect(bar.rect.left, bar.rect.top, bar.rect.width, bar.rect.height);
             }
         }
@@ -169,7 +170,7 @@ export class BarRenderer extends renderer.Renderer {
             isXRange: true
         };
 
-        const categoryCount = this.renderedSeries[0].data.length;
+        const categoryCount = this.series[0].data.length;
         const isHorizontal = this.tb.options.swapAxes;
         let plotArea = this.tb.plotArea.clone();
         if (isHorizontal)
@@ -217,7 +218,6 @@ export class BarRenderer extends renderer.Renderer {
                         seriesIndex: bar.seriesIndex,
                         rect: bar.rect,
                         series: bar.series,
-                        renderedSeries: bar.renderedSeries,
                         value: Tayberry.getDataValue(this.series[bar.seriesIndex].data[bar.categoryIndex])
                     }
                 });
@@ -261,9 +261,8 @@ export class BarEnumerator extends renderer.ByCategoryEnumerator {
                 seriesIndex: this.seriesIndex,
                 categoryIndex: this.categoryIndex,
                 series: this.renderer.series[this.seriesIndex],
-                renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]), //FIXME
+                renderedValue: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 rect: rect,
                 selected: this.tb.selectedItem.type === 'plotItem' && this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };

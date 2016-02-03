@@ -4,7 +4,6 @@ export class Tayberry {
         this.containerElement = null;
         this.labelsCanvas = null;
         this.labelsCtx = null;
-        this.renderedSeries = null;
         this.options = null;
         this.scaleFactor = null;
         this.titleFont = null;

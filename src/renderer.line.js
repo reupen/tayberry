@@ -19,13 +19,13 @@ export class LineRenderer extends renderer.Renderer {
     }
 
     updatPointPositions() {
-        const seriesCount = this.renderedSeries.length;
+        const seriesCount = this.series.length;
 
         this.pointPositions = [];
 
         for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-            const rSeries = this.renderedSeries[seriesIndex];
             const series = this.series[seriesIndex];
+            const rState = series.rState;
             if (series.animationState) {
                 if (!series.animationState.subtype) {
                     series.animationState.subtype = 'height';
@@ -33,23 +33,23 @@ export class LineRenderer extends renderer.Renderer {
 
                 const isShow = series.animationState.type === 'show';
                 if (series.animationState.subtype === 'height') {
-                    rSeries.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
-                    rSeries.xMultiplier = 1;
+                    rState.yMultiplier = isShow ? series.animationState.stage : 1 - series.animationState.stage;
+                    rState.xMultiplier = 1;
                 }
 
             } else if (series.visible & constants.visibilityState.visible) {
-                rSeries.xMultiplier = 1;
-                rSeries.yMultiplier = 1;
+                rState.xMultiplier = 1;
+                rState.yMultiplier = 1;
             } else {
-                rSeries.xMultiplier = 1;
-                rSeries.yMultiplier = 0;
+                rState.xMultiplier = 1;
+                rState.yMultiplier = 0;
             }
         }
 
         for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-            const rSeries = this.renderedSeries[seriesIndex];
-            const series = this.renderedSeries[seriesIndex];
-            const valueCount = rSeries.data.length;
+            const series = this.series[seriesIndex];
+            const rState = series.rState;
+            const valueCount = series.data.length;
             const yOrigin = series.yAxis.valueOrigin;
             let seriesPositions = [];
 
@@ -57,8 +57,8 @@ export class LineRenderer extends renderer.Renderer {
                 const value = Tayberry.getDataValue(series.data[valueIndex]);
                 const xValue = Tayberry.getDataXValue(series.data, valueIndex);
 
-                const rValue = yOrigin + (rSeries.yMultiplier)*(value-yOrigin);
-                let x = series.xAxis.getValueDisplacement(xValue)*rSeries.xMultiplier;
+                const rValue = yOrigin + (rState.yMultiplier)*(value-yOrigin);
+                let x = series.xAxis.getValueDisplacement(xValue)*rState.xMultiplier;
                 let y = series.yAxis.getValueDisplacement(rValue);
 
                 seriesPositions.push([x, y]);
@@ -121,7 +121,7 @@ export class LineRenderer extends renderer.Renderer {
 
             if (pt.firstPoint) {
                 this.ctx.lineWidth = pt.seriesSelected ? this.tb.options.linePlot.highlightedLineWidth : this.tb.options.linePlot.lineWidth;
-                this.ctx.strokeStyle = pt.seriesSelected ? pt.renderedSeries.highlightColour : pt.renderedSeries.colour;
+                this.ctx.strokeStyle = pt.seriesSelected ? pt.series.rState.highlightColour : pt.series.rState.colour;
                 this.ctx.beginPath();
                 this.ctx.moveTo(pt.x, pt.y);
             } else {
@@ -138,11 +138,11 @@ export class LineRenderer extends renderer.Renderer {
                     continue;
 
                 if (pt.selected) {
-                    this.ctx.fillStyle = pt.renderedSeries.glowColour;
-                    this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
+                    this.ctx.fillStyle = pt.series.rState.glowColour;
+                    this.drawMarker(pt.series.markerType, pt.x, pt.y, this.tb.options.linePlot.highlightedMarkerSize);
                 }
-                this.ctx.fillStyle = pt.renderedSeries.colour;
-                this.drawMarker(pt.renderedSeries.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
+                this.ctx.fillStyle = pt.series.rState.colour;
+                this.drawMarker(pt.series.markerType, pt.x, pt.y, this.tb.options.linePlot.markerSize);
             }
         }
         this.ctx.restore();
@@ -255,9 +255,8 @@ export class PointEnumerator extends renderer.BySeriesEnumerator {
                 seriesIndex: this.seriesIndex,
                 categoryIndex: this.categoryIndex,
                 series: this.renderer.series[this.seriesIndex],
-                renderedSeries: this.renderer.renderedSeries[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]), //FIXME
+                renderedValue: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 x: x,
                 y: y,
                 seriesSelected: this.tb.selectedItem.type === 'plotItem' && !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],

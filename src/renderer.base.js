@@ -9,25 +9,16 @@ export class Renderer {
         this.ctx = ctx;
         this.tb = tayberry;
         this.series = null;
-        this.renderedSeries = null;
         this.setSeries(series);
     }
 
     setSeries(series) {
         var seriesIndex;
         this.series = series;
-        this.renderedSeries = series.slice(0);
-        for (seriesIndex = 0; seriesIndex < this.renderedSeries.length; seriesIndex++) {
-            let actualSeries = this.series[seriesIndex];
-            actualSeries.renderer = this;
-            let elem = Utils.assign({}, actualSeries);
-            elem.data = this.renderedSeries[seriesIndex].data.slice(0);
-            if (elem.data.length && Array.isArray(elem.data[0])) {
-                for (var dataIndex = 0; dataIndex < elem.data.length; dataIndex++) {
-                    elem.data[dataIndex] = elem.data[dataIndex].slice(0);
-                }
-            }
-            this.renderedSeries[seriesIndex] = elem;
+
+        for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
+            const series = this.series[seriesIndex];
+            series.renderer = this;
         }
     }
 
@@ -104,10 +95,10 @@ export class Enumerator {
         this.renderer = renderer;
         this.tb = renderer.tb;
 
-        this.categoryCount = this.renderer.renderedSeries[0].data.length;
+        this.categoryCount = this.renderer.series[0].data.length;
         this.categoryIndex = 0;
         this.seriesIndex = 0;
-        this.seriesCount = this.renderer.renderedSeries.length;
+        this.seriesCount = this.renderer.series.length;
         if (this.categoryCount) {
             this.isHorizontal = this.tb.options.swapAxes;
             this.plotArea = this.tb.plotArea.clone();
@@ -136,7 +127,7 @@ export class ByCategoryEnumerator extends Enumerator {
             } else {
                 this.seriesIndex++;
             }
-            value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+            value = Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
         } while (Utils.isMissingValue(value));
 
     }
@@ -155,7 +146,7 @@ export class BySeriesEnumerator extends Enumerator {
             } else {
                 this.categoryIndex++;
             }
-            value = Tayberry.getDataValue(this.renderer.renderedSeries[this.seriesIndex].data[this.categoryIndex]);
+            value = Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
         } while (Utils.isMissingValue(value));
 
     }
