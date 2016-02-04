@@ -184,6 +184,9 @@ export class BarRenderer extends renderer.Renderer {
         while ((bar = barEnumerator.next())) {
             if (bar.categoryIndex > categoryIndex)
                 break;
+            if (!(bar.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)))
+                continue;
+
             let sortDistance, priority, realDistance;
             if (bar.rect.containsPoint(x, y)) {
                 sortDistance = 0;
@@ -262,7 +265,6 @@ export class BarEnumerator extends renderer.ByCategoryEnumerator {
                 categoryIndex: this.categoryIndex,
                 series: this.renderer.series[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 rect: rect,
                 selected: this.tb.selectedItem.type === 'plotItem' && this.tb.selectedItem.categoryIndex === this.categoryIndex && (this.tb.options.tooltips.shared || this.tb.selectedItem.series === this.renderer.series[this.seriesIndex])
             };

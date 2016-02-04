@@ -1,6 +1,6 @@
-# TayberryJS 0.3
+# TayberryJS 0.4
 
-&copy; Reupen Shah 2015
+&copy; Reupen Shah 2015 – 2016
 
 [![Build Status](https://travis-ci.org/reupen/tayberry.svg?branch=master)](https://travis-ci.org/reupen/tayberry)
 
@@ -137,5 +137,4 @@ TayberryJS is at an early alpha stage. There will be some bugs, but please do op
 
 Some upcoming planned features are:
 * dynamic chart updates
-* interactive legend
 * date/time axes

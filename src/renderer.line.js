@@ -192,6 +192,9 @@ export class LineRenderer extends renderer.Renderer {
         let pointEnumerator = new PointEnumerator(this);
         let pt;
         while ((pt = pointEnumerator.next())) {
+            if (!(pt.series.visible & (constants.visibilityState.visible | constants.visibilityState.transitioning)))
+                continue;
+
             const distance = Math.sqrt(Math.pow(pt.x - x, 2) + Math.pow(pt.y - y, 2));
             const horizontalDistance = Math.abs(this.tb.options.swapAxes ? pt.y - y : pt.x - x);
             matches.push({
@@ -256,7 +259,6 @@ export class PointEnumerator extends renderer.BySeriesEnumerator {
                 categoryIndex: this.categoryIndex,
                 series: this.renderer.series[this.seriesIndex],
                 value: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]),
-                renderedValue: Tayberry.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]), //FIXME
                 x: x,
                 y: y,
                 seriesSelected: this.tb.selectedItem.type === 'plotItem' && !this.tb.options.tooltips.shared && this.tb.selectedItem.series === this.renderer.series[this.seriesIndex],
