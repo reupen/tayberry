@@ -1,0 +1,8 @@
+*
+!README.md
+!CHANGELOG.md
+!COPYING
+!COPYING.LESSER
+!package.json
+!dist/*.js
+!dist/*.map
