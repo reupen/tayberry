@@ -5,6 +5,34 @@ import * as Utils from './helpers/utils.js';
 import * as constants from './constants';
 import {Colour} from './helpers/colour';
 
+Tayberry.prototype.adjustSizeForLegend = function (plotArea) {
+    if (this.options.legend.enabled) {
+        const smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
+        const largePadding = this.mapLogicalXUnit(this.options.elementLargePadding);
+        const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
+        const maxLegendItemWidth = this.getLegendItemMaxTextWidth() +  indicatorSize + smallPadding;
+
+        switch (this.options.legend.placement) {
+            case 'bottom':
+                plotArea.bottom -= smallPadding + largePadding + indicatorSize;
+                this.legendY = plotArea.bottom + largePadding;
+                break;
+            case 'top':
+                this.legendY = plotArea.top;
+                plotArea.top += smallPadding + largePadding + indicatorSize;
+                break;
+            case 'left':
+                this.legendX = plotArea.left;
+                plotArea.left += maxLegendItemWidth + largePadding;
+                break;
+            case 'right':
+                plotArea.right -= maxLegendItemWidth;
+                this.legendX = plotArea.right;
+                break;
+        }
+    }
+};
+
 Tayberry.prototype.drawLegend = function () {
     if (this.options.legend.enabled) {
         let legendMetrics = this.getLegendMeasurements();
@@ -44,6 +72,17 @@ Tayberry.prototype.hitTestLegend = function (x, y) {
     return ret;
 };
 
+Tayberry.prototype.getLegendItemMaxTextWidth = function () {
+    let ret = 0;
+    for (let index = 0; index < this.options.series.length; index++) {
+        const series = this.options.series[index];
+        if (series.name) {
+            ret = Math.max(this.getTextWidth(series.name, this.legendFont));
+        }
+    }
+    return ret;
+};
+
 Tayberry.prototype.getLegendMeasurements = function () {
     let ret = {
         rect: new Rect(0),
@@ -63,24 +102,54 @@ Tayberry.prototype.getLegendMeasurements = function () {
                 ret.items.push({textWidth: textWidth, series: series});
             }
         }
-        let x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
-            y = this.labelsCanvas.height - indicatorSize;
+
+        let x, y, isVertical;
+
+        switch (this.options.legend.placement) {
+            case 'top':
+                x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2;
+                y = this.legendY;
+                isVertical = false;
+                break;
+            case 'left':
+                x = this.legendX;
+                y = (this.labelsCanvas.height - indicatorSize)/2;
+                isVertical = true;
+                break;
+            case 'right':
+                x = this.legendX;
+                y = (this.labelsCanvas.height - indicatorSize)/2;
+                isVertical = true;
+                break;
+            default:
+                x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2;
+                y = this.legendY;
+                isVertical = false;
+                break;
+        }
 
         ret.rect.left = x;
-        ret.rect.right = x + totalWidth;
+        ret.rect.right = x;
         ret.rect.top = y;
-        ret.rect.bottom = y + indicatorSize;
 
         for (let index = 0; index < ret.items.length; index++) {
             let item = ret.items[index];
-            item.rect = new Rect(x, ret.rect.top, x + indicatorSize + smallPadding + item.textWidth, ret.rect.bottom);
-            item.indicatorRect = new Rect(x, ret.rect.top, x + indicatorSize, ret.rect.bottom);
-            x += indicatorSize + smallPadding;
-            item.textX = x;
+
+            item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
+            item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
+            item.textX = x + indicatorSize + smallPadding;
             item.textY = y + indicatorSize / 2;
 
-            x += ret.items[index].textWidth + largePadding;
+            ret.rect.right = Math.max(ret.rect.right, item.rect.right);
+
+            if (isVertical) {
+                y += indicatorSize + smallPadding;
+            } else {
+                x += ret.items[index].textWidth + largePadding;
+                x += indicatorSize + smallPadding;
+            }
         }
+        ret.rect.bottom = y + indicatorSize;
     }
     return ret;
 };

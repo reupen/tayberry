@@ -18,6 +18,8 @@ export class Tayberry {
         this.onMouseMoveReal = null;
         this.onWindowResizeReal = null;
         this.pendingAnimations = [];
+        this.legendX = null;
+        this.legendY = null;
         this.callbacks = {
             onResize: [],
             onInit: []

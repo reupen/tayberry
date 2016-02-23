@@ -60,7 +60,8 @@ Tayberry.prototype.defaultOptions = function () {
             enabled: true,
             indicatorSize: 15,
             font: {},
-            hiddenAlphaMultiplier: 0.5
+            hiddenAlphaMultiplier: 0.5,
+            placement: 'bottom'
         },
         labels: {
             enabled: false,
