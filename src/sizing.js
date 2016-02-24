@@ -59,10 +59,12 @@ Tayberry.prototype.hitTest = function (x, y) {
         found: false
     };
     let matches = [];
-    for (let i = 0; i < this.renderers.length; i++) {
-        const hitTestResult = this.renderers[i].hitTest(x, y);
-        if (hitTestResult.found) {
-            matches.push(hitTestResult);
+    if (this.plotArea.containsPoint(x, y)) {
+        for (let i = 0; i < this.renderers.length; i++) {
+            const hitTestResult = this.renderers[i].hitTest(x, y);
+            if (hitTestResult.found) {
+                matches.push(hitTestResult);
+            }
         }
     }
     matches.push(this.hitTestLegend(x, y));
