@@ -231,6 +231,7 @@ export class BarRenderer extends renderer.Renderer {
             matches.sort((a, b) => {
                 let ret = a.priority - b.priority;
                 if (!ret) ret = a.sortDistance - b.sortDistance;
+                if (!ret) ret = a.distance - b.distance;
                 if (!ret) ret = a.data.rect.height - b.data.rect.height;
                 return ret;
             });

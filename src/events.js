@@ -19,7 +19,7 @@ Tayberry.prototype.onMouseLeave = function (event) {
 Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
     let boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
     let ret = false;
-    let tooltipDisplayStyle = 'none';
+    let tooltipDisplayStyleSet = false;
     if (boundingRect.containsPoint(clientX, clientY)) {
         let x = clientX - boundingRect.left;
         let y = clientY - boundingRect.top;
@@ -32,7 +32,8 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             } else if (hitTestResult.type === 'plotItem') {
                 let tooltipHtml = '';
                 const aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-                tooltipDisplayStyle = 'block';
+                this.tooltipElement.style.display = 'block';
+                tooltipDisplayStyleSet = true;
                 if (this.options.tooltips.shared) {
                     const category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
                     tooltipHtml += Utils.formatString(this.options.tooltips.headerTemplate, {category: category}, true);
@@ -69,7 +70,8 @@ Tayberry.prototype.handleMouseMove = function (clientX, clientY) {
             }
         }
     }
-    this.tooltipElement.style.display = tooltipDisplayStyle;
+    if (!tooltipDisplayStyleSet)
+        this.tooltipElement.style.display = 'none';
     return ret;
 };
 
