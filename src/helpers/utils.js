@@ -73,7 +73,7 @@ var innerAssign = function (deepAssign, targetObject, sourceObjects) {
         }
         return to;
     }
-}
+};
 
 export function none(array) {
     return array.every(elem => !elem);
