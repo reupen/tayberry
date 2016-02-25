@@ -2,35 +2,46 @@
 
 Tayberry.create('chart1', {
     title: {
-        text: 'Forecast errors'
+        text: 'UK household sizes'
     },
     yAxis: {
-        title: {
-            text: 'Frequency'
-        }
+        labelFormat: 'percentage'
     },
     xAxis: {
-        title: {
-            text: 'Error'
-        },
-        type: 'linear',
-        min: -50,
-        max: 50,
-        tickStepValue: 10
+        categories: ['1', '2', '3', '4', '5+']
     },
-    legend: {
-        placement: 'left'
+    labels: {
+        enabled: true
     },
-    presets: ['histogram', 'darkGrid'],
     series: [{
-        data: [11, 13, 20, 19, 37, 38, 43, 49, 53, 80, 84, 102, 122, 111, 115, 143, 161, 148, 196, 210, 213, 220, 226, 227, 235, 189, 233, 201, 188, 158, 177, 145, 120, 101, 112, 104, 69, 71, 52, 38, 31, 23, 17, 13, 12, 12, 9, 6, 6, 4],
-        name: 'Sales',
-        colour: 'rgba(140, 40, 138, 0.5)'
+        data: [.132, .290, .224, .180, .173],
+        name: '1961 abcd'
     }, {
-        data: [4, 3, 1, 4, 15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12],
-        name: 'Customers',
-        colour: 'rgba(48, 140, 100, 0.5)'
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
+    }, {
+        data: [.306, .341, .156, .129, .069],
+        name: '2011 abcd'
     }]
+
 });
 
 Tayberry.create('chart2', {
