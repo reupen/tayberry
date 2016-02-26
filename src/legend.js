@@ -5,7 +5,11 @@ import * as Utils from './helpers/utils.js';
 import * as constants from './constants';
 import {Colour} from './helpers/colour';
 
-Tayberry.prototype.adjustSizeForLegend = function (plotArea) {
+Tayberry.prototype.adjustSizeForLegend = function (plotArea, reset) {
+    let ret = false;
+    if (reset) {
+        this.legendCalculatedSize = 0;
+    }
     if (this.options.legend.enabled) {
         const smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
         const largePadding = this.mapLogicalXUnit(this.options.elementLargePadding);
@@ -15,43 +19,57 @@ Tayberry.prototype.adjustSizeForLegend = function (plotArea) {
         const isVertical = this.options.legend.placement === 'left' || this.options.legend.placement === 'right';
         const isHorizontal = !isVertical;
 
-        let totalItemWidth = Utils.reduce(textWidths, (a, b) => a + b + indicatorSize + smallPadding);
-        let numRows = 1;
-        let numItems = textWidths.length;
-        let plotWidth = plotArea.width;
+        let rowIndices = [];
+        const numItems = textWidths.length;
+        const plotWidth = plotArea.width;
 
-        if (isHorizontal && numItems) {
-            let totalWidth;
-            while (numItems > numRows) {
-                totalWidth = totalItemWidth + (numItems - numRows) * smallPadding;
-                if (totalWidth > plotWidth) {
-                    numRows++;
-                } else break;
+
+        if (isHorizontal) {
+            let cumWidth = 0;
+            for (let i = 0; i < numItems; i++) {
+                cumWidth += textWidths[i] + indicatorSize + smallPadding;
+                if (i + 1 == numItems || cumWidth > plotWidth) {
+                    rowIndices.push(i);
+                    cumWidth = 0;
+                } else {
+                    cumWidth += largePadding;
+                }
             }
         }
 
-        this.legendNumRows = numRows;
-        this.legendTextWidths = textWidths;
+        this.legendRowIndices = rowIndices;
+        // this.legendTextWidths = textWidths;
+        const numRows = rowIndices.length;
+
+        let calculatedSize = 0;
 
         switch (this.options.legend.placement) {
             case 'bottom':
-                plotArea.bottom -= smallPadding + largePadding + indicatorSize*numRows;
-                this.legendY = plotArea.bottom + largePadding;
+                calculatedSize = largePadding + indicatorSize*numRows;
+                plotArea.bottom -= calculatedSize - this.legendCalculatedSize;
+                this.legendY = this.plotCanvas.height - indicatorSize*numRows;
                 break;
             case 'top':
+                calculatedSize = largePadding + indicatorSize*numRows;
                 this.legendY = plotArea.top;
-                plotArea.top += smallPadding + largePadding + indicatorSize*numRows;
+                plotArea.top += calculatedSize - this.legendCalculatedSize;
                 break;
             case 'left':
+                calculatedSize = maxLegendItemWidth + largePadding;
                 this.legendX = plotArea.left;
-                plotArea.left += maxLegendItemWidth + largePadding;
+                plotArea.left += calculatedSize - this.legendCalculatedSize;
                 break;
             case 'right':
-                plotArea.right -= maxLegendItemWidth;
+                calculatedSize = maxLegendItemWidth;
+                plotArea.right -= calculatedSize - this.legendCalculatedSize;
                 this.legendX = plotArea.right;
                 break;
         }
+
+        ret = this.legendCalculatedSize !== calculatedSize;
+        this.legendCalculatedSize = calculatedSize;
     }
+    return ret;
 };
 
 Tayberry.prototype.drawLegend = function () {
@@ -114,79 +132,73 @@ Tayberry.prototype.getLegendMeasurements = function () {
     if (this.options.legend.enabled) {
         const smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
         const largePadding = this.mapLogicalXUnit(this.options.elementLargePadding);
-        let totalWidth = 0;
         const indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
         const isVertical = this.options.legend.placement === 'left' || this.options.legend.placement === 'right';
         const isHorizontal = !isVertical;
-        let totalItemWidth = Utils.reduce(this.legendTextWidths, (a, b) => a + b + indicatorSize + smallPadding);
-        let newLineIndices = [];
-        let numItems = this.legendTextWidths;
+        let newLineIndices = this.legendRowIndices;
 
-        if (isHorizontal && this.legendNumRows > 1) {
-            const targetLineWidth = totalItemWidth / this.legendNumRows;
-            let cumWidth = 0;
-            for (let i = 0; i < numItems; i++) {
-                cumWidth += this.legendTextWidths[i] + indicatorSize + smallPadding;
-                if (i + 1 == numItems || cumWidth > targetLineWidth) {
-                    newLineIndices.push(i);
-                    cumWidth -= targetLineWidth; // What is the optimum logic?
+        let lineWidths = [];
+
+        let lineStart = 0;
+        for (let lineIndex = 0; lineIndex < newLineIndices.length; lineIndex++) {
+            const lineEnd = newLineIndices[lineIndex];
+            let lineWidth = 0;
+
+            for (let index = lineStart; index < lineEnd; index++) {
+                const series = this.options.series[index];
+                if (index > newLineIndices[lineIndex]) {
+                    ++lineIndex;
                 }
-            }
-        }
-
-        for (let index = 0; index < this.options.series.length; index++) {
-            const series = this.options.series[index];
-            let textWidth = 0;
-            if (series.name) {
+                let textWidth = 0;
+                // FIXME: ignore unnamed series
+                //if (series.name) {
                 textWidth = this.getTextWidth(series.name, this.legendFont);
-                totalWidth += textWidth + indicatorSize + smallPadding + largePadding;
+                lineWidth += textWidth + indicatorSize + smallPadding;
+                if (index + 1 < lineEnd) lineWidth += largePadding;
                 ret.items.push({textWidth: textWidth, series: series});
+                //}
+            }
+            lineStart = lineEnd;
+            lineWidths.push(lineWidth);
+        }
+        
+        lineStart = 0;
+        for (let lineIndex = 0; lineIndex < newLineIndices.length; lineIndex++) {
+            const lineEnd = newLineIndices[lineIndex];
+            const lineWidth = lineWidths[lineIndex];
+            let x = isHorizontal ? this.plotArea.left + this.plotArea.width / 2 - lineWidth / 2 : this.legendX;
+            let y = isHorizontal ? this.legendY + indicatorSize * lineIndex : (this.labelsCanvas.height - indicatorSize) / 2;
+
+            if (lineIndex === 0) {
+                ret.rect.left = x;
+                ret.rect.right = x;
+                ret.rect.top = y;
+            }
+
+            for (let index = lineStart; index < lineEnd; index++) {
+                let item = ret.items[index];
+
+                item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
+                item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
+                item.textX = x + indicatorSize + smallPadding;
+                item.textY = y + indicatorSize / 2;
+
+                ret.rect.right = Math.max(ret.rect.right, item.rect.right);
+
+                if (isVertical) {
+                    y += indicatorSize + smallPadding;
+                } else {
+                    x += ret.items[index].textWidth + largePadding;
+                    x += indicatorSize + smallPadding;
+                }
+
+            }
+            lineStart = lineEnd;
+            if (lineIndex + 1 === newLineIndices.length) {
+                ret.rect.bottom = y + indicatorSize;
             }
         }
 
-        let x, y;
-
-        switch (this.options.legend.placement) {
-            case 'top':
-                x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2;
-                y = this.legendY;
-                break;
-            case 'left':
-                x = this.legendX;
-                y = (this.labelsCanvas.height - indicatorSize) / 2;
-                break;
-            case 'right':
-                x = this.legendX;
-                y = (this.labelsCanvas.height - indicatorSize) / 2;
-                break;
-            default:
-                x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2;
-                y = this.legendY;
-                break;
-        }
-
-        ret.rect.left = x;
-        ret.rect.right = x;
-        ret.rect.top = y;
-
-        for (let index = 0; index < ret.items.length; index++) {
-            let item = ret.items[index];
-
-            item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
-            item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
-            item.textX = x + indicatorSize + smallPadding;
-            item.textY = y + indicatorSize / 2;
-
-            ret.rect.right = Math.max(ret.rect.right, item.rect.right);
-
-            if (isVertical) {
-                y += indicatorSize + smallPadding;
-            } else {
-                x += ret.items[index].textWidth + largePadding;
-                x += indicatorSize + smallPadding;
-            }
-        }
-        ret.rect.bottom = y + indicatorSize;
     }
     return ret;
 };

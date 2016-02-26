@@ -35,7 +35,7 @@ Tayberry.prototype.calculatePlotArea = function () {
         this.plotArea.top += this.getFontHeight(this.options.title.font) * this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
     }
 
-    this.adjustSizeForLegend(this.plotArea);
+    this.adjustSizeForLegend(this.plotArea, true);
 
     this.yAxes.map(e => e.adjustSize(this.plotArea, true, true));
     this.xAxes.map(e => e.adjustSize(this.plotArea, true, true));
@@ -45,7 +45,7 @@ Tayberry.prototype.calculatePlotArea = function () {
         this.xAxes.map(e => e.calculateExtent());
         this.yAxes.map(e => e.updateFormatter());
         this.xAxes.map(e => e.updateFormatter());
-        if (Utils.none(this.yAxes.map(e => e.adjustSize(this.plotArea))) && Utils.none(this.xAxes.map(e => e.adjustSize(this.plotArea))))
+        if (Utils.none(this.yAxes.map(e => e.adjustSize(this.plotArea))) && Utils.none(this.xAxes.map(e => e.adjustSize(this.plotArea))) && !this.adjustSizeForLegend(this.plotArea))
             break;
     }
     this.plotArea.left = Math.ceil(this.plotArea.left);
