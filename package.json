@@ -1,6 +1,6 @@
 {
   "name": "tayberry",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Canvas-based bar and line charting library",
   "keywords": [
     "charts",
@@ -51,7 +51,9 @@
     "watchify": "^3.7.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "preversion": "gulp",
+    "postversion": "git push && git push --tags"
   },
   "author": "Reupen Shah",
   "license": "LGPL-3.0"
