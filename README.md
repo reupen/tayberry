@@ -2,7 +2,7 @@
 
 &copy; Reupen Shah 2015 – 2016
 
-[![Build Status](https://travis-ci.org/reupen/tayberry.svg?branch=master)](https://travis-ci.org/reupen/tayberry)
+[![Build Status](https://travis-ci.org/reupen/tayberry.svg?branch=master)](https://travis-ci.org/reupen/tayberry) [![npm version](https://badge.fury.io/js/tayberry.svg)](https://badge.fury.io/js/tayberry)
 
 TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar and line charts, with more features coming soon.
 
