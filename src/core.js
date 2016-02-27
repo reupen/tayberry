@@ -6,6 +6,7 @@ import {Tayberry} from './base';
 import {Axis} from './axis';
 import {BarRenderer} from './renderer.bar';
 import {LineRenderer} from './renderer.line';
+import {Legend} from './legend';
 
 var currentAutoColourIndex = 0;
 
@@ -109,7 +110,7 @@ Tayberry.prototype.updateFonts = function () {
     //this.labelsCtx.font = this.createFontString(this.options.font);
     this.titleFont = this.createFontString(this.options.title.font);
     this.labelFont = this.createFontString(this.options.labels.font);
-    this.legendFont = this.createFontString(this.options.legend.font);
+    this.legend.updateFonts();
     this.yAxes.map(e => e.updateFonts());
     this.xAxes.map(e => e.updateFonts());
 };
@@ -154,6 +155,7 @@ Tayberry.prototype.setOptions = function (options) {
     for (let i = 0; i < this.options.yAxis.length; i++) {
         this.yAxes.push(Axis.create(this, this.options.yAxis[i], i, 'y', this.options.swapAxes));
     }
+    this.legend = new Legend(this);
     this.updateFonts();
     this.createRenderers();
     this.calculatePlotArea();

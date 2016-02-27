@@ -11,15 +11,13 @@ export class Tayberry {
         this.categories = [];
         this.titleFont = null;
         this.labelFont = null;
-        this.legendFont = null;
         this.renderers = [];
         this.onClickReal = null;
         this.onMouseLeaveReal = null;
         this.onMouseMoveReal = null;
         this.onWindowResizeReal = null;
         this.pendingAnimations = [];
-        this.legendX = null;
-        this.legendY = null;
+        this.legend = null;
         this.callbacks = {
             onResize: [],
             onInit: []

@@ -13,6 +13,9 @@ Tayberry.create('chart1', {
     labels: {
         enabled: true
     },
+    legend: {
+        placement: 'right'
+    },
     series: [{
         data: [.132, .290, .224, .180, .173],
         name: '1961 abcd'

@@ -141,7 +141,7 @@ Tayberry.prototype.drawLabelLayer = function () {
     let offsetRect = new Rect(0);
     this.xAxes.map(e => e.draw(offsetRect));
     this.yAxes.map(e => e.draw(offsetRect));
-    this.drawLegend();
+    this.legend.draw();
 };
 
 Tayberry.prototype.redraw = function (plotOnly) {
