@@ -1,4 +1,4 @@
-# TayberryJS 0.4
+# TayberryJS 0.4.1
 
 &copy; Reupen Shah 2015 – 2016
 
@@ -80,6 +80,7 @@ Available attributes on the option object are (full details still to be complete
 | legend.enabled                | boolean         |      |
 | legend.font.\*                | \-                  | Overrides font.\* values for the legend |
 | legend.indicatorSize          | logical pixels  | Width/height of the coloured box of each legend item |
+| legend.placement              |  `left`\|`top`\|`right`\|`bottom`     | Legend placement/position     |
 | linePlot.lineWidth            | logical pixels          |  |
 | linePlot.highlightedLineWidth | logical pixels          |  |
 | linePlot.showMarkers          | true, false, `auto`          |  |
@@ -103,7 +104,7 @@ Available attributes on the option object are (full details still to be complete
 | tooltips.headerTemplate       | string          | HTML template string used for tooltip header. Use `{category}` to sub in the category name    |
 | tooltips.shared               | boolean         | Set to true to share tooltips between all series     |
 | tooltips.valueTemplate        | string          | HTML template string used for each series in a tooltip. Fields available: `{name}`, `{value}` and `{colour}` |
-| [xAxis\|yAxis][n].categories              | array           | (categorial axes only)      |
+| [xAxis\|yAxis][n].categories              | array           | (categorial/categorical axes only)      |
 | [xAxis\|yAxis][n].currencySymbol          | string          | (linear axes only)     |
 | [xAxis\|yAxis][n].font.\*                 | \-              | Overrides allAxes.font.\* values for the axis labels |
 | [xAxis\|yAxis][n].labelPosition           | `left`\|`middle`\|`right` |
@@ -119,7 +120,7 @@ Available attributes on the option object are (full details still to be complete
 | [xAxis\|yAxis][n].tickStepValue           | axis units      | Distance between ticks in axis units; overrides tickStep (linear axes only)
 | [xAxis\|yAxis][n].title.text              | string          |      |
 | [xAxis\|yAxis][n].title.font.\*           | \-              | Overrides allAxes.font.\* values for the axis title |
-| [xAxis\|yAxis][n].type                    | `linear`\|`categorial`          |      |
+| [xAxis\|yAxis][n].type                    | `linear`\|`categorial`/`categorical`          |      |
 
 See the demos for some examples.
 
