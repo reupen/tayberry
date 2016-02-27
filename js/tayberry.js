@@ -139,13 +139,13 @@
             this.categories = [];
             this.titleFont = null;
             this.labelFont = null;
-            this.legendFont = null;
             this.renderers = [];
             this.onClickReal = null;
             this.onMouseLeaveReal = null;
             this.onMouseMoveReal = null;
             this.onWindowResizeReal = null;
             this.pendingAnimations = [];
+            this.legend = null;
             this.callbacks = {
                 onResize: [],
                 onInit: []
@@ -1564,6 +1564,7 @@
                     matches.sort(function (a, b) {
                         var ret = a.priority - b.priority;
                         if (!ret) ret = a.sortDistance - b.sortDistance;
+                        if (!ret) ret = a.distance - b.distance;
                         if (!ret) ret = a.data.rect.height - b.data.rect.height;
                         return ret;
                     });
@@ -1917,6 +1918,248 @@
         return PointEnumerator;
     }(BySeriesEnumerator);
 
+    var Legend = function () {
+        /**
+         *
+         * @param tayberry {Tayberry}
+         */
+
+        function Legend(tayberry) {
+            babelHelpers.classCallCheck(this, Legend);
+
+            this.tb = tayberry;
+            this.xPos = null;
+            this.yPos = null;
+            this.rowIndices = null;
+            this.calculatedSize = null;
+            this.canvas = tayberry.labelsCanvas;
+            this.ctx = tayberry.labelsCtx;
+            this.font = null;
+        }
+
+        babelHelpers.createClass(Legend, [{
+            key: 'adjustSize',
+            value: function adjustSize(plotArea, reset) {
+                var ret = false;
+                if (reset) {
+                    this.calculatedSize = 0;
+                }
+                if (this.tb.options.legend.enabled) {
+                    var smallPadding = this.tb.mapLogicalXUnit(this.tb.options.elementSmallPadding);
+                    var largePadding = this.tb.mapLogicalXUnit(this.tb.options.elementLargePadding);
+                    var indicatorSize = this.tb.mapLogicalXUnit(this.tb.options.legend.indicatorSize);
+                    var textWidths = this.getItemTextWidths();
+                    var maxLegendItemWidth = reduce(textWidths, Math.max) + indicatorSize + smallPadding;
+                    var isVertical = this.tb.options.legend.placement === 'left' || this.tb.options.legend.placement === 'right';
+                    var isHorizontal = !isVertical;
+
+                    var rowIndices = [];
+                    var numItems = textWidths.length;
+                    var plotWidth = plotArea.width;
+
+                    if (isHorizontal) {
+                        var cumWidth = 0;
+                        for (var i = 0; i < numItems; i++) {
+                            cumWidth += textWidths[i] + indicatorSize + smallPadding;
+                            if (i + 1 == numItems) {
+                                rowIndices.push(i + 1);
+                            } else if (cumWidth > plotWidth) {
+                                rowIndices.push(i);
+                                cumWidth = 0;
+                            } else {
+                                cumWidth += largePadding;
+                            }
+                        }
+                    } else {
+                        for (var i = 0; i < numItems; i++) {
+                            rowIndices.push(i + 1);
+                        }
+                    }
+
+                    this.rowIndices = rowIndices;
+                    var numRows = rowIndices.length;
+                    var height = indicatorSize * numRows + (numRows - 1) * smallPadding;
+
+                    var calculatedSize = 0;
+
+                    switch (this.tb.options.legend.placement) {
+                        case 'bottom':
+                            calculatedSize = largePadding + indicatorSize * numRows;
+                            plotArea.bottom -= calculatedSize - this.calculatedSize;
+                            this.yPos = this.canvas.height - indicatorSize * numRows;
+                            break;
+                        case 'top':
+                            calculatedSize = largePadding + indicatorSize * numRows;
+                            this.yPos = plotArea.top;
+                            plotArea.top += calculatedSize - this.calculatedSize;
+                            break;
+                        case 'left':
+                            calculatedSize = maxLegendItemWidth + largePadding;
+                            this.xPos = 0;
+                            this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
+                            plotArea.left += calculatedSize - this.calculatedSize;
+                            break;
+                        case 'right':
+                            calculatedSize = maxLegendItemWidth + largePadding;
+                            plotArea.right -= calculatedSize - this.calculatedSize;
+                            this.xPos = plotArea.right + largePadding;
+                            this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
+                            break;
+                    }
+
+                    ret = this.calculatedSize !== calculatedSize;
+                    this.calculatedSize = calculatedSize;
+                }
+                return ret;
+            }
+        }, {
+            key: 'updateFonts',
+            value: function updateFonts() {
+                this.font = this.tb.createFontString(this.tb.options.legend.font);
+            }
+        }, {
+            key: 'draw',
+            value: function draw() {
+                if (this.tb.options.legend.enabled) {
+                    var legendMetrics = this.getMeasurements();
+                    this.ctx.save();
+                    this.ctx.font = this.font;
+
+                    for (var index = 0; index < legendMetrics.items.length; index++) {
+                        var item = legendMetrics.items[index];
+                        var series = item.series;
+                        var highlighted = this.tb.selectedItem.type === 'legend' && this.tb.selectedItem.data.series === series;
+                        series.renderer.drawLegendIndicator(this.ctx, series, item.indicatorRect, highlighted);
+                        this.ctx.textBaseline = 'middle';
+                        this.ctx.fillStyle = this.tb.options.legend.font.colour;
+                        if (!(series.visible & visibilityState.visible)) this.ctx.fillStyle = new Colour(this.ctx.fillStyle).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
+                        this.ctx.fillText(series.name, item.textX, item.textY);
+                    }
+                    this.ctx.restore();
+                }
+            }
+        }, {
+            key: 'hitTest',
+            value: function hitTest(x, y) {
+                var ret = {
+                    found: false,
+                    type: 'legend'
+                };
+                var legendMetrics = this.getMeasurements();
+                if (legendMetrics.rect.containsPoint(x, y)) {
+                    for (var index = 0; index < legendMetrics.items.length; index++) {
+                        var item = legendMetrics.items[index];
+                        if (item.rect.containsPoint(x, y)) {
+                            assign(ret, [{ found: true, normalisedDistance: -5, data: item }]);
+                            break;
+                        }
+                    }
+                }
+                return ret;
+            }
+        }, {
+            key: 'getItemTextWidths',
+            value: function getItemTextWidths() {
+                var ret = [];
+                for (var index = 0; index < this.tb.options.series.length; index++) {
+                    var series = this.tb.options.series[index];
+                    var width = 0;
+                    if (series.name) {
+                        width = Math.max(this.tb.getTextWidth(series.name, this.font));
+                    }
+                    ret.push(width);
+                }
+                return ret;
+            }
+        }, {
+            key: 'getMeasurements',
+            value: function getMeasurements() {
+                var ret = {
+                    rect: new Rect(0),
+                    items: []
+                };
+                if (this.tb.options.legend.enabled) {
+                    var smallPadding = this.tb.mapLogicalXUnit(this.tb.options.elementSmallPadding);
+                    var largePadding = this.tb.mapLogicalXUnit(this.tb.options.elementLargePadding);
+                    var indicatorSize = this.tb.mapLogicalXUnit(this.tb.options.legend.indicatorSize);
+                    var isVertical = this.tb.options.legend.placement === 'left' || this.tb.options.legend.placement === 'right';
+                    var isHorizontal = !isVertical;
+                    var newLineIndices = this.rowIndices;
+
+                    var lineWidths = [];
+
+                    var lineStart = 0;
+                    for (var lineIndex = 0; lineIndex < newLineIndices.length; lineIndex++) {
+                        var lineEnd = newLineIndices[lineIndex];
+                        var lineWidth = 0;
+
+                        for (var index = lineStart; index < lineEnd; index++) {
+                            var series = this.tb.options.series[index];
+                            if (index > newLineIndices[lineIndex]) {
+                                ++lineIndex;
+                            }
+                            var textWidth = 0;
+
+                            if (series.name) {
+                                textWidth = this.tb.getTextWidth(series.name, this.font);
+                                lineWidth += textWidth + indicatorSize + smallPadding;
+                                if (index + 1 < lineEnd) lineWidth += largePadding;
+                                ret.items.push({ textWidth: textWidth, series: series });
+                            } else {
+                                ret.items.push({ textWidth: 0, series: series });
+                            }
+                        }
+                        lineStart = lineEnd;
+                        lineWidths.push(lineWidth);
+                    }
+
+                    lineStart = 0;
+                    for (var lineIndex = 0; lineIndex < newLineIndices.length; lineIndex++) {
+                        var lineEnd = newLineIndices[lineIndex];
+                        var lineWidth = lineWidths[lineIndex];
+                        var x = isHorizontal ? this.tb.plotArea.left + this.tb.plotArea.width / 2 - lineWidth / 2 : this.xPos;
+                        var y = this.yPos + (indicatorSize + smallPadding) * lineIndex;
+
+                        if (lineIndex === 0) {
+                            ret.rect.left = x;
+                            ret.rect.right = x;
+                            ret.rect.top = y;
+                        }
+
+                        for (var index = lineStart; index < lineEnd; index++) {
+                            var item = ret.items[index];
+
+                            if (item.textWidth > 0) {
+                                item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
+                                item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
+                                item.textX = x + indicatorSize + smallPadding;
+                                item.textY = y + indicatorSize / 2;
+
+                                ret.rect.right = Math.max(ret.rect.right, item.rect.right);
+
+                                if (isHorizontal) {
+                                    x += ret.items[index].textWidth + largePadding;
+                                    x += indicatorSize + smallPadding;
+                                }
+                            } else {
+                                item.rect = new Rect(0);
+                                item.indicatorRect = new Rect(0);
+                                item.textX = 0;
+                                item.textY = 0;
+                            }
+                        }
+                        lineStart = lineEnd;
+                        if (lineIndex + 1 === newLineIndices.length) {
+                            ret.rect.bottom = y + indicatorSize;
+                        }
+                    }
+                }
+                return ret;
+            }
+        }]);
+        return Legend;
+    }();
+
     var currentAutoColourIndex = 0;
 
     Tayberry$1.getAutoColour = function () {
@@ -2018,7 +2261,7 @@
         //this.labelsCtx.font = this.createFontString(this.options.font);
         this.titleFont = this.createFontString(this.options.title.font);
         this.labelFont = this.createFontString(this.options.labels.font);
-        this.legendFont = this.createFontString(this.options.legend.font);
+        this.legend.updateFonts();
         this.yAxes.map(function (e) {
             return e.updateFonts();
         });
@@ -2065,6 +2308,7 @@
         for (var i = 0; i < this.options.yAxis.length; i++) {
             this.yAxes.push(Axis.create(this, this.options.yAxis[i], i, 'y', this.options.swapAxes));
         }
+        this.legend = new Legend(this);
         this.updateFonts();
         this.createRenderers();
         this.calculatePlotArea();
@@ -2357,7 +2601,7 @@
         this.yAxes.map(function (e) {
             return e.draw(offsetRect);
         });
-        this.drawLegend();
+        this.legend.draw();
     };
 
     Tayberry$1.prototype.redraw = function (plotOnly) {
@@ -2383,7 +2627,7 @@
     Tayberry$1.prototype.handleMouseMove = function (clientX, clientY) {
         var boundingRect = new Rect(this.plotCanvas.getBoundingClientRect());
         var ret = false;
-        var tooltipDisplayStyle = 'none';
+        var tooltipDisplayStyleSet = false;
         if (boundingRect.containsPoint(clientX, clientY)) {
             var x = clientX - boundingRect.left;
             var y = clientY - boundingRect.top;
@@ -2396,7 +2640,8 @@
                 } else if (hitTestResult.type === 'plotItem') {
                     var tooltipHtml = '';
                     var aboveZero = hitTestResult.rect.top < hitTestResult.rect.bottom;
-                    tooltipDisplayStyle = 'block';
+                    this.tooltipElement.style.display = 'block';
+                    tooltipDisplayStyleSet = true;
                     if (this.options.tooltips.shared) {
                         var category = this.xAxes[0].getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
                         tooltipHtml += formatString(this.options.tooltips.headerTemplate, { category: category }, true);
@@ -2433,7 +2678,7 @@
                 }
             }
         }
-        this.tooltipElement.style.display = tooltipDisplayStyle;
+        if (!tooltipDisplayStyleSet) this.tooltipElement.style.display = 'none';
         return ret;
     };
 
@@ -2551,7 +2796,8 @@
                 enabled: true,
                 indicatorSize: 15,
                 font: {},
-                hiddenAlphaMultiplier: 0.5
+                hiddenAlphaMultiplier: 0.5,
+                placement: 'bottom'
             },
             labels: {
                 enabled: false,
@@ -2674,7 +2920,8 @@
             this.plotArea.top += this.mapLogicalYUnit(this.options.elementSmallPadding);
             this.plotArea.top += this.getFontHeight(this.options.title.font) * this.getMultilineTextHeight(this.titleFont, this.labelsCanvas.width, this.options.title.text);
         }
-        if (this.options.legend.enabled) this.plotArea.bottom -= this.mapLogicalYUnit(this.options.elementSmallPadding + this.options.elementLargePadding + this.options.legend.indicatorSize);
+
+        this.legend.adjustSize(this.plotArea, true);
 
         this.yAxes.map(function (e) {
             return e.adjustSize(_this.plotArea, true, true);
@@ -2700,7 +2947,7 @@
                 return e.adjustSize(_this.plotArea);
             })) && none(this.xAxes.map(function (e) {
                 return e.adjustSize(_this.plotArea);
-            }))) break;
+            })) && !this.legend.adjustSize(this.plotArea)) break;
         }
         this.plotArea.left = Math.ceil(this.plotArea.left);
         this.plotArea.top = Math.ceil(this.plotArea.top);
@@ -2713,97 +2960,20 @@
             found: false
         };
         var matches = [];
-        for (var i = 0; i < this.renderers.length; i++) {
-            var hitTestResult = this.renderers[i].hitTest(x, y);
-            if (hitTestResult.found) {
-                matches.push(hitTestResult);
+        if (this.plotArea.containsPoint(x, y)) {
+            for (var i = 0; i < this.renderers.length; i++) {
+                var hitTestResult = this.renderers[i].hitTest(x, y);
+                if (hitTestResult.found) {
+                    matches.push(hitTestResult);
+                }
             }
         }
-        matches.push(this.hitTestLegend(x, y));
+        matches.push(this.legend.hitTest(x, y));
         if (matches.length) {
             matches.sort(function (a, b) {
                 return !a.found - !b.found || a.normalisedDistance - b.normalisedDistance;
             });
             ret = matches[0];
-        }
-        return ret;
-    };
-
-    Tayberry$1.prototype.drawLegend = function () {
-        if (this.options.legend.enabled) {
-            var legendMetrics = this.getLegendMeasurements();
-            this.labelsCtx.save();
-            this.labelsCtx.font = this.legendFont;
-
-            for (var index = 0; index < legendMetrics.items.length; index++) {
-                var item = legendMetrics.items[index];
-                var series = item.series;
-                var highlighted = this.selectedItem.type === 'legend' && this.selectedItem.data.series === series;
-                series.renderer.drawLegendIndicator(this.labelsCtx, series, item.indicatorRect, highlighted);
-                this.labelsCtx.textBaseline = 'middle';
-                this.labelsCtx.fillStyle = this.options.legend.font.colour;
-                if (!(series.visible & visibilityState.visible)) this.labelsCtx.fillStyle = new Colour(this.labelsCtx.fillStyle).multiplyAlpha(this.options.legend.hiddenAlphaMultiplier).toString();
-                this.labelsCtx.fillText(series.name, item.textX, item.textY);
-            }
-            this.labelsCtx.restore();
-        }
-    };
-
-    Tayberry$1.prototype.hitTestLegend = function (x, y) {
-        var ret = {
-            found: false,
-            type: 'legend'
-        };
-        var legendMetrics = this.getLegendMeasurements();
-        if (legendMetrics.rect.containsPoint(x, y)) {
-            for (var index = 0; index < legendMetrics.items.length; index++) {
-                var item = legendMetrics.items[index];
-                if (item.rect.containsPoint(x, y)) {
-                    assign(ret, [{ found: true, normalisedDistance: -5, data: item }]);
-                    break;
-                }
-            }
-        }
-        return ret;
-    };
-
-    Tayberry$1.prototype.getLegendMeasurements = function () {
-        var ret = {
-            rect: new Rect(0),
-            items: []
-        };
-        if (this.options.legend.enabled) {
-            var smallPadding = this.mapLogicalXUnit(this.options.elementSmallPadding);
-            var largePadding = this.mapLogicalXUnit(this.options.elementLargePadding);
-            var totalWidth = 0;
-            var indicatorSize = this.mapLogicalXUnit(this.options.legend.indicatorSize);
-            for (var index = 0; index < this.options.series.length; index++) {
-                var series = this.options.series[index];
-                var textWidth = 0;
-                if (series.name) {
-                    textWidth = this.getTextWidth(series.name, this.legendFont);
-                    totalWidth += textWidth + indicatorSize + smallPadding + largePadding;
-                    ret.items.push({ textWidth: textWidth, series: series });
-                }
-            }
-            var x = this.plotArea.left + this.plotArea.width / 2 - totalWidth / 2,
-                y = this.labelsCanvas.height - indicatorSize;
-
-            ret.rect.left = x;
-            ret.rect.right = x + totalWidth;
-            ret.rect.top = y;
-            ret.rect.bottom = y + indicatorSize;
-
-            for (var index = 0; index < ret.items.length; index++) {
-                var item = ret.items[index];
-                item.rect = new Rect(x, ret.rect.top, x + indicatorSize + smallPadding + item.textWidth, ret.rect.bottom);
-                item.indicatorRect = new Rect(x, ret.rect.top, x + indicatorSize, ret.rect.bottom);
-                x += indicatorSize + smallPadding;
-                item.textX = x;
-                item.textY = y + indicatorSize / 2;
-
-                x += ret.items[index].textWidth + largePadding;
-            }
         }
         return ret;
     };
