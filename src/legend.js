@@ -59,7 +59,6 @@ export class Legend {
             }
 
             this.rowIndices = rowIndices;
-            // this.legendTextWidths = textWidths;
             const numRows = rowIndices.length;
             const height = indicatorSize * numRows + (numRows - 1) * smallPadding;
 
@@ -178,13 +177,16 @@ export class Legend {
                         ++lineIndex;
                     }
                     let textWidth = 0;
-                    // FIXME: ignore unnamed series
-                    //if (series.name) {
-                    textWidth = this.tb.getTextWidth(series.name, this.font);
-                    lineWidth += textWidth + indicatorSize + smallPadding;
-                    if (index + 1 < lineEnd) lineWidth += largePadding;
-                    ret.items.push({textWidth: textWidth, series: series});
-                    //}
+
+                    if (series.name) {
+                        textWidth = this.tb.getTextWidth(series.name, this.font);
+                        lineWidth += textWidth + indicatorSize + smallPadding;
+                        if (index + 1 < lineEnd)
+                            lineWidth += largePadding;
+                        ret.items.push({textWidth: textWidth, series: series});
+                    } else {
+                        ret.items.push({textWidth: 0, series: series});
+                    }
                 }
                 lineStart = lineEnd;
                 lineWidths.push(lineWidth);
@@ -206,18 +208,24 @@ export class Legend {
                 for (let index = lineStart; index < lineEnd; index++) {
                     let item = ret.items[index];
 
-                    item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
-                    item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
-                    item.textX = x + indicatorSize + smallPadding;
-                    item.textY = y + indicatorSize / 2;
+                    if (item.textWidth > 0) {
+                        item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
+                        item.indicatorRect = new Rect(x, y, x + indicatorSize, y + indicatorSize);
+                        item.textX = x + indicatorSize + smallPadding;
+                        item.textY = y + indicatorSize / 2;
 
-                    ret.rect.right = Math.max(ret.rect.right, item.rect.right);
+                        ret.rect.right = Math.max(ret.rect.right, item.rect.right);
 
-                    if (isHorizontal) {
-                        x += ret.items[index].textWidth + largePadding;
-                        x += indicatorSize + smallPadding;
+                        if (isHorizontal) {
+                            x += ret.items[index].textWidth + largePadding;
+                            x += indicatorSize + smallPadding;
+                        }
+                    } else {
+                        item.rect = new Rect(0);
+                        item.indicatorRect = new Rect(0);
+                        item.textX = 0;
+                        item.textY = 0;
                     }
-
                 }
                 lineStart = lineEnd;
                 if (lineIndex + 1 === newLineIndices.length) {
