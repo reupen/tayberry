@@ -12,6 +12,7 @@ export class Tayberry {
         this.titleFont = null;
         this.labelFont = null;
         this.renderers = [];
+        this.renderersByType = {};
         this.onClickReal = null;
         this.onMouseLeaveReal = null;
         this.onMouseMoveReal = null;

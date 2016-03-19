@@ -8,7 +8,9 @@ import {BarRenderer} from './renderer.bar';
 import {LineRenderer} from './renderer.line';
 import {Legend} from './legend';
 
-var currentAutoColourIndex = 0;
+let currentAutoColourIndex = 0;
+
+const RENDERER_TYPES = ['line', 'bar'];
 
 Tayberry.getAutoColour = function () {
     let ret = Tayberry.defaultColours[currentAutoColourIndex % Tayberry.defaultColours.length];
@@ -143,9 +145,9 @@ Tayberry.prototype.setOptions = function (options) {
     for (let i = 0; i < this.options.xAxis.length; i++) {
         this.options.xAxis[i] = Utils.deepAssign({}, [Tayberry.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
     }
-    for (let i = 0; i < this.options.series.length; i++) {
-        this.options.series[i] = Utils.deepAssign({}, [Tayberry.defaultSeries, this.options.series[i]]);
-    }
+
+    if (!Array.isArray(this.options.series))
+        this.options.series = [this.options.series];
 
     this.yAxes = [];
     this.xAxes = [];
@@ -167,6 +169,39 @@ Tayberry.prototype.setOptions = function (options) {
     window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
+Tayberry.prototype.addSeries = function(series) {
+    if (!Array.isArray(series))
+        series = [series];
+
+    let groupedSeries = this.processSeries(series);
+
+    this.options.series = this.options.series.concat(series);
+
+    for (let i = 0; i<RENDERER_TYPES.length; i++) {
+        const type = RENDERER_TYPES[i];
+
+        if (groupedSeries[type].length) {
+            if (!this.renderersByType[type]) {
+                this.createRenderer(type, groupedSeries[type]);
+            } else {
+                this.renderersByType[type].addSeries(series);
+            }
+        }
+    }
+
+    this.calculatePlotArea();
+    this.callbacks['onResize'].forEach(func => func());
+    this.clear(true, true);
+    this.drawLabelLayer();
+
+    if (this.options.animations.enabled) {
+        for (let i = 0; i < series.length; i++)
+            this.setSeriesVisibility(series[i], true, 'height');
+    } else {
+        this.drawPlotLayer();
+    }
+};
+
 Tayberry.calculateHighlightColour = function (colour) {
     let newColour = new Colour(colour);
     return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
@@ -178,16 +213,11 @@ Tayberry.calculateGlowColour = function (highlightColour) {
     return newColour.toString();
 };
 
-Tayberry.prototype.createRenderers = function () {
-    let series, groupedSeries = {'bar': [], 'line': []};
-    if (!Array.isArray(this.options.series)) {
-        series = [this.options.series];
-    } else {
-        series = this.options.series;
-    }
+Tayberry.prototype.processSeries = function (series) {
+    let groupedSeries = {'bar': [], 'line': []};
 
     for (let i = 0; i < series.length; i++) {
-        const curSeries = series[i];
+        const curSeries = series[i] = Utils.deepAssign({}, [Tayberry.defaultSeries, series[i]]);
         curSeries.index = i;
         curSeries.colour = curSeries.colour || Tayberry.getAutoColour();
         curSeries.highlightColour = curSeries.highlightColour || Tayberry.calculateHighlightColour(curSeries.colour);
@@ -204,12 +234,37 @@ Tayberry.prototype.createRenderers = function () {
             groupedSeries[curSeries.plotType].push(curSeries);
         }
     }
-    if (groupedSeries['bar'].length) {
-        this.renderers.push(new BarRenderer(this.plotCtx, this, groupedSeries['bar']));
+    return groupedSeries;
+};
+
+Tayberry.prototype.createRenderers = function () {
+    let series;
+    if (!Array.isArray(this.options.series)) {
+        series = [this.options.series];
+    } else {
+        series = this.options.series;
     }
-    if (groupedSeries['line'].length) {
-        this.renderers.push(new LineRenderer(this.plotCtx, this, groupedSeries['line']));
+
+    let groupedSeries = this.processSeries(series);
+
+    for (let i = 0; i<RENDERER_TYPES.length; i++) {
+        const type = RENDERER_TYPES[i];
+
+        if (groupedSeries[type].length) {
+            this.createRenderer(type, groupedSeries[type]);
+        }
     }
+};
+
+Tayberry.prototype.createRenderer = function(type, series) {
+    let typeMap = {
+        'bar': BarRenderer,
+        'line': LineRenderer
+    };
+
+    let renderer = new typeMap[type](this.plotCtx, this, series);
+    this.renderersByType[type] = renderer;
+    this.renderers.push(renderer);
 };
 
 Tayberry.prototype.getDataMinMax = function (axis) {

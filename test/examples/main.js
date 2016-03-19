@@ -1,6 +1,7 @@
 /* global Tayberry */
+'use strict';
 
-Tayberry.create('chart1', {
+var chart1 = Tayberry.create('chart1', {
     title: {
         text: 'Forecast errors'
     },
@@ -30,7 +31,15 @@ Tayberry.create('chart1', {
     }]
 });
 
-Tayberry.create('chart2', {
+setTimeout(function () {
+    chart1.addSeries({
+        data: [15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12, 4, 3, 1, 4],
+        name: 'Refunds',
+        colour: 'rgba(150, 100, 100, 0.5)'
+    });
+}, 5000);
+
+var chart2 = Tayberry.create('chart2', {
     title: {
         text: 'Contribution to revenue growth'
     },
@@ -66,6 +75,13 @@ Tayberry.create('chart2', {
         name: 'Transaction size'
     }]
 });
+
+setTimeout(function () {
+    chart2.addSeries({
+        data: [3, 4, 3, 5, 8, 9, 1, 3, 3, 5, 3, 6],
+        name: 'Refunds'
+    });
+}, 5000);
 
 Tayberry.create('chart3', {
     title: {

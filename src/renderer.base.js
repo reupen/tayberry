@@ -13,12 +13,18 @@ export class Renderer {
     }
 
     setSeries(series) {
-        var seriesIndex;
         this.series = series;
 
-        for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-            const series = this.series[seriesIndex];
+        for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
+            this.series[seriesIndex].renderer = this;
+        }
+    }
+
+    addSeries(seriesList) {
+        for (let seriesIndex = 0; seriesIndex < seriesList.length; seriesIndex++) {
+            const series = seriesList[seriesIndex]; 
             series.renderer = this;
+            this.series.push(series);
         }
     }
 
