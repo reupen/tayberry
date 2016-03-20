@@ -35,7 +35,26 @@ class Chart {
      * @param series    {Object|Array}  series object or list of series objects to add
      */
     addSeries(series) {
+        this._checkState();
         this._impl.addSeries(series);
+    }
+
+    /**
+     * Destroys the chart.
+     */
+    destroy() {
+        this._impl.destroy();
+        this._impl = null;
+    }
+
+    /**
+     * Checks if the chart has been destoryed, and throws an exception if so.
+     *
+     * @private
+     */
+    _checkState() {
+        if (!this._impl)
+            throw Error("Chart has been destroyed");
     }
 }
 

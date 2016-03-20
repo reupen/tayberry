@@ -80,6 +80,7 @@ Tayberry.prototype.destroy = function () {
     this.plotCanvas.removeEventListener('click', this.onClickReal);
     this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
     this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+    this.plotCanvas.parentNode.removeChild(this.plotCanvas);
     // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
     window.removeEventListener('resize', this.onWindowResizeReal);
 };
