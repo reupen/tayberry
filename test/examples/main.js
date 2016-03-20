@@ -1,45 +1,47 @@
-/* global Tayberry */
+/* global Tayberry, $ */
 'use strict';
 
-var chart1 = Tayberry.create('chart1', {
-    title: {
-        text: 'Forecast errors'
-    },
-    yAxis: {
+var randomData1 = [];
+var randomData2 = [];
+
+for (var i = 0; i < 500; i++) {
+    randomData1.push(Math.random() * 50 + 50);
+    randomData2.push(Math.random() * 50);
+}
+
+var createdCharts = {};
+
+var standardTestCharts = {
+    'chart1': {
         title: {
-            text: 'Frequency'
-        }
-    },
-    xAxis: {
-        title: {
-            text: 'Error'
+            text: 'Forecast errors'
         },
-        type: 'linear',
-        min: -50,
-        max: 50,
-        tickStepValue: 10
+        yAxis: {
+            title: {
+                text: 'Frequency'
+            }
+        },
+        xAxis: {
+            title: {
+                text: 'Error'
+            },
+            type: 'linear',
+            min: -50,
+            max: 50,
+            tickStepValue: 10
+        },
+        presets: ['histogram', 'darkGrid'],
+        series: [{
+            data: [11, 13, 20, 19, 37, 38, 43, 49, 53, 80, 84, 102, 122, 111, 115, 143, 161, 148, 196, 210, 213, 220, 226, 227, 235, 189, 233, 201, 188, 158, 177, 145, 120, 101, 112, 104, 69, 71, 52, 38, 31, 23, 17, 13, 12, 12, 9, 6, 6, 4],
+            name: 'Sales',
+            colour: 'rgba(140, 40, 138, 0.5)'
+        }, {
+            data: [4, 3, 1, 4, 15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12],
+            name: 'Customers',
+            colour: 'rgba(48, 140, 100, 0.5)'
+        }]
     },
-    presets: ['histogram', 'darkGrid'],
-    series: [{
-        data: [11, 13, 20, 19, 37, 38, 43, 49, 53, 80, 84, 102, 122, 111, 115, 143, 161, 148, 196, 210, 213, 220, 226, 227, 235, 189, 233, 201, 188, 158, 177, 145, 120, 101, 112, 104, 69, 71, 52, 38, 31, 23, 17, 13, 12, 12, 9, 6, 6, 4],
-        name: 'Sales',
-        colour: 'rgba(140, 40, 138, 0.5)'
-    }, {
-        data: [4, 3, 1, 4, 15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12],
-        name: 'Customers',
-        colour: 'rgba(48, 140, 100, 0.5)'
-    }]
-});
-
-setTimeout(function () {
-    chart1.addSeries({
-        data: [15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12, 4, 3, 1, 4],
-        name: 'Refunds',
-        colour: 'rgba(150, 100, 100, 0.5)'
-    });
-}, 5000);
-
-var chart2 = Tayberry.create('chart2', {
+    'chart2': {
     title: {
         text: 'Contribution to revenue growth'
     },
@@ -74,16 +76,7 @@ var chart2 = Tayberry.create('chart2', {
         data: [5, 6, 7, 6, 2, 2, 10, 6, 1, 2, -3, -6],
         name: 'Transaction size'
     }]
-});
-
-setTimeout(function () {
-    chart2.addSeries({
-        data: [3, 4, 3, 5, 8, 9, 1, 3, 3, 5, 3, 6],
-        name: 'Refunds'
-    });
-}, 5000);
-
-Tayberry.create('chart3', {
+}, 'chart3': {
     title: {
         text: 'UK household sizes'
     },
@@ -104,9 +97,7 @@ Tayberry.create('chart3', {
         name: '2011'
     }]
 
-});
-
-Tayberry.create('chart4', {
+}, 'chart4': {
     title: {
         text: 'UK population by region (mid-2013)'
     },
@@ -140,9 +131,7 @@ Tayberry.create('chart4', {
             5377596],
         name: 'Population (people)'
     }]
-});
-
-Tayberry.create('chart5', {
+}, 'chart5': {
     title: {
         text: 'UK household sizes'
     },
@@ -172,9 +161,7 @@ Tayberry.create('chart5', {
         colour: '#FFAB51'
     }]
 
-});
-
-Tayberry.create('chart6', {
+}, 'chart6': {
     title: {
         text: 'UK household sizes'
     },
@@ -210,16 +197,7 @@ Tayberry.create('chart6', {
         yAxisIndex: 1
     }]
 
-});
-
-var randomData1 = [];
-var randomData2 = [];
-for (var i = 0; i < 500; i++) {
-    randomData1.push(Math.random() * 50 + 50);
-    randomData2.push(Math.random() * 50);
-}
-
-Tayberry.create('chart7', {
+}, 'chart7': {
     title: {
         text: 'Random data - 1000 points'
     },
@@ -244,4 +222,25 @@ Tayberry.create('chart7', {
         colour: '#FFAB51'
     }]
 
+}
+};
+
+Object.keys(standardTestCharts).forEach(function(key) {
+    createdCharts[key] = Tayberry.create(key, standardTestCharts[key]);
 });
+
+$('#chart1-add').on('click', function() {
+    createdCharts['chart1'].addSeries({
+        data: [15, 9, 23, 26, 35, 44, 30, 70, 58, 75, 85, 107, 112, 120, 144, 158, 184, 196, 197, 190, 202, 222, 221, 226, 209, 221, 191, 198, 189, 168, 151, 142, 121, 112, 80, 82, 69, 49, 51, 51, 34, 27, 20, 11, 11, 12, 4, 3, 1, 4],
+        name: 'Refunds',
+        colour: 'rgba(150, 100, 100, 0.5)'
+    });
+});
+
+$('#chart2-add').on('click', function() {
+    createdCharts['chart2'].addSeries({
+        data: [3, 4, 3, 5, 8, 9, 1, 3, 3, 5, 3, 6],
+        name: 'Refunds'
+    });
+});
+
