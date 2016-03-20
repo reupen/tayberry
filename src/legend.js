@@ -61,17 +61,18 @@ export class Legend {
             this.rowIndices = rowIndices;
             const numRows = rowIndices.length;
             const height = indicatorSize * numRows + (numRows - 1) * smallPadding;
+            const numRowGaps = numRows ? (numRows - 1) : 0;
 
             let calculatedSize = 0;
 
             switch (this.tb.options.legend.placement) {
                 case 'bottom':
-                    calculatedSize = largePadding + indicatorSize * numRows;
+                    calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
                     plotArea.bottom -= calculatedSize - this.calculatedSize;
-                    this.yPos = this.canvas.height - indicatorSize * numRows;
+                    this.yPos = this.canvas.height - indicatorSize * numRows - numRowGaps * smallPadding;
                     break;
                 case 'top':
-                    calculatedSize = largePadding + indicatorSize * numRows;
+                    calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
                     this.yPos = plotArea.top;
                     plotArea.top += calculatedSize - this.calculatedSize;
                     break;
@@ -107,14 +108,17 @@ export class Legend {
 
             for (let index = 0; index < legendMetrics.items.length; index++) {
                 const item = legendMetrics.items[index];
-                const series = item.series;
-                const highlighted = this.tb.selectedItem.type === 'legend' && this.tb.selectedItem.data.series === series;
-                series.renderer.drawLegendIndicator(this.ctx, series, item.indicatorRect, highlighted);
-                this.ctx.textBaseline = 'middle';
-                this.ctx.fillStyle = this.tb.options.legend.font.colour;
-                if (!(series.visible & constants.visibilityState.visible))
-                    this.ctx.fillStyle = (new Colour(this.ctx.fillStyle)).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
-                this.ctx.fillText(series.name, item.textX, item.textY);
+
+                if (item.textWidth) {
+                    const series = item.series;
+                    const highlighted = this.tb.selectedItem.type === 'legend' && this.tb.selectedItem.data.series === series;
+                    series.renderer.drawLegendIndicator(this.ctx, series, item.indicatorRect, highlighted);
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillStyle = this.tb.options.legend.font.colour;
+                    if (!(series.visible & constants.visibilityState.visible))
+                        this.ctx.fillStyle = (new Colour(this.ctx.fillStyle)).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
+                    this.ctx.fillText(series.name, item.textX, item.textY);
+                }
             }
             this.ctx.restore();
         }

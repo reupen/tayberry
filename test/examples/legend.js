@@ -14,7 +14,7 @@ Tayberry.create('chart1', {
         enabled: true
     },
     legend: {
-        placement: 'right'
+        placement: 'bottom'
     },
     series: [{
         data: [.132, .290, .224, .180, .173],
