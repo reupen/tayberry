@@ -42,14 +42,17 @@ export class Legend {
             if (isHorizontal) {
                 let cumWidth = 0;
                 for (let i = 0; i < numItems; i++) {
-                    cumWidth += textWidths[i] + indicatorSize + smallPadding;
+                    const itemWidth = textWidths[i] + indicatorSize + smallPadding;
+                    cumWidth += itemWidth;
+                    if (cumWidth > plotWidth) {
+                        rowIndices.push(i);
+                        cumWidth = itemWidth;
+                    }
+
+                    cumWidth += largePadding;
+
                     if (i + 1 == numItems) {
                         rowIndices.push(i + 1);
-                    } else if (cumWidth > plotWidth) {
-                        rowIndices.push(i);
-                        cumWidth = 0;
-                    } else {
-                        cumWidth += largePadding;
                     }
                 }
             } else {
