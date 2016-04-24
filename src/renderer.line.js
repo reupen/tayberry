@@ -226,7 +226,7 @@ export class LineRenderer extends renderer.Renderer {
             matches.sort((e1, e2) => {
                 return (e1.horizontalDistance - e2.horizontalDistance) || (e1.distance - e2.distance);
             });
-            if (true || matches[0].distance <= 5) {
+            /*if (true || matches[0].distance <= 5)*/ {
                 pt = matches[0].data;
                 const rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
                 Utils.assign(ret, [{
