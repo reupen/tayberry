@@ -10,7 +10,7 @@ import {Legend} from './legend';
 
 let currentAutoColourIndex = 0;
 
-const RENDERER_TYPES = ['line', 'bar'];
+const RENDERER_TYPES = ['bar', 'line'];
 
 Tayberry.getAutoColour = function () {
     let ret = Tayberry.defaultColours[currentAutoColourIndex % Tayberry.defaultColours.length];
