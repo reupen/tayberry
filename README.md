@@ -1,4 +1,4 @@
-# TayberryJS 0.4.1
+# TayberryJS 0.4.2
 
 &copy; Reupen Shah 2015 – 2016
 
