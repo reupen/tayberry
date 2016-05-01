@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.2
+
+* Various legend layout bug fixes
+* Ability to add series dynamically after chart creation (using `addSeries` method of the chart object; examples to come)
+
+## 0.4.1
+
+* Improves tooltip behaviour
+* Adds legend.placement option to control legend placement (top/left/bottom/right)
+
 ## 0.4.0
 
 * Adds ability to show and hide series, with animations, by clicking on them in the legend.
