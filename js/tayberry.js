@@ -140,6 +140,7 @@
             this.titleFont = null;
             this.labelFont = null;
             this.renderers = [];
+            this.renderersByType = {};
             this.onClickReal = null;
             this.onMouseLeaveReal = null;
             this.onMouseMoveReal = null;
@@ -404,7 +405,7 @@
             value: function adjustSize(plotArea, fixedOnly, reset) {
                 var size = 0,
                     tb = this.tayberry,
-                    ret = undefined;
+                    ret = void 0;
 
                 var titleFontHeight = tb.getFontHeight(this.options.title.font);
                 var fontHeight = tb.getFontHeight(this.options.font);
@@ -436,7 +437,7 @@
                         size += this.maxLabelSize();
                     } else {
                         {
-                            var lastXEnd = undefined;
+                            var lastXEnd = void 0;
                             for (var i = 0; i < ticks.length; i++) {
                                 var tick = ticks[i];
                                 var textWidth = tb.getTextWidth(this.options.labelFormatter(tick.value), this.labelFont);
@@ -450,13 +451,13 @@
                             }
                         }
                         if (ticks.length) {
-                            var lastTick = ticks[ticks.length - 1];
-                            var textWidth = tb.getTextWidth(this.options.labelFormatter(lastTick.value), this.labelFont);
-                            var lastTickXEnd = lastTick.x + textWidth / 2;
+                            var _lastTick = ticks[ticks.length - 1];
+                            var _textWidth = tb.getTextWidth(this.options.labelFormatter(_lastTick.value), this.labelFont);
+                            var lastTickXEnd = _lastTick.x + _textWidth / 2;
                             if (lastTickXEnd >= plotArea.right + this.rightAdjustment) {
-                                var adjustment = lastTickXEnd - plotArea.right - this.rightAdjustment + 1;
-                                plotArea.right -= adjustment;
-                                this.rightAdjustment += adjustment;
+                                var _adjustment = lastTickXEnd - plotArea.right - this.rightAdjustment + 1;
+                                plotArea.right -= _adjustment;
+                                this.rightAdjustment += _adjustment;
                             }
                         }
                         size += fontHeight * this.numLabelLines;
@@ -519,8 +520,8 @@
                     maxWidth = 0;
 
                 this.enumerateTicks(function (tick) {
-                    var xStart = undefined,
-                        xEnd = undefined;
+                    var xStart = void 0,
+                        xEnd = void 0;
                     var formattedValue = _this2.options.labelFormatter(tick.value);
                     var row = tickIndex % _this2.numLabelLines;
                     var rowOffset = _this2.isVertical ? 0 : fontHeight * row;
@@ -573,10 +574,10 @@
                         tb.labelsCtx.fillText(this.options.title.text, 0, 0);
                     } else {
                         tb.labelsCtx.textBaseline = this.isPlacedAtStart ? 'bottom' : 'top';
-                        var x = tb.plotArea.xMidpoint + xOffset;
-                        var y = tb.plotArea[this.startProperty] + labelPadding + yOffset;
+                        var _x = tb.plotArea.xMidpoint + xOffset;
+                        var _y = tb.plotArea[this.startProperty] + labelPadding + yOffset;
                         //tb.mapLogicalYOrXUnit(tb.options.font.size * 2 + tb.options.elementSmallPadding + tb.options.elementLargePadding)
-                        tb.labelsCtx.fillText(this.options.title.text, x, y);
+                        tb.labelsCtx.fillText(this.options.title.text, _x, _y);
                     }
                     this.adjustOffsetRect(offsetRect, fontHeight + labelPaddingSize);
                     tb.labelsCtx.restore();
@@ -784,9 +785,9 @@
         }, {
             key: 'calculateExtent',
             value: function calculateExtent() {
-                var targetTicks = undefined,
-                    approxStep = undefined,
-                    scale = undefined;
+                var targetTicks = void 0,
+                    approxStep = void 0,
+                    scale = void 0;
 
                 var targetStart = this.options.min;
                 var targetEnd = this.options.max;
@@ -911,6 +912,7 @@
          * @returns {Colour}
          */
 
+
         babelHelpers.createClass(Colour, [{
             key: 'parseString',
             value: function parseString(str) {
@@ -994,6 +996,7 @@
         }, {
             key: 'toString',
 
+
             /**
              * Formats this colour as a string
              * @returns {String}
@@ -1028,184 +1031,6 @@
         }]);
         return Colour;
     }();
-
-    var visibilityState = {
-        visible: 1 << 0,
-        hidden: 1 << 1,
-        transitioning: 1 << 2
-    };
-
-    var Renderer = function () {
-        function Renderer(ctx, tayberry, series) {
-            babelHelpers.classCallCheck(this, Renderer);
-
-            this.ctx = ctx;
-            this.tb = tayberry;
-            this.series = null;
-            this.setSeries(series);
-        }
-
-        babelHelpers.createClass(Renderer, [{
-            key: 'setSeries',
-            value: function setSeries(series) {
-                var seriesIndex;
-                this.series = series;
-
-                for (seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
-                    var _series = this.series[seriesIndex];
-                    _series.renderer = this;
-                }
-            }
-        }, {
-            key: 'getVisibleSeriesCount',
-            value: function getVisibleSeriesCount(excludeSeries) {
-                var ret = 0;
-                for (var index = 0; index < this.series.length; index++) {
-                    if (index !== excludeSeries) {
-                        var series = this.series[index];
-                        if (series.visible & visibilityState.visible) ret++;
-                    }
-                }
-                return ret;
-            }
-        }, {
-            key: 'onToggleSeriesAnimationFrame',
-            value: function onToggleSeriesAnimationFrame() {}
-        }, {
-            key: 'onAnimationFrame',
-            value: function onAnimationFrame() {
-                this.onToggleSeriesAnimationFrame();
-            }
-        }, {
-            key: 'drawLegendIndicator',
-            value: function drawLegendIndicator(ctx, series, rect, highlighted) {
-                ctx.fillStyle = highlighted ? series.highlightColour : series.colour;
-                if (!(series.visible & visibilityState.visible)) ctx.fillStyle = new Colour(ctx.fillStyle).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
-                ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
-            }
-        }, {
-            key: 'drawLabel',
-            value: function drawLabel(sign, text, rect) {
-                if (this.tb.options.swapAxes) rect = rect.clone().swapXY();
-                var x = (rect.left + rect.right) / 2;
-                var y = undefined;
-                if (this.tb.options.labels.verticalAlignment === 'top') y = rect.top;else if (this.tb.options.labels.verticalAlignment === 'bottom') y = rect.bottom;else y = (rect.top + rect.bottom) / 2;
-                var baseline = 'middle';
-                var align = 'center';
-                if (this.tb.options.swapAxes) {
-                    var _ref = [y, x];
-                    x = _ref[0];
-                    y = _ref[1];
-
-                    if (this.tb.options.labels.verticalPosition === 'outside') align = 'left';else if (this.tb.options.labels.verticalPosition === 'inside') align = 'right';
-                } else {
-                    baseline = Tayberry$1.mapVerticalPosition(sign, this.tb.options.labels.verticalPosition);
-                }
-                if (this.tb.plotArea.containsPoint(x, y)) {
-                    this.ctx.save();
-                    this.ctx.textAlign = align;
-                    this.ctx.textBaseline = baseline;
-                    this.ctx.fillText(text, x, y);
-                    this.ctx.restore();
-                }
-            }
-        }, {
-            key: 'drawPlot',
-            value: function drawPlot() {}
-        }, {
-            key: 'drawLabels',
-            value: function drawLabels() {}
-        }, {
-            key: 'hitTest',
-            value: function hitTest() {}
-        }]);
-        return Renderer;
-    }();
-
-    var Enumerator = function () {
-        function Enumerator(renderer) {
-            var startCategoryIndex = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
-            babelHelpers.classCallCheck(this, Enumerator);
-
-            this.renderer = renderer;
-            this.tb = renderer.tb;
-
-            this.categoryCount = this.renderer.series[0].data.length;
-            this.categoryIndex = 0;
-            this.seriesIndex = 0;
-            this.seriesCount = this.renderer.series.length;
-            if (this.categoryCount) {
-                this.isHorizontal = this.tb.options.swapAxes;
-                this.plotArea = this.tb.plotArea.clone();
-                if (this.isHorizontal) this.plotArea.swapXY();
-                this.startCategoryIndex = Math.max(startCategoryIndex, 0);
-                this.startCategoryIndex = Math.min(this.startCategoryIndex, this.categoryCount - 1);
-                this.categoryIndex = this.startCategoryIndex;
-            }
-        }
-
-        babelHelpers.createClass(Enumerator, [{
-            key: 'nextValue',
-            value: function nextValue() {}
-        }]);
-        return Enumerator;
-    }();
-
-    var ByCategoryEnumerator = function (_Enumerator) {
-        babelHelpers.inherits(ByCategoryEnumerator, _Enumerator);
-
-        function ByCategoryEnumerator() {
-            babelHelpers.classCallCheck(this, ByCategoryEnumerator);
-            return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ByCategoryEnumerator).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(ByCategoryEnumerator, [{
-            key: 'nextValue',
-            value: function nextValue() {
-
-                var value = undefined;
-                do {
-                    if (this.seriesIndex + 1 === this.seriesCount) {
-                        this.seriesIndex = 0;
-                        this.categoryIndex++;
-                        if (this.categoryIndex >= this.categoryCount) break;
-                    } else {
-                        this.seriesIndex++;
-                    }
-                    value = Tayberry$1.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
-                } while (isMissingValue(value));
-            }
-        }]);
-        return ByCategoryEnumerator;
-    }(Enumerator);
-
-    var BySeriesEnumerator = function (_Enumerator2) {
-        babelHelpers.inherits(BySeriesEnumerator, _Enumerator2);
-
-        function BySeriesEnumerator() {
-            babelHelpers.classCallCheck(this, BySeriesEnumerator);
-            return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(BySeriesEnumerator).apply(this, arguments));
-        }
-
-        babelHelpers.createClass(BySeriesEnumerator, [{
-            key: 'nextValue',
-            value: function nextValue() {
-
-                var value = undefined;
-                do {
-                    if (this.categoryIndex + 1 === this.categoryCount) {
-                        this.categoryIndex = this.startCategoryIndex;
-                        this.seriesIndex++;
-                        if (this.seriesIndex >= this.seriesCount) break;
-                    } else {
-                        this.categoryIndex++;
-                    }
-                    value = Tayberry$1.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
-                } while (isMissingValue(value));
-            }
-        }]);
-        return BySeriesEnumerator;
-    }(Enumerator);
 
     var Rect = function () {
         function Rect() {
@@ -1337,6 +1162,191 @@
         return Rect;
     }();
 
+    var visibilityState = {
+        visible: 1 << 0,
+        hidden: 1 << 1,
+        transitioning: 1 << 2
+    };
+
+    var Renderer = function () {
+        function Renderer(ctx, tayberry, series) {
+            babelHelpers.classCallCheck(this, Renderer);
+
+            this.ctx = ctx;
+            this.tb = tayberry;
+            this.series = null;
+            this.setSeries(series);
+        }
+
+        babelHelpers.createClass(Renderer, [{
+            key: 'setSeries',
+            value: function setSeries(series) {
+                this.series = series;
+
+                for (var seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
+                    this.series[seriesIndex].renderer = this;
+                }
+            }
+        }, {
+            key: 'addSeries',
+            value: function addSeries(seriesList) {
+                for (var seriesIndex = 0; seriesIndex < seriesList.length; seriesIndex++) {
+                    var series = seriesList[seriesIndex];
+                    series.renderer = this;
+                    this.series.push(series);
+                }
+            }
+        }, {
+            key: 'getVisibleSeriesCount',
+            value: function getVisibleSeriesCount(excludeSeries) {
+                var ret = 0;
+                for (var index = 0; index < this.series.length; index++) {
+                    if (index !== excludeSeries) {
+                        var series = this.series[index];
+                        if (series.visible & visibilityState.visible) ret++;
+                    }
+                }
+                return ret;
+            }
+        }, {
+            key: 'onToggleSeriesAnimationFrame',
+            value: function onToggleSeriesAnimationFrame() {}
+        }, {
+            key: 'onAnimationFrame',
+            value: function onAnimationFrame() {
+                this.onToggleSeriesAnimationFrame();
+            }
+        }, {
+            key: 'drawLegendIndicator',
+            value: function drawLegendIndicator(ctx, series, rect, highlighted) {
+                ctx.fillStyle = highlighted ? series.highlightColour : series.colour;
+                if (!(series.visible & visibilityState.visible)) ctx.fillStyle = new Colour(ctx.fillStyle).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
+                ctx.fillRect(rect.left, rect.top, rect.width, rect.height);
+            }
+        }, {
+            key: 'drawLabel',
+            value: function drawLabel(sign, text, rect) {
+                if (this.tb.options.swapAxes) rect = rect.clone().swapXY();
+                var x = (rect.left + rect.right) / 2;
+                var y = void 0;
+                if (this.tb.options.labels.verticalAlignment === 'top') y = rect.top;else if (this.tb.options.labels.verticalAlignment === 'bottom') y = rect.bottom;else y = (rect.top + rect.bottom) / 2;
+                var baseline = 'middle';
+                var align = 'center';
+                if (this.tb.options.swapAxes) {
+                    var _ref = [y, x];
+                    x = _ref[0];
+                    y = _ref[1];
+
+                    if (this.tb.options.labels.verticalPosition === 'outside') align = 'left';else if (this.tb.options.labels.verticalPosition === 'inside') align = 'right';
+                } else {
+                    baseline = Tayberry$1.mapVerticalPosition(sign, this.tb.options.labels.verticalPosition);
+                }
+                if (this.tb.plotArea.containsPoint(x, y)) {
+                    this.ctx.save();
+                    this.ctx.textAlign = align;
+                    this.ctx.textBaseline = baseline;
+                    this.ctx.fillText(text, x, y);
+                    this.ctx.restore();
+                }
+            }
+        }, {
+            key: 'drawPlot',
+            value: function drawPlot() {}
+        }, {
+            key: 'drawLabels',
+            value: function drawLabels() {}
+        }, {
+            key: 'hitTest',
+            value: function hitTest() {}
+        }]);
+        return Renderer;
+    }();
+
+    var Enumerator = function () {
+        function Enumerator(renderer) {
+            var startCategoryIndex = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+            babelHelpers.classCallCheck(this, Enumerator);
+
+            this.renderer = renderer;
+            this.tb = renderer.tb;
+
+            this.categoryCount = this.renderer.series[0].data.length;
+            this.categoryIndex = 0;
+            this.seriesIndex = 0;
+            this.seriesCount = this.renderer.series.length;
+            if (this.categoryCount) {
+                this.isHorizontal = this.tb.options.swapAxes;
+                this.plotArea = this.tb.plotArea.clone();
+                if (this.isHorizontal) this.plotArea.swapXY();
+                this.startCategoryIndex = Math.max(startCategoryIndex, 0);
+                this.startCategoryIndex = Math.min(this.startCategoryIndex, this.categoryCount - 1);
+                this.categoryIndex = this.startCategoryIndex;
+            }
+        }
+
+        babelHelpers.createClass(Enumerator, [{
+            key: 'nextValue',
+            value: function nextValue() {}
+        }]);
+        return Enumerator;
+    }();
+
+    var ByCategoryEnumerator = function (_Enumerator) {
+        babelHelpers.inherits(ByCategoryEnumerator, _Enumerator);
+
+        function ByCategoryEnumerator() {
+            babelHelpers.classCallCheck(this, ByCategoryEnumerator);
+            return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ByCategoryEnumerator).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(ByCategoryEnumerator, [{
+            key: 'nextValue',
+            value: function nextValue() {
+
+                var value = void 0;
+                do {
+                    if (this.seriesIndex + 1 === this.seriesCount) {
+                        this.seriesIndex = 0;
+                        this.categoryIndex++;
+                        if (this.categoryIndex >= this.categoryCount) break;
+                    } else {
+                        this.seriesIndex++;
+                    }
+                    value = Tayberry$1.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
+                } while (isMissingValue(value));
+            }
+        }]);
+        return ByCategoryEnumerator;
+    }(Enumerator);
+
+    var BySeriesEnumerator = function (_Enumerator2) {
+        babelHelpers.inherits(BySeriesEnumerator, _Enumerator2);
+
+        function BySeriesEnumerator() {
+            babelHelpers.classCallCheck(this, BySeriesEnumerator);
+            return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(BySeriesEnumerator).apply(this, arguments));
+        }
+
+        babelHelpers.createClass(BySeriesEnumerator, [{
+            key: 'nextValue',
+            value: function nextValue() {
+
+                var value = void 0;
+                do {
+                    if (this.categoryIndex + 1 === this.categoryCount) {
+                        this.categoryIndex = this.startCategoryIndex;
+                        this.seriesIndex++;
+                        if (this.seriesIndex >= this.seriesCount) break;
+                    } else {
+                        this.categoryIndex++;
+                    }
+                    value = Tayberry$1.getDataValue(this.renderer.series[this.seriesIndex].data[this.categoryIndex]);
+                } while (isMissingValue(value));
+            }
+        }]);
+        return BySeriesEnumerator;
+    }(Enumerator);
+
     var BarRenderer = function (_renderer$Renderer) {
         babelHelpers.inherits(BarRenderer, _renderer$Renderer);
 
@@ -1430,16 +1440,16 @@
 
                     var runningBarWidth = 0;
 
-                    for (var seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                        var series = this.series[seriesIndex];
-                        var rState = series.rState;
-                        var value = Tayberry$1.getDataValue(series.data[categoryIndex]) * rState.yMultiplier;
+                    for (var _seriesIndex = 0; _seriesIndex < seriesCount; _seriesIndex++) {
+                        var _series = this.series[_seriesIndex];
+                        var _rState = _series.rState;
+                        var value = Tayberry$1.getDataValue(_series.data[categoryIndex]) * _rState.yMultiplier;
 
-                        var barWidth = Math.floor(rState.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
+                        var barWidth = Math.floor(_rState.multiplier * Math.floor((barXEnd - barXStart) / totalBarsPerCategory));
 
-                        var xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-                        var xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
-                        var yTop = series.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
+                        var xStart = Math.floor(barXStart + runningBarWidth) + Math.ceil(_series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                        var xEnd = Math.ceil(barXStart + runningBarWidth + barWidth) - Math.floor(_series.xAxis.mapLogicalXOrYUnit(this.tb.options.barPlot.barPadding) / 2);
+                        var yTop = _series.yAxis.getValueDisplacement(value + (value > 0 ? yRunningTotalPositive : yRunningTotalNegative));
                         var yBottom = isStacked ? value > 0 ? yBottomPositive : yBottomNegative : yOrigin;
 
                         categoryPositions.push([xStart, yTop, xEnd, yBottom]);
@@ -1471,7 +1481,7 @@
             value: function drawPlot() {
                 this.ctx.save();
                 var barEnumerator = new BarEnumerator(this);
-                var bar = undefined;
+                var bar = void 0;
                 while (bar = barEnumerator.next()) {
                     if (bar.series.visible & (visibilityState.visible | visibilityState.transitioning)) {
                         this.ctx.fillStyle = bar.selected ? bar.series.rState.highlightColour : bar.series.rState.colour;
@@ -1486,7 +1496,7 @@
                 if (this.tb.options.labels.enabled) {
                     this.ctx.save();
                     var barEnumerator = new BarEnumerator(this);
-                    var bar = undefined;
+                    var bar = void 0;
                     while (bar = barEnumerator.next()) {
                         if ((bar.series.visible & (visibilityState.visible | visibilityState.transitioning)) === visibilityState.visible) {
                             this.ctx.font = this.tb.labelFont;
@@ -1517,14 +1527,14 @@
                 var matches = [];
 
                 var barEnumerator = new BarEnumerator(this, categoryIndex);
-                var bar = undefined;
+                var bar = void 0;
                 while (bar = barEnumerator.next()) {
                     if (bar.categoryIndex > categoryIndex) break;
                     if (!(bar.series.visible & (visibilityState.visible | visibilityState.transitioning))) continue;
 
-                    var sortDistance = undefined,
-                        priority = undefined,
-                        realDistance = undefined;
+                    var sortDistance = void 0,
+                        priority = void 0,
+                        realDistance = void 0;
                     if (bar.rect.containsPoint(x, y)) {
                         sortDistance = 0;
                         priority = 0;
@@ -1592,7 +1602,7 @@
         babelHelpers.createClass(BarEnumerator, [{
             key: 'next',
             value: function next() {
-                var ret = undefined;
+                var ret = void 0;
 
                 if (this.categoryIndex < this.categoryCount) {
                     var _renderer$barPosition = babelHelpers.slicedToArray(this.renderer.barPositions[this.categoryIndex][this.seriesIndex], 4);
@@ -1601,6 +1611,7 @@
                     var yTop = _renderer$barPosition[1];
                     var xEnd = _renderer$barPosition[2];
                     var yBottom = _renderer$barPosition[3];
+
 
                     var rect = new Rect(xStart, yTop, xEnd, yBottom);
 
@@ -1672,20 +1683,20 @@
                     }
                 }
 
-                for (var seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
-                    var series = this.series[seriesIndex];
-                    var rState = series.rState;
-                    var valueCount = series.data.length;
-                    var yOrigin = series.yAxis.valueOrigin;
+                for (var _seriesIndex = 0; _seriesIndex < seriesCount; _seriesIndex++) {
+                    var _series = this.series[_seriesIndex];
+                    var _rState = _series.rState;
+                    var valueCount = _series.data.length;
+                    var yOrigin = _series.yAxis.valueOrigin;
                     var seriesPositions = [];
 
                     for (var valueIndex = 0; valueIndex < valueCount; valueIndex++) {
-                        var value = Tayberry$1.getDataValue(series.data[valueIndex]);
-                        var xValue = Tayberry$1.getDataXValue(series.data, valueIndex);
+                        var value = Tayberry$1.getDataValue(_series.data[valueIndex]);
+                        var xValue = Tayberry$1.getDataXValue(_series.data, valueIndex);
 
-                        var rValue = yOrigin + rState.yMultiplier * (value - yOrigin);
-                        var x = series.xAxis.getValueDisplacement(xValue) * rState.xMultiplier;
-                        var y = series.yAxis.getValueDisplacement(rValue);
+                        var rValue = yOrigin + _rState.yMultiplier * (value - yOrigin);
+                        var x = _series.xAxis.getValueDisplacement(xValue) * _rState.xMultiplier;
+                        var y = _series.yAxis.getValueDisplacement(rValue);
 
                         seriesPositions.push([x, y]);
                     }
@@ -1746,7 +1757,7 @@
             value: function drawPlot() {
                 this.ctx.save();
                 var pointEnumerator = new PointEnumerator(this);
-                var pt = undefined;
+                var pt = void 0;
                 while (pt = pointEnumerator.next()) {
                     if (!(pt.series.visible & (visibilityState.visible | visibilityState.transitioning))) continue;
 
@@ -1797,7 +1808,7 @@
                     this.ctx.font = this.tb.labelFont;
                     this.ctx.fillStyle = this.tb.options.labels.font.colour;
                     var pointEnumerator = new PointEnumerator(this);
-                    var pt = undefined;
+                    var pt = void 0;
                     while (pt = pointEnumerator.next()) {
                         if (!(pt.series.visible & (visibilityState.visible | visibilityState.transitioning))) continue;
 
@@ -1821,7 +1832,7 @@
                 var matches = [];
 
                 var pointEnumerator = new PointEnumerator(this);
-                var pt = undefined;
+                var pt = void 0;
                 while (pt = pointEnumerator.next()) {
                     if (!(pt.series.visible & (visibilityState.visible | visibilityState.transitioning))) continue;
 
@@ -1855,7 +1866,7 @@
                     matches.sort(function (e1, e2) {
                         return e1.horizontalDistance - e2.horizontalDistance || e1.distance - e2.distance;
                     });
-                    if (true || matches[0].distance <= 5) {
+                    /*if (true || matches[0].distance <= 5)*/{
                         pt = matches[0].data;
                         var rect = new Rect(pt.x, pt.y, pt.x, pt.y).inflate(this.tb.options.linePlot.markerSize / 2);
                         assign(ret, [{
@@ -1883,13 +1894,14 @@
         babelHelpers.createClass(PointEnumerator, [{
             key: 'next',
             value: function next() {
-                var ret = undefined;
+                var ret = void 0;
 
                 if (this.seriesIndex < this.seriesCount) {
                     var _renderer$pointPositi = babelHelpers.slicedToArray(this.renderer.pointPositions[this.seriesIndex][this.categoryIndex], 2);
 
                     var x = _renderer$pointPositi[0];
                     var y = _renderer$pointPositi[1];
+
 
                     if (this.isHorizontal) {
                         ;
@@ -1960,36 +1972,40 @@
                     if (isHorizontal) {
                         var cumWidth = 0;
                         for (var i = 0; i < numItems; i++) {
-                            cumWidth += textWidths[i] + indicatorSize + smallPadding;
+                            var itemWidth = textWidths[i] + indicatorSize + smallPadding;
+                            cumWidth += itemWidth;
+                            if (cumWidth > plotWidth) {
+                                rowIndices.push(i);
+                                cumWidth = itemWidth;
+                            }
+
+                            cumWidth += largePadding;
+
                             if (i + 1 == numItems) {
                                 rowIndices.push(i + 1);
-                            } else if (cumWidth > plotWidth) {
-                                rowIndices.push(i);
-                                cumWidth = 0;
-                            } else {
-                                cumWidth += largePadding;
                             }
                         }
                     } else {
-                        for (var i = 0; i < numItems; i++) {
-                            rowIndices.push(i + 1);
+                        for (var _i = 0; _i < numItems; _i++) {
+                            rowIndices.push(_i + 1);
                         }
                     }
 
                     this.rowIndices = rowIndices;
                     var numRows = rowIndices.length;
                     var height = indicatorSize * numRows + (numRows - 1) * smallPadding;
+                    var numRowGaps = numRows ? numRows - 1 : 0;
 
                     var calculatedSize = 0;
 
                     switch (this.tb.options.legend.placement) {
                         case 'bottom':
-                            calculatedSize = largePadding + indicatorSize * numRows;
+                            calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
                             plotArea.bottom -= calculatedSize - this.calculatedSize;
-                            this.yPos = this.canvas.height - indicatorSize * numRows;
+                            this.yPos = this.canvas.height - indicatorSize * numRows - numRowGaps * smallPadding;
                             break;
                         case 'top':
-                            calculatedSize = largePadding + indicatorSize * numRows;
+                            calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
                             this.yPos = plotArea.top;
                             plotArea.top += calculatedSize - this.calculatedSize;
                             break;
@@ -2027,13 +2043,16 @@
 
                     for (var index = 0; index < legendMetrics.items.length; index++) {
                         var item = legendMetrics.items[index];
-                        var series = item.series;
-                        var highlighted = this.tb.selectedItem.type === 'legend' && this.tb.selectedItem.data.series === series;
-                        series.renderer.drawLegendIndicator(this.ctx, series, item.indicatorRect, highlighted);
-                        this.ctx.textBaseline = 'middle';
-                        this.ctx.fillStyle = this.tb.options.legend.font.colour;
-                        if (!(series.visible & visibilityState.visible)) this.ctx.fillStyle = new Colour(this.ctx.fillStyle).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
-                        this.ctx.fillText(series.name, item.textX, item.textY);
+
+                        if (item.textWidth) {
+                            var series = item.series;
+                            var highlighted = this.tb.selectedItem.type === 'legend' && this.tb.selectedItem.data.series === series;
+                            series.renderer.drawLegendIndicator(this.ctx, series, item.indicatorRect, highlighted);
+                            this.ctx.textBaseline = 'middle';
+                            this.ctx.fillStyle = this.tb.options.legend.font.colour;
+                            if (!(series.visible & visibilityState.visible)) this.ctx.fillStyle = new Colour(this.ctx.fillStyle).multiplyAlpha(this.tb.options.legend.hiddenAlphaMultiplier).toString();
+                            this.ctx.fillText(series.name, item.textX, item.textY);
+                        }
                     }
                     this.ctx.restore();
                 }
@@ -2114,20 +2133,20 @@
                     }
 
                     lineStart = 0;
-                    for (var lineIndex = 0; lineIndex < newLineIndices.length; lineIndex++) {
-                        var lineEnd = newLineIndices[lineIndex];
-                        var lineWidth = lineWidths[lineIndex];
-                        var x = isHorizontal ? this.tb.plotArea.left + this.tb.plotArea.width / 2 - lineWidth / 2 : this.xPos;
-                        var y = this.yPos + (indicatorSize + smallPadding) * lineIndex;
+                    for (var _lineIndex = 0; _lineIndex < newLineIndices.length; _lineIndex++) {
+                        var _lineEnd = newLineIndices[_lineIndex];
+                        var _lineWidth = lineWidths[_lineIndex];
+                        var x = isHorizontal ? this.tb.plotArea.left + this.tb.plotArea.width / 2 - _lineWidth / 2 : this.xPos;
+                        var y = this.yPos + (indicatorSize + smallPadding) * _lineIndex;
 
-                        if (lineIndex === 0) {
+                        if (_lineIndex === 0) {
                             ret.rect.left = x;
                             ret.rect.right = x;
                             ret.rect.top = y;
                         }
 
-                        for (var index = lineStart; index < lineEnd; index++) {
-                            var item = ret.items[index];
+                        for (var _index = lineStart; _index < _lineEnd; _index++) {
+                            var item = ret.items[_index];
 
                             if (item.textWidth > 0) {
                                 item.rect = new Rect(x, y, x + indicatorSize + smallPadding + item.textWidth, y + indicatorSize);
@@ -2138,7 +2157,7 @@
                                 ret.rect.right = Math.max(ret.rect.right, item.rect.right);
 
                                 if (isHorizontal) {
-                                    x += ret.items[index].textWidth + largePadding;
+                                    x += ret.items[_index].textWidth + largePadding;
                                     x += indicatorSize + smallPadding;
                                 }
                             } else {
@@ -2148,8 +2167,8 @@
                                 item.textY = 0;
                             }
                         }
-                        lineStart = lineEnd;
-                        if (lineIndex + 1 === newLineIndices.length) {
+                        lineStart = _lineEnd;
+                        if (_lineIndex + 1 === newLineIndices.length) {
                             ret.rect.bottom = y + indicatorSize;
                         }
                     }
@@ -2162,6 +2181,8 @@
 
     var currentAutoColourIndex = 0;
 
+    var RENDERER_TYPES = ['bar', 'line'];
+
     Tayberry$1.getAutoColour = function () {
         var ret = Tayberry$1.defaultColours[currentAutoColourIndex % Tayberry$1.defaultColours.length];
         currentAutoColourIndex++;
@@ -2169,7 +2190,7 @@
     };
 
     Tayberry$1.getDataValue = function (dataPoint) {
-        var ret = undefined;
+        var ret = void 0;
         if (Array.isArray(dataPoint)) {
             ret = dataPoint[1];
         } else {
@@ -2179,7 +2200,7 @@
     };
 
     Tayberry$1.getDataXValue = function (data, index) {
-        var ret = undefined;
+        var ret = void 0;
         if (Array.isArray(data[index])) {
             ret = data[index][0];
         } else {
@@ -2230,6 +2251,7 @@
         this.plotCanvas.removeEventListener('click', this.onClickReal);
         this.plotCanvas.removeEventListener('mousemove', this.onMouseMoveReal);
         this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
+        this.plotCanvas.parentNode.removeChild(this.plotCanvas);
         // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
         window.removeEventListener('resize', this.onWindowResizeReal);
     };
@@ -2293,20 +2315,19 @@
         for (var i = 0; i < this.options.yAxis.length; i++) {
             this.options.yAxis[i] = deepAssign({}, [i === 0 ? Tayberry$1.defaultPrimaryYAxis : Tayberry$1.defaultSecondaryYAxis, this.options.allAxes, this.options.yAxis[i]]);
         }
-        for (var i = 0; i < this.options.xAxis.length; i++) {
-            this.options.xAxis[i] = deepAssign({}, [Tayberry$1.defaultXAxis, this.options.allAxes, this.options.xAxis[i]]);
+        for (var _i = 0; _i < this.options.xAxis.length; _i++) {
+            this.options.xAxis[_i] = deepAssign({}, [Tayberry$1.defaultXAxis, this.options.allAxes, this.options.xAxis[_i]]);
         }
-        for (var i = 0; i < this.options.series.length; i++) {
-            this.options.series[i] = deepAssign({}, [Tayberry$1.defaultSeries, this.options.series[i]]);
-        }
+
+        if (!Array.isArray(this.options.series)) this.options.series = [this.options.series];
 
         this.yAxes = [];
         this.xAxes = [];
-        for (var i = 0; i < this.options.xAxis.length; i++) {
-            this.xAxes.push(Axis.create(this, this.options.xAxis[i], i, 'x', this.options.swapAxes));
+        for (var _i2 = 0; _i2 < this.options.xAxis.length; _i2++) {
+            this.xAxes.push(Axis.create(this, this.options.xAxis[_i2], _i2, 'x', this.options.swapAxes));
         }
-        for (var i = 0; i < this.options.yAxis.length; i++) {
-            this.yAxes.push(Axis.create(this, this.options.yAxis[i], i, 'y', this.options.swapAxes));
+        for (var _i3 = 0; _i3 < this.options.yAxis.length; _i3++) {
+            this.yAxes.push(Axis.create(this, this.options.yAxis[_i3], _i3, 'y', this.options.swapAxes));
         }
         this.legend = new Legend(this);
         this.updateFonts();
@@ -2322,6 +2343,41 @@
         window.addEventListener('resize', this.onWindowResizeReal = throttle(this.onWindowResize, 50).bind(this));
     };
 
+    Tayberry$1.prototype.addSeries = function (series) {
+        if (!Array.isArray(series)) series = [series];
+
+        var groupedSeries = this.processSeries(series);
+
+        this.options.series = this.options.series.concat(series);
+
+        for (var i = 0; i < RENDERER_TYPES.length; i++) {
+            var type = RENDERER_TYPES[i];
+
+            if (groupedSeries[type].length) {
+                if (!this.renderersByType[type]) {
+                    this.createRenderer(type, groupedSeries[type]);
+                } else {
+                    this.renderersByType[type].addSeries(series);
+                }
+            }
+        }
+
+        this.calculatePlotArea();
+        this.callbacks['onResize'].forEach(function (func) {
+            return func();
+        });
+        this.clear(true, true);
+        this.drawLabelLayer();
+
+        if (this.options.animations.enabled) {
+            for (var _i4 = 0; _i4 < series.length; _i4++) {
+                this.setSeriesVisibility(series[_i4], true, 'height');
+            }
+        } else {
+            this.drawPlotLayer();
+        }
+    };
+
     Tayberry$1.calculateHighlightColour = function (colour) {
         var newColour = new Colour(colour);
         return newColour.increaseBy(30 * (newColour.sum >= 180 * 3 ? -1 : 1)).toString();
@@ -2333,17 +2389,11 @@
         return newColour.toString();
     };
 
-    Tayberry$1.prototype.createRenderers = function () {
-        var series = undefined,
-            groupedSeries = { 'bar': [], 'line': [] };
-        if (!Array.isArray(this.options.series)) {
-            series = [this.options.series];
-        } else {
-            series = this.options.series;
-        }
+    Tayberry$1.prototype.processSeries = function (series) {
+        var groupedSeries = { 'bar': [], 'line': [] };
 
         for (var i = 0; i < series.length; i++) {
-            var curSeries = series[i];
+            var curSeries = series[i] = deepAssign({}, [Tayberry$1.defaultSeries, series[i]]);
             curSeries.index = i;
             curSeries.colour = curSeries.colour || Tayberry$1.getAutoColour();
             curSeries.highlightColour = curSeries.highlightColour || Tayberry$1.calculateHighlightColour(curSeries.colour);
@@ -2360,12 +2410,37 @@
                 groupedSeries[curSeries.plotType].push(curSeries);
             }
         }
-        if (groupedSeries['bar'].length) {
-            this.renderers.push(new BarRenderer(this.plotCtx, this, groupedSeries['bar']));
+        return groupedSeries;
+    };
+
+    Tayberry$1.prototype.createRenderers = function () {
+        var series = void 0;
+        if (!Array.isArray(this.options.series)) {
+            series = [this.options.series];
+        } else {
+            series = this.options.series;
         }
-        if (groupedSeries['line'].length) {
-            this.renderers.push(new LineRenderer(this.plotCtx, this, groupedSeries['line']));
+
+        var groupedSeries = this.processSeries(series);
+
+        for (var i = 0; i < RENDERER_TYPES.length; i++) {
+            var type = RENDERER_TYPES[i];
+
+            if (groupedSeries[type].length) {
+                this.createRenderer(type, groupedSeries[type]);
+            }
         }
+    };
+
+    Tayberry$1.prototype.createRenderer = function (type, series) {
+        var typeMap = {
+            'bar': BarRenderer,
+            'line': LineRenderer
+        };
+
+        var renderer = new typeMap[type](this.plotCtx, this, series);
+        this.renderersByType[type] = renderer;
+        this.renderers.push(renderer);
     };
 
     Tayberry$1.prototype.getDataMinMax = function (axis) {
@@ -2453,7 +2528,7 @@
     };
 
     Tayberry$1.prototype.getTextWidth = function (text, fontString) {
-        var ret = undefined;
+        var ret = void 0;
         if (fontString) {
             this.labelsCtx.save();
             this.labelsCtx.font = fontString;
@@ -2466,7 +2541,7 @@
     };
 
     Tayberry$1.prototype.getMultilineTextHeight = function (fontString, maxWidth, text) {
-        var ret = undefined;
+        var ret = void 0;
         if (fontString) {
             this.labelsCtx.save();
             this.labelsCtx.font = fontString;
@@ -2572,8 +2647,8 @@
         for (var i = 0; i < this.renderers.length; i++) {
             this.renderers[i].drawPlot();
         }
-        for (var i = 0; i < this.renderers.length; i++) {
-            this.renderers[i].drawLabels();
+        for (var _i = 0; _i < this.renderers.length; _i++) {
+            this.renderers[_i].drawLabels();
         }
     };
 
@@ -2655,14 +2730,14 @@
                             }, true);
                         }
                     } else {
-                        var series = hitTestResult.series;
-                        var value = hitTestResult.value;
-                        var category = series.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
-                        tooltipHtml += formatString(this.options.tooltips.headerTemplate, { category: category }, true);
+                        var _series = hitTestResult.series;
+                        var _value = hitTestResult.value;
+                        var _category = _series.xAxis.getCategoryLabel(hitTestResult.categoryIndex, this.categoryCount, hitTestResult.isXRange);
+                        tooltipHtml += formatString(this.options.tooltips.headerTemplate, { category: _category }, true);
                         tooltipHtml += formatString(this.options.tooltips.valueTemplate, {
-                            value: series.yAxis.options.labelFormatter(value),
-                            name: series.name,
-                            colour: series.colour
+                            value: _series.yAxis.options.labelFormatter(_value),
+                            name: _series.name,
+                            colour: _series.colour
                         }, true);
                     }
                     tooltipHtml += this.options.tooltips.footerTemplate;
@@ -3066,18 +3141,78 @@
         this.setSeriesVisibility(series, !(series.visible & visibilityState.visible));
     };
 
+    /**
+     * Chart object – public interface of the underlying implementation
+     */
+
+    var Chart = function () {
+        /**
+         * Creates a chart.
+         *
+         * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
+         * @param options   {Object}                Options object
+         */
+
+        function Chart(element, options) {
+            babelHelpers.classCallCheck(this, Chart);
+
+            this._impl = new Tayberry$1();
+            this._impl.create(element);
+            this._impl.setOptions(options);
+            this._impl.render();
+        }
+
+        /**
+         * Adds one or more series to the chart.
+         *
+         * @param series    {Object|Array}  series object or list of series objects to add
+         */
+
+
+        babelHelpers.createClass(Chart, [{
+            key: 'addSeries',
+            value: function addSeries(series) {
+                this._checkState();
+                this._impl.addSeries(series);
+            }
+
+            /**
+             * Destroys the chart.
+             */
+
+        }, {
+            key: 'destroy',
+            value: function destroy() {
+                this._impl.destroy();
+                this._impl = null;
+            }
+
+            /**
+             * Checks if the chart has been destoryed, and throws an exception if so.
+             *
+             * @private
+             */
+
+        }, {
+            key: '_checkState',
+            value: function _checkState() {
+                if (!this._impl) throw Error("Chart has been destroyed");
+            }
+        }]);
+        return Chart;
+    }();
+
     var Tayberry = {
         /**
          * Creates a Tayberry chart
          *
-         * @param element   ID of container div, or HTMLElement
-         * @param options   Options object
+         * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
+         * @param options   {Object}                Options object
+         *
+         * @return          {Chart}                 Chart object
          */
         create: function create(element, options) {
-            var chart = new Tayberry$1();
-            chart.create(element);
-            chart.setOptions(options);
-            chart.render();
+            return new Chart(element, options);
         }
     };
 
