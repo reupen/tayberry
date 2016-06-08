@@ -170,7 +170,7 @@ Tayberry.prototype.setOptions = function (options) {
     window.addEventListener('resize', this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this));
 };
 
-Tayberry.prototype.addSeries = function(series) {
+Tayberry.prototype.addSeries = function (series) {
     if (!Array.isArray(series))
         series = [series];
 
@@ -178,7 +178,7 @@ Tayberry.prototype.addSeries = function(series) {
 
     this.options.series = this.options.series.concat(series);
 
-    for (let i = 0; i<RENDERER_TYPES.length; i++) {
+    for (let i = 0; i < RENDERER_TYPES.length; i++) {
         const type = RENDERER_TYPES[i];
 
         if (groupedSeries[type].length) {
@@ -200,6 +200,23 @@ Tayberry.prototype.addSeries = function(series) {
             this.setSeriesVisibility(series[i], true, 'height');
     } else {
         this.drawPlotLayer();
+    }
+};
+
+Tayberry.prototype.removeSeries = function (index) {
+    const series = this.options.series[index];
+
+    if (this.options.animations.enabled) {
+        this.setSeriesVisibility(series, false, 'height', () => {
+            series.renderer.removeSeries(series);
+            this.options.series.splice(index, 1);
+
+            this.calculatePlotArea();
+            this.callbacks['onResize'].forEach(func => func());
+            this.clear(true, true);
+            this.drawLabelLayer();
+            this.drawPlotLayer();
+        });
     }
 };
 
@@ -248,7 +265,7 @@ Tayberry.prototype.createRenderers = function () {
 
     let groupedSeries = this.processSeries(series);
 
-    for (let i = 0; i<RENDERER_TYPES.length; i++) {
+    for (let i = 0; i < RENDERER_TYPES.length; i++) {
         const type = RENDERER_TYPES[i];
 
         if (groupedSeries[type].length) {
@@ -257,7 +274,7 @@ Tayberry.prototype.createRenderers = function () {
     }
 };
 
-Tayberry.prototype.createRenderer = function(type, series) {
+Tayberry.prototype.createRenderer = function (type, series) {
     let typeMap = {
         'bar': BarRenderer,
         'line': LineRenderer

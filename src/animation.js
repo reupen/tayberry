@@ -54,7 +54,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     }
 };
 
-Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype) {
+Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype, onCompletion) {
     series.visible = visible ? constants.visibilityState.visible : constants.visibilityState.hidden;
     series.visible |= constants.visibilityState.transitioning;
 
@@ -83,6 +83,10 @@ Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype) {
             onCompletion: () => {
                 series.visible = (series.visible & ~constants.visibilityState.transitioning);
                 delete series.animationState;
+
+                if (onCompletion) {
+                    onCompletion();
+                }
             }
         });
     }
