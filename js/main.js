@@ -1,3 +1,14 @@
+'use strict';
+
+function createRandomData(minValue, maxValue, numPoints) {
+    var i, data;
+    data = [];
+    for (i = 0; i < numPoints; i++) {
+        data.push(Math.random() * (maxValue - minValue) + minValue);
+    }
+    return data;
+}
+
 Tayberry.create('chart1', {
     title: {
         text: 'Forecast errors'
@@ -158,3 +169,32 @@ Tayberry.create('chart-cpi', {
         yAxisIndex: 1
     }]
 });
+
+var chartDynamic = Tayberry.create('chart-dynamic', {
+    title: {
+        text: 'Random data'
+    },
+    xAxis: {
+        title: {
+            text: 'Error'
+        },
+        categories: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    },
+    yAxis: [{
+        title: {
+            text: 'Index'
+        }
+    }],
+    series: []
+});
+
+function addSeries() {
+    chartDynamic.addSeries({
+        data: createRandomData(0, 15, 15),
+        name: 'Series'
+    });
+}
+
+addSeries();
+
+$('#add-series').on('click', addSeries);

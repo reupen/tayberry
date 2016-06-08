@@ -1961,7 +1961,7 @@
                     var largePadding = this.tb.mapLogicalXUnit(this.tb.options.elementLargePadding);
                     var indicatorSize = this.tb.mapLogicalXUnit(this.tb.options.legend.indicatorSize);
                     var textWidths = this.getItemTextWidths();
-                    var maxLegendItemWidth = reduce(textWidths, Math.max) + indicatorSize + smallPadding;
+                    var maxLegendItemWidth = textWidths.length ? reduce(textWidths, Math.max) + indicatorSize + smallPadding : 0;
                     var isVertical = this.tb.options.legend.placement === 'left' || this.tb.options.legend.placement === 'right';
                     var isHorizontal = !isVertical;
 
