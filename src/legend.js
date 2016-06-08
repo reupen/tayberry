@@ -30,7 +30,7 @@ export class Legend {
             const largePadding = this.tb.mapLogicalXUnit(this.tb.options.elementLargePadding);
             const indicatorSize = this.tb.mapLogicalXUnit(this.tb.options.legend.indicatorSize);
             const textWidths = this.getItemTextWidths();
-            const maxLegendItemWidth = Utils.reduce(textWidths, Math.max) + indicatorSize + smallPadding;
+            const maxLegendItemWidth = textWidths.length ? Utils.reduce(textWidths, Math.max) + indicatorSize + smallPadding : 0;
             const isVertical = this.tb.options.legend.placement === 'left' || this.tb.options.legend.placement === 'right';
             const isHorizontal = !isVertical;
 
