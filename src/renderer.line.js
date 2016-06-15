@@ -14,8 +14,18 @@ export class LineRenderer extends renderer.Renderer {
 
         this.pointPositions = null;
 
-        this.tb.registerCallback('onResize', this.updatPointPositions.bind(this));
-        this.tb.registerCallback('onInit', this.updatPointPositions.bind(this));
+        this.onResizeHandle = this.tb.registerCallback('onResize', this.updatPointPositions.bind(this));
+        this.onInitHandle = this.tb.registerCallback('onInit', this.updatPointPositions.bind(this));
+    }
+
+    deinitialise() {
+        if (this.onResizeHandle)
+            this.tb.deregisterCallback(this.onResizeHandle);
+        if (this.onInitHandle)
+            this.tb.deregisterCallback(this.onInitHandle);
+
+        this.onResizeHandle = null;
+        this.onInitHandle = null;
     }
 
     updatPointPositions() {

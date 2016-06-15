@@ -39,7 +39,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
             if (animation.onCompletion) {
-                animation.onCompletion();
+                setTimeout(animation.onCompletion, 0);
             }
         }
     }

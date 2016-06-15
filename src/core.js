@@ -208,7 +208,10 @@ Tayberry.prototype.removeSeries = function (index) {
 
     if (this.options.animations.enabled) {
         this.setSeriesVisibility(series, false, 'height', () => {
-            series.renderer.removeSeries(series);
+            if (!series.renderer.removeSeries(series)) {
+                series.renderer.deinitialise();
+                this.renderers.splice(this.renderers.indexOf(series.renderer), 1);
+            }
             this.options.series.splice(index, 1);
 
             this.calculatePlotArea();

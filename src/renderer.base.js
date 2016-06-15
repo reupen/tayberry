@@ -36,6 +36,7 @@ export class Renderer {
                 break;
             }
         }
+        return this.series.length;
     }
 
     getVisibleSeriesCount(excludeSeries) {

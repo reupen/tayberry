@@ -329,6 +329,13 @@ $('#chart1-add').on('click', function () {
     });
 });
 
+$('#chart1-remove').on('click', function () {
+    const chart = createdCharts['chart1'];
+    const seriesCount = chart.getSeriesCount();
+    if (seriesCount)
+        chart.removeSeriesByIndex(seriesCount - 1);
+});
+
 $('#chart2-add').on('click', function () {
     createdCharts['chart2'].addSeries({
         data: [3, 4, 3, 5, 8, 9, 1, 3, 3, 5, 3, 6],

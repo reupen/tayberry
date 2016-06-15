@@ -12,8 +12,19 @@ export class BarRenderer extends renderer.Renderer {
 
         this.barPositions = null;
 
-        this.tb.registerCallback('onResize', this.updateBarWidths.bind(this));
-        this.tb.registerCallback('onInit', this.updateBarWidths.bind(this));
+        this.onResizeHandle = this.tb.registerCallback('onResize', this.updateBarWidths.bind(this));
+        this.onInitHandle = this.tb.registerCallback('onInit', this.updateBarWidths.bind(this));
+    }
+    
+
+    deinitialise() {
+        if (this.onResizeHandle)
+            this.tb.deregisterCallback(this.onResizeHandle);
+        if (this.onInitHandle)
+            this.tb.deregisterCallback(this.onInitHandle);
+
+        this.onResizeHandle = null;
+        this.onInitHandle = null;
     }
 
     updateBarWidths() {
