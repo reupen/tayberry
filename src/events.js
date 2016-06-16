@@ -6,10 +6,10 @@ import {Tayberry} from './base';
 
 Tayberry.prototype.registerCallback = function (eventName, func) {
     this.callbacks[eventName].push(func);
-    return func;
+    return [eventName, func];
 };
 
-Tayberry.prototype.deregisterCallback = function (eventName, func) {
+Tayberry.prototype.deregisterCallback = function ([eventName, func]) {
     const index = this.callbacks[eventName].indexOf(func);
     if (index >= 0) {
         this.callbacks[eventName].splice(index, 1);

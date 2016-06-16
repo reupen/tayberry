@@ -45,6 +45,9 @@ var standardTestCharts = {
         title: {
             text: 'Contribution to revenue growth'
         },
+        animations: {
+            enabled: false
+        },
         xAxis: {
             categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
             title: {
@@ -331,6 +334,13 @@ $('#chart1-add').on('click', function () {
 
 $('#chart1-remove').on('click', function () {
     const chart = createdCharts['chart1'];
+    const seriesCount = chart.getSeriesCount();
+    if (seriesCount)
+        chart.removeSeriesByIndex(seriesCount - 1);
+});
+
+$('#chart2-remove').on('click', function () {
+    const chart = createdCharts['chart2'];
     const seriesCount = chart.getSeriesCount();
     if (seriesCount)
         chart.removeSeriesByIndex(seriesCount - 1);

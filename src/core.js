@@ -185,7 +185,7 @@ Tayberry.prototype.addSeries = function (series) {
             if (!this.renderersByType[type]) {
                 this.createRenderer(type, groupedSeries[type]);
             } else {
-                this.renderersByType[type].addSeries(series);
+                this.renderersByType[type].addSeries(groupedSeries[type]);
             }
         }
     }
@@ -206,21 +206,19 @@ Tayberry.prototype.addSeries = function (series) {
 Tayberry.prototype.removeSeries = function (index) {
     const series = this.options.series[index];
 
-    if (this.options.animations.enabled) {
-        this.setSeriesVisibility(series, false, 'height', () => {
-            if (!series.renderer.removeSeries(series)) {
-                series.renderer.deinitialise();
-                this.renderers.splice(this.renderers.indexOf(series.renderer), 1);
-            }
-            this.options.series.splice(index, 1);
+    this.setSeriesVisibility(series, false, 'height', () => {
+        if (!series.renderer.removeSeries(series)) {
+            series.renderer.deinitialise();
+            this.renderers.splice(this.renderers.indexOf(series.renderer), 1);
+        }
+        this.options.series.splice(index, 1);
 
-            this.calculatePlotArea();
-            this.callbacks['onResize'].forEach(func => func());
-            this.clear(true, true);
-            this.drawLabelLayer();
-            this.drawPlotLayer();
-        });
-    }
+        this.calculatePlotArea();
+        this.callbacks['onResize'].forEach(func => func());
+        this.clear(true, true);
+        this.drawLabelLayer();
+        this.drawPlotLayer();
+    });
 };
 
 Tayberry.calculateHighlightColour = function (colour) {
