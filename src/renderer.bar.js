@@ -24,7 +24,6 @@ export class BarRenderer extends renderer.Renderer {
         const seriesCount = this.series.length;
         const plotArea = this.tb.options.swapAxes ? this.tb.plotArea.clone().swapXY() : this.tb.plotArea;
         const categoryWidth = (plotArea.width / categoryCount);
-        let animatingSeriesCount = 0;
         let totalMultiplier = 0;
 
         for (let seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
@@ -62,7 +61,6 @@ export class BarRenderer extends renderer.Renderer {
                     rState.yMultiplier = 1;
                     rState.multiplier = 1;
                 }
-                ++animatingSeriesCount;
             } else if (series.visible & constants.visibilityState.visible) {
                 rState.multiplier = 1;
                 rState.yMultiplier = 1;
@@ -91,7 +89,6 @@ export class BarRenderer extends renderer.Renderer {
             const barXEnd = categoryXEnd - Math.floor(categoryWidth * this.tb.options.barPlot.categorySpacing / 2);
 
             let categoryPositions = [];
-            let barIndex = 0;
 
             let runningBarWidth = 0;
 
@@ -118,7 +115,6 @@ export class BarRenderer extends renderer.Renderer {
                         yBottomNegative = yTop;
                     }
                 } else if (isNormal) {
-                    barIndex++;
                     runningBarWidth += barWidth;
                 }
 
