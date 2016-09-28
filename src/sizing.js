@@ -5,12 +5,12 @@ import * as Utils from './helpers/utils.js';
 
 Tayberry.mapVerticalPosition = function (sign, position) {
     switch (position) {
-        case "outside":
-            return sign > 0 ? "bottom" : "top";
-        case "inside":
-            return sign > 0 ? "top" : "bottom";
-        default:
-            return "middle";
+    case 'outside':
+        return sign > 0 ? 'bottom' : 'top';
+    case 'inside':
+        return sign > 0 ? 'top' : 'bottom';
+    default:
+        return 'middle';
     }
 };
 

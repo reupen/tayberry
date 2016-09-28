@@ -69,7 +69,7 @@ Tayberry.prototype.defaultOptions = function () {
             verticalPosition: 'outside',
             font: {}
         }
-    }
+    };
 };
 
 Tayberry.defaultSeries = {

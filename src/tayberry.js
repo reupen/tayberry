@@ -54,7 +54,7 @@ class Chart {
      */
     _checkState() {
         if (!this._impl)
-            throw Error("Chart has been destroyed");
+            throw Error('Chart has been destroyed');
     }
 }
 

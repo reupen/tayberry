@@ -41,8 +41,8 @@ gulp.task('build', function () {
         sourceMap: true,
         plugins: [
             rollupbabel({
-                presets: [['es2015', {"modules": false}]],
-                plugins: ["external-helpers"]
+                presets: [['es2015', {'modules': false}]],
+                plugins: ['external-helpers']
             })
         ],
         format: 'umd',

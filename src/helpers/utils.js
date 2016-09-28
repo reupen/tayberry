@@ -99,9 +99,9 @@ export function locateDecimalPoint(number) {
 }
 
 export function formatNumberThousands(number, decimalPlaces = 0) {
-    var parts = number.toFixed(decimalPlaces).split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
+    var parts = number.toFixed(decimalPlaces).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
 }
 
 export function createAutoNumberFormatter(scale, prefix = '', suffix = '', precision = 2) {
@@ -144,6 +144,6 @@ export function throttle(fn, threshold) {
             last = now;
             fn.apply(context, args);
         }
-    }
+    };
 }
 

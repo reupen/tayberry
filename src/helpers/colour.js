@@ -49,7 +49,7 @@ export class Colour {
             this.b = parseInt(groupsInt[3]);
             this.a = groupsInt[5] ? parseFloat(groupsInt[5]) : 1.0;
         } else {
-            throw new RangeError(str + " is not a valid HTML colour");
+            throw new RangeError(str + ' is not a valid HTML colour');
         }
         return this;
     }
