@@ -14,7 +14,7 @@ Tayberry.prototype.deregisterCallback = function ([eventName, func]) {
     if (index >= 0) {
         this.callbacks[eventName].splice(index, 1);
     } else {
-        throw Error("Tried to deregister an unregistered callback");
+        throw Error('Tried to deregister an unregistered callback');
     }
 };
 
