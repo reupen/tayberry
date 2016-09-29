@@ -54,6 +54,8 @@
   },
   "scripts": {
     "test": "gulp test",
+    "eslint": "eslint",
+    "karma": "karma",
     "preversion": "gulp",
     "postversion": "git push && git push --tags"
   },
