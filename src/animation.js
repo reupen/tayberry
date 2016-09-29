@@ -93,5 +93,5 @@ Tayberry.prototype.setSeriesVisibility = function (series, visible, subtype, onC
 };
 
 Tayberry.prototype.toggleSeriesVisibility = function (series) {
-    this.setSeriesVisibility(series, !(series.visible & constants.visibilityState.visible))
+    this.setSeriesVisibility(series, !(series.visible & constants.visibilityState.visible));
 };

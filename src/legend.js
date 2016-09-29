@@ -69,28 +69,28 @@ export class Legend {
             let calculatedSize = 0;
 
             switch (this.tb.options.legend.placement) {
-                case 'bottom':
-                    calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
-                    plotArea.bottom -= calculatedSize - this.calculatedSize;
-                    this.yPos = this.canvas.height - indicatorSize * numRows - numRowGaps * smallPadding;
-                    break;
-                case 'top':
-                    calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
-                    this.yPos = plotArea.top;
-                    plotArea.top += calculatedSize - this.calculatedSize;
-                    break;
-                case 'left':
-                    calculatedSize = maxLegendItemWidth + largePadding;
-                    this.xPos = 0;
-                    this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
-                    plotArea.left += calculatedSize - this.calculatedSize;
-                    break;
-                case 'right':
-                    calculatedSize = maxLegendItemWidth + largePadding;
-                    plotArea.right -= calculatedSize - this.calculatedSize;
-                    this.xPos = plotArea.right + largePadding;
-                    this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
-                    break;
+            case 'bottom':
+                calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
+                plotArea.bottom -= calculatedSize - this.calculatedSize;
+                this.yPos = this.canvas.height - indicatorSize * numRows - numRowGaps * smallPadding;
+                break;
+            case 'top':
+                calculatedSize = largePadding + indicatorSize * numRows + numRowGaps * smallPadding;
+                this.yPos = plotArea.top;
+                plotArea.top += calculatedSize - this.calculatedSize;
+                break;
+            case 'left':
+                calculatedSize = maxLegendItemWidth + largePadding;
+                this.xPos = 0;
+                this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
+                plotArea.left += calculatedSize - this.calculatedSize;
+                break;
+            case 'right':
+                calculatedSize = maxLegendItemWidth + largePadding;
+                plotArea.right -= calculatedSize - this.calculatedSize;
+                this.xPos = plotArea.right + largePadding;
+                this.yPos = plotArea.bottom - plotArea.height / 2 - height / 2;
+                break;
             }
 
             ret = this.calculatedSize !== calculatedSize;

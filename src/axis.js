@@ -44,7 +44,7 @@ export class Axis {
     }
 
     get isPlacedAtStart() {
-        return this.options.placement === "left" || this.options.placement === "bottom" || this.options.placement === "start";
+        return this.options.placement === 'left' || this.options.placement === 'bottom' || this.options.placement === 'start';
     }
 
     get isYAxis() {
@@ -101,7 +101,7 @@ export class Axis {
                         this.topAdjustment += adjustment;
                     }
                 }
-                size += this.maxLabelSize()
+                size += this.maxLabelSize();
             } else {
                 {
                     let lastXEnd;
@@ -262,7 +262,7 @@ export class Axis {
     getTicks(visibleOnly = true) {
         let ret = [];
         this.enumerateTicks(function (tick) {
-            ret.push(tick)
+            ret.push(tick);
         }, visibleOnly);
         return ret;
     }
@@ -274,7 +274,7 @@ export class Axis {
     }
 
     get valueOrigin() {
-        return this.min <= 0 && 0 <= this.max ? 0 : (this.min > 0 ? this.min : this.max)
+        return this.min <= 0 && 0 <= this.max ? 0 : (this.min > 0 ? this.min : this.max);
     }
 }
 
@@ -291,12 +291,12 @@ class CategorialAxis extends Axis {
 
         if (!this.isVertical) {
             switch (this.options.labelPosition) {
-                case 'left':
-                    factor = 0;
-                    break;
-                case 'right':
-                    factor = 1;
-                    break;
+            case 'left':
+                factor = 0;
+                break;
+            case 'right':
+                factor = 1;
+                break;
             }
         }
 
@@ -375,26 +375,26 @@ class LinearAxis extends Axis {
             let y = this.getValueDisplacement(yValue);
             if (this.isVertical) {
                 if (callback({
-                        value: yValue,
-                        x1: tb.plotArea[start],
-                        y1: y,
-                        x2: tb.plotArea[end],
-                        y2: y,
-                        x: tb.plotArea[start],
-                        y: y
+                    value: yValue,
+                    x1: tb.plotArea[start],
+                    y1: y,
+                    x2: tb.plotArea[end],
+                    y2: y,
+                    x: tb.plotArea[start],
+                    y: y
 
-                    }))
+                }))
                     break;
             } else {
                 if (callback({
-                        value: yValue,
-                        y1: tb.plotArea[start],
-                        x1: y,
-                        y2: tb.plotArea[end],
-                        x2: y,
-                        y: tb.plotArea[start],
-                        x: y
-                    }))
+                    value: yValue,
+                    y1: tb.plotArea[start],
+                    x1: y,
+                    y2: tb.plotArea[end],
+                    x2: y,
+                    y: tb.plotArea[start],
+                    x: y
+                }))
                     break;
             }
             yValue = this.tickStart + Math.round((yValue + this.tickStep - this.tickStart) / this.tickStep) * this.tickStep;

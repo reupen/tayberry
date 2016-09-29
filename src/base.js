@@ -22,7 +22,7 @@ export class Tayberry {
         this.callbacks = {
             onResize: [],
             onInit: []
-        }
+        };
     }
 
     get seriesCount() {
