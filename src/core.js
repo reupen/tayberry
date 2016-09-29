@@ -210,6 +210,7 @@ Tayberry.prototype.removeSeries = function (index) {
         if (!series.renderer.removeSeries(series)) {
             series.renderer.deinitialise();
             this.renderers.splice(this.renderers.indexOf(series.renderer), 1);
+            delete this.renderersByType[series.plotType];
         }
         this.options.series.splice(index, 1);
 
