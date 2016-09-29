@@ -27,7 +27,8 @@ Tayberry.prototype.defaultOptions = function () {
         xAxis: [],
         yAxis: [],
         animations: {
-            enabled: true
+            enabled: true,
+            length: 500
         },
         series: [],
         backgroundColour: undefined,

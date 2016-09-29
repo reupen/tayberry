@@ -32,6 +32,10 @@ export class Tayberry {
     get categoryCount() {
         return this.options.series.length ? this.options.series[0].data.length : 0;
     }
+
+    get defaultAnimationLength() {
+        return this.options.animations.enabled ? this.options.animations.length : 0;
+    }
 }
 
 

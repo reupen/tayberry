@@ -28,6 +28,17 @@ export class Renderer {
         }
     }
 
+    removeSeries(seriesToRemove) {
+        for (let seriesIndex = 0; seriesIndex < this.series.length; seriesIndex++) {
+            const series = this.series[seriesIndex];
+            if (seriesToRemove === series) {
+                this.series.splice(seriesIndex, 1);
+                break;
+            }
+        }
+        return this.series.length;
+    }
+
     getVisibleSeriesCount(excludeSeries) {
         let ret = 0;
         for (let index=0; index<this.series.length; index++) {

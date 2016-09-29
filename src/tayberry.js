@@ -40,6 +40,23 @@ class Chart {
     }
 
     /**
+     * Gets the number of series currently in the chart.
+     */
+    getSeriesCount() {
+        this._checkState();
+        return this._impl.options.series.length;
+    }
+    
+    /**
+     * Gets the number of series currently in the chart.
+     */
+    removeSeriesByIndex(index) {
+        this._checkState();
+        
+        return this._impl.removeSeries(index);
+    }
+    
+    /**
      * Destroys the chart.
      */
     destroy() {

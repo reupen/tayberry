@@ -5,8 +5,8 @@ import * as constants from './constants';
 
 Tayberry.prototype.revokeAnimation = function (series) {
     for (let index = this.pendingAnimations.length; index; index--) {
-        if (this.pendingAnimations[index-1].series === series) {
-            this.pendingAnimations.splice(index-1, 1);
+        if (this.pendingAnimations[index - 1].series === series) {
+            this.pendingAnimations.splice(index - 1, 1);
         }
     }
 };
@@ -14,7 +14,7 @@ Tayberry.prototype.revokeAnimation = function (series) {
 Tayberry.prototype.startAnimation = function (animation) {
     animation.initialStage = animation.initialStage || 0;
     var newAnimation = Utils.assign({}, [{
-        length: 500*(1-animation.initialStage),
+        length: this.defaultAnimationLength * (1 - animation.initialStage),
         startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
     },
         animation
@@ -39,7 +39,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
         if (elapsed >= animation.length) {
             this.pendingAnimations.splice(index, 1);
             if (animation.onCompletion) {
-                animation.onCompletion();
+                setTimeout(animation.onCompletion, 0);
             }
         }
     }
@@ -54,7 +54,7 @@ Tayberry.prototype.onAnimate = function (timestamp) {
     }
 };
 
-Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype) {
+Tayberry.prototype.setSeriesVisibility = function (series, visible, subtype, onCompletion) {
     series.visible = visible ? constants.visibilityState.visible : constants.visibilityState.hidden;
     series.visible |= constants.visibilityState.transitioning;
 
@@ -83,11 +83,15 @@ Tayberry.prototype.setSeriesVisibility = function(series, visible, subtype) {
             onCompletion: () => {
                 series.visible = (series.visible & ~constants.visibilityState.transitioning);
                 delete series.animationState;
+
+                if (onCompletion) {
+                    onCompletion();
+                }
             }
         });
     }
 };
 
-Tayberry.prototype.toggleSeriesVisibility = function(series) {
+Tayberry.prototype.toggleSeriesVisibility = function (series) {
     this.setSeriesVisibility(series, !(series.visible & constants.visibilityState.visible));
 };
