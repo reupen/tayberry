@@ -53,7 +53,7 @@
     "watchify": "^3.7.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "gulp test",
     "preversion": "gulp",
     "postversion": "git push && git push --tags"
   },
