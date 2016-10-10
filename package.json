@@ -34,7 +34,7 @@
     "gulp-filter": "^4.0.0",
     "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.6.0",
+    "gulp-sourcemaps": "^2.0.0",
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.6",
     "jasmine-core": "^2.5.2",
