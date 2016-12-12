@@ -45,7 +45,7 @@
     "karma-jasmine": "^1.0.2",
     "karma-phantomjs-launcher": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.11",
-    "rollup": "^0.36.1",
+    "rollup": "^0.37.0",
     "rollup-plugin-babel": "^2.6.1",
     "rollup-stream": "^1.14.0",
     "vinyl-buffer": "^1.0.0",
