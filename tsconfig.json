@@ -1,0 +1,10 @@
+{
+  "files": [
+    "src/tayberry.js"
+  ],
+  "compilerOptions": {
+    "allowJs": true,
+    "noImplicitAny": true,
+    "target": "es5"
+  }
+}

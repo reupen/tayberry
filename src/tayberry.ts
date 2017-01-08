@@ -16,17 +16,19 @@ import './renderer.line';
  * Chart object – public interface of the underlying implementation
  */
 class Chart {
+    private impl: any;
+
     /**
      * Creates a chart.
      *
      * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
      * @param options   {Object}                Options object
      */
-    constructor(element, options) {
-        this._impl = new TayberryBase();
-        this._impl.create(element);
-        this._impl.setOptions(options);
-        this._impl.render();
+    constructor(element: string|HTMLElement, options: any) {
+        this.impl = new TayberryBase();
+        this.impl.create(element);
+        this.impl.setOptions(options);
+        this.impl.render();
     }
 
     /**
@@ -34,34 +36,34 @@ class Chart {
      *
      * @param series    {Object|Array}  series object or list of series objects to add
      */
-    addSeries(series) {
-        this._checkState();
-        this._impl.addSeries(series);
+    addSeries(series: any): void {
+        this.checkState();
+        this.impl.addSeries(series);
     }
 
     /**
      * Gets the number of series currently in the chart.
      */
-    getSeriesCount() {
-        this._checkState();
-        return this._impl.options.series.length;
+    getSeriesCount(): number {
+        this.checkState();
+        return this.impl.options.series.length;
     }
     
     /**
      * Gets the number of series currently in the chart.
      */
-    removeSeriesByIndex(index) {
-        this._checkState();
+    removeSeriesByIndex(index): void {
+        this.checkState();
         
-        return this._impl.removeSeries(index);
+        this.impl.removeSeries(index);
     }
     
     /**
      * Destroys the chart.
      */
-    destroy() {
-        this._impl.destroy();
-        this._impl = null;
+    destroy(): void {
+        this.impl.destroy();
+        this.impl = null;
     }
 
     /**
@@ -69,8 +71,8 @@ class Chart {
      *
      * @private
      */
-    _checkState() {
-        if (!this._impl)
+    private checkState() : void {
+        if (!this.impl)
             throw Error('Chart has been destroyed');
     }
 }
