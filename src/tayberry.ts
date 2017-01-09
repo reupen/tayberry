@@ -48,16 +48,16 @@ class Chart {
         this.checkState();
         return this.impl.options.series.length;
     }
-    
+
     /**
      * Gets the number of series currently in the chart.
      */
-    removeSeriesByIndex(index): void {
+    removeSeriesByIndex(index: number): void {
         this.checkState();
-        
+
         this.impl.removeSeries(index);
     }
-    
+
     /**
      * Destroys the chart.
      */
@@ -68,10 +68,8 @@ class Chart {
 
     /**
      * Checks if the chart has been destoryed, and throws an exception if so.
-     *
-     * @private
      */
-    private checkState() : void {
+    private checkState(): void {
         if (!this.impl)
             throw Error('Chart has been destroyed');
     }
@@ -81,12 +79,12 @@ let Tayberry = {
     /**
      * Creates a Tayberry chart
      *
-     * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
-     * @param options   {Object}                Options object
+     * @param element   ID of container div, or HTMLElement
+     * @param options   Options object
      *
-     * @return          {Chart}                 Chart object
+     * @return          Chart object
      */
-    create: function (element, options) {
+    create: function (element: string|HTMLElement, options: any): Chart {
         return new Chart(element, options);
     }
 };
