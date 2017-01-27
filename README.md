@@ -1,5 +1,7 @@
 # TayberryJS 0.4.2
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/reupen/tayberry.svg)](https://greenkeeper.io/)
+
 &copy; Reupen Shah 2015 – 2016
 
 [![Build Status](https://travis-ci.org/reupen/tayberry.svg?branch=master)](https://travis-ci.org/reupen/tayberry) [![npm version](https://badge.fury.io/js/tayberry.svg)](https://badge.fury.io/js/tayberry) [![devDependencies](https://img.shields.io/david/dev/reupen/tayberry.svg)](https://david-dm.org/reupen/tayberry#info=devDependencies)
