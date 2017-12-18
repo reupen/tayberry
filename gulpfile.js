@@ -31,7 +31,6 @@ gulp.task('test:ci', function (done) {
     new Server({
         configFile: __dirname + '/karma.conf.js',
         singleRun: true,
-        browsers: ['PhantomJS', 'Firefox', 'ChromeNoSandbox']
     }, done).start();
 });
 
