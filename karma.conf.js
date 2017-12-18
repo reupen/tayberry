@@ -1,11 +1,8 @@
 module.exports = function (config) {
     config.set({
 
-        browsers: ['PhantomJS', 'Firefox', 'Chrome'],
+        browsers: ['FirefoxHeadless', 'ChromeHeadless'],
 
-        phantomjsLauncher: {
-            exitOnResourceError: true
-        },
         basePath: '',
         frameworks: ['browserify', 'jasmine'],
 
@@ -24,13 +21,6 @@ module.exports = function (config) {
             debug: true,
             transform: [['babelify', {presets: ['es2015']}]]
         },
-
-        customLaunchers: {
-            ChromeNoSandbox: {
-                base: 'Chrome',
-                flags: ['--no-sandbox']
-            }
-        }
 
         // define reporters, port, logLevel, browsers etc.
     });
