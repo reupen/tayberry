@@ -17,7 +17,7 @@ Tayberry.prototype.startAnimation = function (animation) {
         length: this.defaultAnimationLength * (1 - animation.initialStage),
         startTime: (typeof performance !== 'undefined' && typeof performance.now !== 'undefined') ? performance.now() : null
     },
-        animation
+    animation
     ]);
     this.pendingAnimations.push(newAnimation);
     if (!this.animator)

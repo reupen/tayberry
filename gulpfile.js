@@ -37,8 +37,8 @@ gulp.task('test:ci', function (done) {
 
 gulp.task('build', function () {
     return rollup({
-        entry: './src/tayberry.js',
-        sourceMap: true,
+        input: './src/tayberry.js',
+        sourcemap: true,
         plugins: [
             rollupbabel({
                 presets: [['es2015', {'modules': false}]],
@@ -46,7 +46,7 @@ gulp.task('build', function () {
             })
         ],
         format: 'umd',
-        moduleName: 'Tayberry'
+        name: 'Tayberry'
     })
         .pipe(source('tayberry.js', './src'))
         .pipe(buffer())
