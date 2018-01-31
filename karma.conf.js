@@ -1,7 +1,7 @@
 module.exports = function (config) {
     config.set({
 
-        browsers: ['FirefoxHeadless', 'ChromeHeadless'],
+        browsers: ['FirefoxHeadless', 'ChromeHeadlessNoSandbox'],
 
         basePath: '',
         frameworks: ['browserify', 'jasmine'],
@@ -21,6 +21,13 @@ module.exports = function (config) {
             debug: true,
             transform: [['babelify', {presets: ['env']}]]
         },
+
+        customLaunchers: {
+            ChromeHeadlessNoSandbox: {
+                base: 'ChromeHeadless',
+                flags: ['--no-sandbox']
+            }
+        }
 
         // define reporters, port, logLevel, browsers etc.
     });
