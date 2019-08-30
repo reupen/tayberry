@@ -27,7 +27,7 @@
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "browserify": "^16.0.0",
-    "eslint": "^4.13.1",
+    "eslint": "^6.3.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^4.0.0",
     "gulp-filter": "^5.0.0",
