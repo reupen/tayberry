@@ -19,7 +19,7 @@ module.exports = function (config) {
 
         browserify: {
             debug: true,
-            transform: [['babelify', {presets: ['env']}]]
+            transform: [['babelify', {presets: ['@babel/env']}]]
         },
 
         customLaunchers: {

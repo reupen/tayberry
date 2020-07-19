@@ -250,7 +250,7 @@ Tayberry.prototype.processSeries = function (series) {
         curSeries.xAxis = this.xAxes[curSeries.xAxisIndex || 0];
         curSeries.yAxis = this.yAxes[curSeries.yAxisIndex || 0];
         curSeries.plotType = curSeries.plotType || this.options.plotType;
-        if (groupedSeries.hasOwnProperty(curSeries.plotType)) {
+        if (Object.prototype.hasOwnProperty.call(groupedSeries, curSeries.plotType)) {
             groupedSeries[curSeries.plotType].push(curSeries);
         }
     }
