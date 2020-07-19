@@ -5,13 +5,13 @@ const filter = require('gulp-filter');
 const uglify = require('gulp-uglify');
 const sourcemaps = require('gulp-sourcemaps');
 const rename = require('gulp-rename');
-const eslint = require('gulp-eslint');
+const eslint = require('gulp-eslint7');
 const Server = require('karma').Server;
 
-const rollup = require('rollup-stream');
+const rollup = require('@rollup/stream');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
-const rollupbabel = require('rollup-plugin-babel');
+const { babel } = require('@rollup/plugin-babel');
 
 function lint() {
     return src(['src/**/*.js', 'test/**/*.js'])
@@ -31,15 +31,17 @@ function test(cb) {
 function build() {
     return rollup({
         input: './src/tayberry.js',
-        sourcemap: true,
         plugins: [
-            rollupbabel({
-                presets: [['env', {'modules': false}]],
-                plugins: ['external-helpers']
+            babel({
+                presets: [['@babel/env', {'modules': false}]],
+                babelHelpers: 'bundled',
             })
         ],
-        format: 'umd',
-        name: 'Tayberry'
+        output: {
+            format: 'umd',
+            name: 'Tayberry',
+            sourcemap: true,
+        },
     })
         .pipe(source('tayberry.js', './src'))
         .pipe(buffer())
