@@ -1,34 +1,31 @@
 module.exports = function (config) {
-    config.set({
+  config.set({
+    browsers: ['FirefoxHeadless', 'ChromeHeadlessNoSandbox'],
 
-        browsers: ['FirefoxHeadless', 'ChromeHeadlessNoSandbox'],
+    basePath: '',
+    frameworks: ['browserify', 'jasmine'],
 
-        basePath: '',
-        frameworks: ['browserify', 'jasmine'],
+    files: ['test/unit/**/*.js'],
 
-        files: [
-            'test/unit/**/*.js'
-        ],
+    exclude: [],
 
-        exclude: [],
+    preprocessors: {
+      'src/**/*.js': ['browserify'],
+      'test/**/*.js': ['browserify'],
+    },
 
-        preprocessors: {
-            'src/**/*.js': ['browserify'],
-            'test/**/*.js': ['browserify']
-        },
+    browserify: {
+      debug: true,
+      transform: [['babelify', { presets: ['@babel/env'] }]],
+    },
 
-        browserify: {
-            debug: true,
-            transform: [['babelify', {presets: ['@babel/env']}]]
-        },
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox'],
+      },
+    },
 
-        customLaunchers: {
-            ChromeHeadlessNoSandbox: {
-                base: 'ChromeHeadless',
-                flags: ['--no-sandbox']
-            }
-        }
-
-        // define reporters, port, logLevel, browsers etc.
-    });
+    // define reporters, port, logLevel, browsers etc.
+  });
 };
