@@ -11,7 +11,7 @@ const Server = require('karma').Server;
 const rollup = require('@rollup/stream');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
-const { babel } = require('@rollup/plugin-babel');
+const typescript = require('rollup-plugin-typescript2');
 
 function lint() {
   return src(['src/**/*.js', 'test/**/*.js'])
@@ -31,12 +31,7 @@ function test(cb) {
 function build() {
   return rollup({
     input: './src/tayberry.js',
-    plugins: [
-      babel({
-        presets: [['@babel/env', { modules: false }]],
-        babelHelpers: 'bundled',
-      }),
-    ],
+    plugins: [typescript({ include: ['src/**/*'] })],
     output: {
       format: 'umd',
       name: 'Tayberry',
