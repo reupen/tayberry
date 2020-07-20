@@ -1,6 +1,6 @@
 'use strict';
 
-const {dest, series, src, watch: watch_} = require('gulp');
+const { dest, series, src, watch: watch_ } = require('gulp');
 const filter = require('gulp-filter');
 const uglify = require('gulp-uglify');
 const sourcemaps = require('gulp-sourcemaps');
@@ -14,50 +14,50 @@ const buffer = require('vinyl-buffer');
 const { babel } = require('@rollup/plugin-babel');
 
 function lint() {
-    return src(['src/**/*.js', 'test/**/*.js'])
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failOnError());
+  return src(['src/**/*.js', 'test/**/*.js'])
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failOnError());
 }
 
 function test(cb) {
-    new Server({
-        configFile: __dirname + '/karma.conf.js',
-        singleRun: true
-    }).start();
-    cb();
+  new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true,
+  }).start();
+  cb();
 }
 
 function build() {
-    return rollup({
-        input: './src/tayberry.js',
-        plugins: [
-            babel({
-                presets: [['@babel/env', {'modules': false}]],
-                babelHelpers: 'bundled',
-            })
-        ],
-        output: {
-            format: 'umd',
-            name: 'Tayberry',
-            sourcemap: true,
-        },
-    })
-        .pipe(source('tayberry.js', './src'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(sourcemaps.write('./'))
-        .pipe(dest('./dist/'))
-        .pipe(filter(['**', '!**/*.js.map']))
-        .pipe(rename({suffix: '.min'}))
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(uglify())
-        .pipe(sourcemaps.write('./'))
-        .pipe(dest('./dist/'));
+  return rollup({
+    input: './src/tayberry.js',
+    plugins: [
+      babel({
+        presets: [['@babel/env', { modules: false }]],
+        babelHelpers: 'bundled',
+      }),
+    ],
+    output: {
+      format: 'umd',
+      name: 'Tayberry',
+      sourcemap: true,
+    },
+  })
+    .pipe(source('tayberry.js', './src'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write('./'))
+    .pipe(dest('./dist/'))
+    .pipe(filter(['**', '!**/*.js.map']))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(uglify())
+    .pipe(sourcemaps.write('./'))
+    .pipe(dest('./dist/'));
 }
 
 function watch() {
-    return watch_(['src/*'], series(lint, build));
+  return watch_(['src/*'], series(lint, build));
 }
 
 exports.lint = lint;
