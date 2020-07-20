@@ -3,20 +3,26 @@ module.exports = function (config) {
     browsers: ['FirefoxHeadless', 'ChromeHeadlessNoSandbox'],
 
     basePath: '',
-    frameworks: ['browserify', 'jasmine'],
+    frameworks: ['jasmine', 'karma-typescript'],
 
     files: ['test/unit/**/*.js'],
 
     exclude: [],
 
     preprocessors: {
-      'src/**/*.js': ['browserify'],
-      'test/**/*.js': ['browserify'],
+      'src/**/*.js': ['karma-typescript'],
+      'test/**/*.js': ['karma-typescript'],
     },
 
-    browserify: {
-      debug: true,
-      transform: [['babelify', { presets: ['@babel/env'] }]],
+    karmaTypescriptConfig: {
+      bundlerOptions: {
+        transforms: [require('karma-typescript-es6-transform')()],
+      },
+      compilerOptions: {
+        allowJs: true,
+      },
+      include: ['src/**/*', 'test/**/*'],
+      exclude: ['node_modules'],
     },
 
     customLaunchers: {
