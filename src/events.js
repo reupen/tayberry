@@ -173,16 +173,26 @@ Tayberry.prototype.onMouseMove = function (event) {
 };
 
 Tayberry.prototype.onWindowResize = function () {
-  this.tooltipElement.style.display = 'none';
-  this.labelsCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-  this.labelsCanvas.style.height =
-    Math.floor(this.containerElement.clientHeight) + 'px';
-  this.plotCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
-  this.plotCanvas.style.height = Math.floor(this.containerElement.clientHeight) + 'px';
-  this.initialise();
-  this.updateFonts();
-  this.calculatePlotArea();
-  this.createTooltip();
-  this.callbacks['onResize'].forEach((func) => func());
-  this.redraw();
+  if (this.processingResize) return;
+
+  this.processingResize = true;
+
+  window.requestAnimationFrame(() => {
+    this.tooltipElement.style.display = 'none';
+    this.labelsCanvas.style.width =
+      Math.floor(this.containerElement.clientWidth) + 'px';
+    this.labelsCanvas.style.height =
+      Math.floor(this.containerElement.clientHeight) + 'px';
+    this.plotCanvas.style.width = Math.floor(this.containerElement.clientWidth) + 'px';
+    this.plotCanvas.style.height =
+      Math.floor(this.containerElement.clientHeight) + 'px';
+    this.initialise();
+    this.updateFonts();
+    this.calculatePlotArea();
+    this.createTooltip();
+    this.callbacks['onResize'].forEach((func) => func());
+    this.redraw();
+
+    this.processingResize = false;
+  });
 };
