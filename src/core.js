@@ -64,6 +64,7 @@ Tayberry.prototype.create = function (containerElement) {
   } else {
     this.containerElement = containerElement;
   }
+  this.resizeObserver = new ResizeObserver(() => this.onWindowResize());
   this.labelsCanvas = this.createCanvas();
   this.labelsCtx = this.labelsCanvas.getContext('2d');
   this.plotCanvas = this.createCanvas();
@@ -83,7 +84,7 @@ Tayberry.prototype.destroy = function () {
   this.plotCanvas.removeEventListener('mouseleave', this.onMouseLeaveReal);
   this.plotCanvas.parentNode.removeChild(this.plotCanvas);
   // this.plotCanvas.removeEventListener('touchstart', this.onTouchStartReal);
-  window.removeEventListener('resize', this.onWindowResizeReal);
+  this.resizeObserver.disconnect();
 };
 
 Tayberry.prototype.initialise = function () {
@@ -214,10 +215,7 @@ Tayberry.prototype.setOptions = function (options) {
     (this.onMouseLeaveReal = this.onMouseLeave.bind(this))
   );
   //this.plotCanvas.addEventListener('touchstart', this.onTouchStartReal = this.onTouchStart.bind(this));
-  window.addEventListener(
-    'resize',
-    (this.onWindowResizeReal = Utils.throttle(this.onWindowResize, 50).bind(this))
-  );
+  this.resizeObserver.observe(this.containerElement);
 };
 
 Tayberry.prototype.addSeries = function (series) {
