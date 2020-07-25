@@ -97,4 +97,7 @@ export const manyDataPoints = () => {
 
 manyDataPoints.story = {
   name: 'Many data points',
+  parameters: {
+    chromatic: { disable: true },
+  },
 };

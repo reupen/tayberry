@@ -35,3 +35,16 @@ jobs:
           node-version: '14'
       - run: npm ci
       - run: npm run build
+
+  chromatic:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - run: npm ci
+    - uses: chromaui/action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
