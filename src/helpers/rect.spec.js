@@ -1,6 +1,6 @@
 /*eslint-env jasmine */
 
-import { Rect } from '../../src/helpers/rect';
+import { Rect } from './rect';
 
 describe('rect', () => {
   beforeEach(() => {});

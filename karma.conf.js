@@ -3,15 +3,15 @@ module.exports = function (config) {
     browsers: ['FirefoxHeadless', 'ChromeHeadlessNoSandbox'],
 
     basePath: '',
+
     frameworks: ['jasmine', 'karma-typescript'],
 
-    files: ['test/unit/**/*.js'],
+    files: ['src/**/*.spec.js'],
 
     exclude: [],
 
     preprocessors: {
       'src/**/*.js': ['karma-typescript'],
-      'test/**/*.js': ['karma-typescript'],
     },
 
     karmaTypescriptConfig: {

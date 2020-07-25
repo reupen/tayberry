@@ -1,4 +1,4 @@
-import Tayberry from '../src/tayberry';
+import { create } from '../src/tayberry';
 import { withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
@@ -77,7 +77,7 @@ export const lineAndBar = () => {
     ],
   };
 
-  Tayberry.create(div, options);
+  create(div, options);
 
   return div;
 };

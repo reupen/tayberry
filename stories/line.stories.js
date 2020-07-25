@@ -1,4 +1,4 @@
-import Tayberry from '../src/tayberry';
+import { create } from '../src/tayberry';
 import { withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
@@ -44,7 +44,7 @@ export const category = () => {
     ],
   };
 
-  Tayberry.create(div, options);
+  create(div, options);
 
   return div;
 };
@@ -89,7 +89,7 @@ export const manyDataPoints = () => {
     ],
   };
 
-  Tayberry.create(div, options);
+  create(div, options);
 
   return div;
 };

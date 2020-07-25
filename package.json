@@ -1,5 +1,6 @@
 {
   "name": "tayberry",
+  "amdName": "Tayberry",
   "version": "0.4.2",
   "description": "Canvas-based bar and line charting library",
   "keywords": [
@@ -16,16 +17,19 @@
   "bugs": {
     "url": "https://github.com/reupen/tayberry"
   },
+  "source": "src/tayberry.js",
   "main": "dist/tayberry.js",
+  "module": "dist/tayberry.mjs",
+  "unpkg": "dist/tayberry.usm.js",
+  "types": "dist/tayberry.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/reupen/tayberry.git"
   },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.10.5",
     "@btmills/prettier": "2.0.5",
-    "@rollup/plugin-typescript": "^5.0.2",
-    "@rollup/stream": "^1.0.0",
     "@storybook/addon-knobs": "^6.0.0-rc.14",
     "@storybook/addon-storysource": "^6.0.0-rc.14",
     "@storybook/addon-viewport": "^6.0.0-rc.14",
@@ -34,13 +38,6 @@
     "acorn": "^7.3.1",
     "eslint": "^7.5.0",
     "eslint-config-prettier": "^6.11.0",
-    "gulp": "^4.0.2",
-    "gulp-eslint7": "^0.3.0",
-    "gulp-filter": "^6.0.0",
-    "gulp-notify": "^3.2.0",
-    "gulp-rename": "^2.0.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-uglify": "^3.0.2",
     "husky": "^4.2.5",
     "jasmine-core": "^3.0.0",
     "karma": "^5.1.0",
@@ -50,19 +47,14 @@
     "karma-typescript": "^5.0.3",
     "karma-typescript-es6-transform": "^5.0.3",
     "lint-staged": "^10.2.11",
-    "rollup": "^2.22.1",
-    "rollup-plugin-typescript2": "^0.27.1",
-    "typescript": "^3.9.7",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "microbundle": "^0.12.3"
   },
   "scripts": {
-    "test": "gulp test",
-    "eslint": "eslint",
+    "build": "microbundle",
+    "test": "karma start --single-run",
+    "lint": "eslint .",
     "karma": "karma",
-    "gulp": "gulp",
-    "preversion": "gulp",
-    "postversion": "git push && git push --tags",
+    "preversion": "npm run lint && npm test && npm run build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
