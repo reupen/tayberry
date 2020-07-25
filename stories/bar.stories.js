@@ -1,4 +1,4 @@
-import Tayberry from '../src/tayberry';
+import { create } from '../src/tayberry';
 import { withKnobs, boolean, button } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
@@ -145,7 +145,7 @@ export const histogram = () => {
     ],
   };
 
-  const chart = Tayberry.create(div, options);
+  const chart = create(div, options);
 
   button('Add series', () => {
     chart.addSeries({
@@ -277,7 +277,7 @@ export const stacked = () => {
     ],
   };
 
-  const chart = Tayberry.create(div, options);
+  const chart = create(div, options);
 
   button('Add series', () => {
     chart.addSeries({
@@ -323,7 +323,7 @@ export const grouped = () => {
     ],
   };
 
-  Tayberry.create(div, options);
+  create(div, options);
 
   return div;
 };
@@ -371,7 +371,7 @@ export const horizontal = () => {
     ],
   };
 
-  Tayberry.create(div, options);
+  create(div, options);
 
   return div;
 };

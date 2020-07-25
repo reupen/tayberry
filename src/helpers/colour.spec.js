@@ -1,6 +1,6 @@
 /*eslint-env jasmine */
 
-import { Colour } from '../../src/helpers/colour';
+import { Colour } from './colour';
 
 describe('colours', () => {
   beforeEach(() => {});

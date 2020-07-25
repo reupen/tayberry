@@ -73,18 +73,14 @@ class Chart {
   }
 }
 
-let Tayberry = {
-  /**
-   * Creates a Tayberry chart
-   *
-   * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
-   * @param options   {Object}                Options object
-   *
-   * @return          {Chart}                 Chart object
-   */
-  create: function (element, options) {
-    return new Chart(element, options);
-  },
-};
-
-export default Tayberry;
+/**
+ * Creates a Tayberry chart
+ *
+ * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
+ * @param options   {Object}                Options object
+ *
+ * @return          {Chart}                 Chart object
+ */
+export function create(element, options) {
+  return new Chart(element, options);
+}

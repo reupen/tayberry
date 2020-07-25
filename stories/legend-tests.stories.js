@@ -1,4 +1,4 @@
-import Tayberry from '../src/tayberry';
+import { create } from '../src/tayberry';
 import { button, withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
@@ -66,7 +66,7 @@ export const legendTest1 = () => {
     ],
   };
 
-  const chart = Tayberry.create(div, options);
+  const chart = create(div, options);
 
   button('Add series', () => {
     chart.addSeries({
@@ -146,7 +146,7 @@ export const legendTest2 = () => {
     ],
   };
 
-  const chart = Tayberry.create(div, options);
+  const chart = create(div, options);
 
   button('Add series', () => {
     chart.addSeries({
