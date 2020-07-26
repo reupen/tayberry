@@ -68,5 +68,5 @@
     "*.{js,json,css,md}": "prettier --write"
   },
   "author": "Reupen Shah",
-  "license": "LGPL-3.0"
+  "license": "MIT"
 }
