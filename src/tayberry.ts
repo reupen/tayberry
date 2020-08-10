@@ -10,18 +10,20 @@ import './animation';
 import './renderer.base';
 import './renderer.bar';
 import './renderer.line';
+import { OptionsInput, SeriesOptionsInput } from './types/input-options';
 
 /**
  * Chart object – public interface of the underlying implementation
  */
 class Chart {
+  private _impl: any;
   /**
    * Creates a chart.
    *
    * @param element   {String|HTMLElement}    ID of container div, or HTMLElement
    * @param options   {Object}                Options object
    */
-  constructor(element, options) {
+  constructor(element: HTMLElement | string, options: OptionsInput) {
     this._impl = new TayberryBase();
     this._impl.create(element);
     this._impl.setOptions(options);
@@ -33,7 +35,9 @@ class Chart {
    *
    * @param series    {Object|Array}  series object or list of series objects to add
    */
-  addSeries(series) {
+  addSeries(
+    series: SeriesOptionsInput | [SeriesOptionsInput, ...SeriesOptionsInput[]]
+  ) {
     this._checkState();
     this._impl.addSeries(series);
   }
@@ -49,7 +53,7 @@ class Chart {
   /**
    * Gets the number of series currently in the chart.
    */
-  removeSeriesByIndex(index) {
+  removeSeriesByIndex(index: number) {
     this._checkState();
 
     return this._impl.removeSeries(index);
@@ -81,6 +85,6 @@ class Chart {
  *
  * @return          {Chart}                 Chart object
  */
-export function create(element, options) {
+export function create(element: HTMLElement | string, options: OptionsInput) {
   return new Chart(element, options);
 }

@@ -2,6 +2,7 @@ import { create } from '../src/tayberry';
 import { withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
+import { OptionsInput } from '../src/types/input-options';
 
 export default {
   title: 'Mixed',
@@ -10,7 +11,7 @@ export default {
 
 export const lineAndBar = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'Consumer price inflation',
     },

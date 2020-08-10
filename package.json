@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/reupen/tayberry"
   },
-  "source": "src/tayberry.js",
+  "source": "src/tayberry.ts",
   "main": "dist/tayberry.js",
   "module": "dist/tayberry.mjs",
   "unpkg": "dist/tayberry.usm.js",
@@ -50,7 +50,7 @@
     "microbundle": "^0.12.3"
   },
   "scripts": {
-    "build": "microbundle",
+    "build": "microbundle && tsc --declaration --emitDeclarationOnly --declarationDir dist src/tayberry.ts",
     "test": "karma start --single-run",
     "lint": "eslint .",
     "karma": "karma",

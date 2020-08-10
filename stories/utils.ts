@@ -1,4 +1,4 @@
-export function createChartContainer() {
+export function createChartContainer(): HTMLDivElement {
   const div = document.createElement('div');
 
   Object.assign(div.style, {
