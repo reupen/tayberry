@@ -2,6 +2,7 @@ import { create } from '../src/tayberry';
 import { withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
+import { OptionsInput } from '../src/types/input-options';
 
 export default {
   title: 'Line',
@@ -10,7 +11,7 @@ export default {
 
 export const category = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'UK household sizes',
     },
@@ -60,7 +61,7 @@ export const manyDataPoints = () => {
     randomData2.push(Math.random() * 50);
   }
 
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'Random data - 1000 points',
     },

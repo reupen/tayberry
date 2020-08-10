@@ -2,6 +2,7 @@ import { create } from '../src/tayberry';
 import { button, withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
+import { OptionsInput } from '../src/types/input-options';
 
 export default {
   title: 'Legend tests',
@@ -10,7 +11,7 @@ export default {
 
 export const legendTest1 = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'UK household sizes',
     },
@@ -91,7 +92,7 @@ legendTest1.story = {
 
 export const legendTest2 = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'Contribution to revenue growth',
     },

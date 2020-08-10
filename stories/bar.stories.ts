@@ -1,7 +1,8 @@
 import { create } from '../src/tayberry';
-import { withKnobs, boolean, button } from '@storybook/addon-knobs';
+import { boolean, button, withKnobs } from '@storybook/addon-knobs';
 
 import { createChartContainer } from './utils';
+import { OptionsInput } from '../src/types/input-options';
 
 export default {
   title: 'Bar',
@@ -10,7 +11,7 @@ export default {
 
 export const histogram = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'Forecast errors',
     },
@@ -219,7 +220,7 @@ export const histogram = () => {
 export const stacked = () => {
   const div = createChartContainer();
 
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'Contribution to revenue growth',
     },
@@ -298,7 +299,7 @@ export const stacked = () => {
 
 export const grouped = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'UK household sizes',
     },
@@ -330,7 +331,7 @@ export const grouped = () => {
 
 export const horizontal = () => {
   const div = createChartContainer();
-  const options = {
+  const options: OptionsInput = {
     title: {
       text: 'UK population by region (mid-2013)',
     },
