@@ -1,14 +1,12 @@
-# TayberryJS 0.4.2
+# TayberryJS
 
-&copy; Reupen Shah 2015 – 2016
+![Build](https://github.com/reupen/tayberry/workflows/Build/badge.svg) [![npm version](https://badge.fury.io/js/tayberry.svg)](https://badge.fury.io/js/tayberry) [![devDependencies](https://img.shields.io/david/dev/reupen/tayberry.svg)](https://david-dm.org/reupen/tayberry#info=devDependencies)
 
-[![Build Status](https://travis-ci.org/reupen/tayberry.svg?branch=master)](https://travis-ci.org/reupen/tayberry) [![npm version](https://badge.fury.io/js/tayberry.svg)](https://badge.fury.io/js/tayberry) [![devDependencies](https://img.shields.io/david/dev/reupen/tayberry.svg)](https://david-dm.org/reupen/tayberry#info=devDependencies) [![Greenkeeper badge](https://badges.greenkeeper.io/reupen/tayberry.svg)](https://greenkeeper.io/)
-
-TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently featuring bar and line charts, with more features coming soon.
+TayberryJS is an HTML5 canvas-based JavaScript charting library. Currently features bar and line charts.
 
 ## Demos
 
-[Click here for some demos and examples](https://reupen.github.io/tayberry).
+[Click here for some demos and examples with source.](https://condescending-hermann-64f68d.netlify.app/)
 
 ## What's good about it?
 
@@ -43,17 +41,6 @@ Tayberry.create('chart-id', {
   ],
 });
 ```
-
-## Supported browsers
-
-TayberryJS only supports modern browsers. As of 0.2.2, it has been tested on:
-
-- Firefox 30+
-- Chrome for Windows 45+
-- Chrome for Android 45+
-- Internet Explorer 10+
-- Edge
-- Safari for OS X 7.1.6+
 
 ## Usage
 
@@ -131,17 +118,10 @@ See the demos for some examples.
 
 ## Licence
 
-TayberryJS is released under the Lesser GNU Public Licence. If this poses a problem for you, feel free to open an issue.
+TayberryJS is released under the MIT licence.
 
 ## Downloads
 
 Head over to the releases page for the current version.
 
-TayberryJS is at an early alpha stage. There will be some bugs, but please do open issues to provide feedback.
-
-## Roadmap
-
-Some upcoming planned features are:
-
-- dynamic chart updates
-- date/time axes
+TayberryJS is at an early alpha stage. Feel free to open an issue if you have any feedback.
