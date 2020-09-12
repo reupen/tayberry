@@ -76,6 +76,9 @@ Tayberry.prototype.create = function (containerElement) {
 };
 
 Tayberry.prototype.destroy = function () {
+  if (this.animator) {
+    window.cancelAnimationFrame(this.animator);
+  }
   this.labelsCanvas.parentNode.removeChild(this.labelsCanvas);
   this.tooltipElement.parentNode.removeChild(this.tooltipElement);
   this.options = {};
