@@ -6,12 +6,12 @@ module.exports = function (config) {
 
     frameworks: ['jasmine', 'karma-typescript'],
 
-    files: ['src/**/*.spec.js'],
+    files: ['node_modules/regenerator-runtime/runtime.js', 'src/**/*'],
 
     exclude: [],
 
     preprocessors: {
-      'src/**/*.js': ['karma-typescript'],
+      'src/**/*.+(js|ts|tsx)': ['karma-typescript'],
     },
 
     karmaTypescriptConfig: {
@@ -20,8 +20,9 @@ module.exports = function (config) {
       },
       compilerOptions: {
         allowJs: true,
+        esModuleInterop: true,
       },
-      include: ['src/**/*', 'test/**/*'],
+      include: ['src/**/*'],
       exclude: ['node_modules'],
     },
 
@@ -31,7 +32,5 @@ module.exports = function (config) {
         flags: ['--no-sandbox'],
       },
     },
-
-    // define reporters, port, logLevel, browsers etc.
   });
 };
