@@ -38,7 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@btmills/prettier": "2.1.1",
-    "@storybook/addon-knobs": "^6.0.21",
+    "@storybook/addon-knobs": "^6.0.25",
     "@storybook/addon-storysource": "^6.0.21",
     "@storybook/addon-viewport": "^6.0.21",
     "@storybook/client-api": "^6.0.21",
