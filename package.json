@@ -48,7 +48,7 @@
     "@types/react": "^17.0.5",
     "acorn": "^8.2.4",
     "eslint": "^7.26.0",
-    "eslint-config-prettier": "^6.11.0",
+    "eslint-config-prettier": "^8.4.0",
     "husky": "^4.3.0",
     "jasmine-core": "^3.7.1",
     "karma": "^5.2.3",
