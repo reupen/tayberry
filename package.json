@@ -57,7 +57,7 @@
     "karma-jasmine": "^4.0.1",
     "karma-typescript": "^5.2.0",
     "karma-typescript-es6-transform": "^5.5.1",
-    "lint-staged": "^10.5.4",
+    "lint-staged": "^13.0.0",
     "microbundle": "^0.13.0",
     "react": "^16.14.0",
     "react-dom": "^16.13.1",
